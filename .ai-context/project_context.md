@@ -31,8 +31,8 @@ Local setup (no cloud/Docker deployment target selected yet)
 > be provided before Gate 1 / Gate 2 reviews can be validated — reviewer identity is
 > checked by email match against `git config user.email`.
 
-- **Technical Lead / Architect (Gate 2 Reviewer):** Supratim Jetty — supratim.jetty@intglobal.com
-- **Project Manager / Product Owner (Gate 1 Reviewer):** Supratim Jetty — supratim.jetty@intglobal.com
+- **Technical Lead / Architect (Gate 2 Reviewer):** Santu Pradhan — santu.pradhan@intglobal.com
+- **Project Manager / Product Owner (Gate 1 Reviewer):** Santu Pradhan — santu.pradhan@intglobal.com
 - **Senior Software Engineer / Spec Author:** Santu Pradhan — santu.pradhan@intglobal.com
 - **Git Developer Email Alignment:** Local `git config user.email` =
   `santu.pradhan@intglobal.com` (Santu Pradhan) — confirm this matches one of the
