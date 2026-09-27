@@ -16,6 +16,7 @@
   header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
   main { padding: 24px 28px; display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .card.wide { grid-column: 1 / -1; }
   .card h2 { margin: 0 0 12px; font-size: 15px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
@@ -33,15 +34,16 @@
   <p>Single source of truth for Gate 0 / Gate 1 / Gate 2 review status, synchronized with BRD.md, specs, PR review records, status.md, and prompt_history.md.</p>
 </header>
 <main>
-  <section class="card">
+  <section class="card wide">
     <h2>Gate 0 — BRD Reviews</h2>
     <table>
-      <thead><tr><th>Artifact</th><th>Assigned Reviewer</th><th>Status</th><th>Date</th></tr></thead>
+      <thead><tr><th>Artifact</th><th>Source Revision</th><th>Assigned Reviewer</th><th>Status</th><th>Date</th></tr></thead>
       <tbody>
         <tr>
           <td>BRD.md (Internal Transfer Digital Journey)</td>
+          <td>v1.4 (27 Sep 2026, source file `Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf`) — supersedes v1.1 (24 Sep 2026); Revision 3 removes Facilities/Admin (user-directed, not SOW-driven)</td>
           <td>Supratim Jetty (PM / Gate 1 role, acting Gate 0 reviewer)</td>
-          <td><span class="badge warn">Pending Review</span></td>
+          <td><span class="badge warn">Pending Review — Revision 3</span></td>
           <td>—</td>
         </tr>
       </tbody>
@@ -71,19 +73,28 @@
     </table>
     <div class="empty">No specs created yet.</div>
   </section>
-  <section class="card">
-    <h2>Open BRD Questions (must be resolved at Gate 0)</h2>
+  <section class="card wide">
+    <h2>Open BRD Questions (must be resolved at Gate 0) — 17 total</h2>
     <table>
       <thead><tr><th>ID</th><th>Question</th><th>Resolution</th></tr></thead>
       <tbody>
-        <tr><td>BRD-OQ-1</td><td>Is receiving-manager approval confirmed policy?</td><td><span class="badge bad">Unresolved</span></td></tr>
-        <tr><td>BRD-OQ-2</td><td>HR eligibility/approval/effective-date/completion rules?</td><td><span class="badge bad">Unresolved</span></td></tr>
-        <tr><td>BRD-OQ-3</td><td>Confirmed source systems & integration method per team?</td><td><span class="badge bad">Unresolved</span></td></tr>
-        <tr><td>BRD-OQ-4</td><td>Which downstream tasks are mandatory vs. optional?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-1</td><td>Is Receiving Manager review confirmed / always-required, or company-policy-toggleable?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-2</td><td>HR eligibility/approval/hierarchy/vacancy/effective-date/completion rules?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-3</td><td>Confirmed source systems & integration method per team (HR/payroll/IT/facilities/identity)?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-4</td><td>Which downstream tasks are mandatory vs. optional per department/transfer type?</td><td><span class="badge bad">Unresolved</span></td></tr>
         <tr><td>BRD-OQ-5</td><td>Is employee withdrawal supported, and under what rules?</td><td><span class="badge bad">Unresolved</span></td></tr>
         <tr><td>BRD-OQ-6</td><td>How is effective date handled/validated?</td><td><span class="badge bad">Unresolved</span></td></tr>
-        <tr><td>BRD-OQ-7</td><td>Target performance/availability/retention requirements?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-7</td><td>Target performance/availability/backup/retention/monitoring requirements?</td><td><span class="badge bad">Unresolved</span></td></tr>
         <tr><td>BRD-OQ-8</td><td>Is Draft (unsubmitted) request state approved?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-9</td><td><b>[New v1.4]</b> Exact reviewer sequence; is manager worklist reassignment/escalation supported, by whom?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-10</td><td><b>[New v1.4]</b> Authoritative source system for organisation hierarchy (Location/HR/Manager/Employee)?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-11</td><td><b>[New v1.4]</b> Approved User ID naming/numbering convention?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-12</td><td><b>[New v1.4]</b> Authentication model: local credentials, SSO, or hybrid?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-13</td><td><b>[New v1.4]</b> Password policy & initial credential delivery mechanism?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-14</td><td><b>[New v1.4]</b> Vacancy capacity-reservation timing & concurrency rules?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-15</td><td><b>[New v1.4]</b> Organisation metadata fields HR updates & their authoritative source?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-16</td><td><b>[New v1.4]</b> Document categories, file types, size, retention, access/deletion rules?</td><td><span class="badge bad">Unresolved</span></td></tr>
+        <tr><td>BRD-OQ-17</td><td><b>[New v1.4]</b> Exact payroll handoff/task definition & completion-reference format?</td><td><span class="badge bad">Unresolved</span></td></tr>
       </tbody>
     </table>
   </section>
