@@ -1,37 +1,29 @@
-# Assumptions
+# Assumptions Register — Internal Transfer Digital Journey
 
-Generated/updated during BRD ingestion. Current baseline reflects
-`docs/Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf` (supersedes the
-v1.1-derived assumptions below where noted). These are inferred/default positions
-taken because the source SOW leaves them open or unconfirmed; they must be
-validated at Gate 0 and revisited if the organisation's answers (see `BRD.md` →
-Open Questions) differ.
+Tracks assumptions made while building `.ai-context/BRD.md` from
+`docs/Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf`. Kept in
+sync with the BRD; updated whenever the BRD changes.
 
-> **Revision 3 note:** The Facilities/Admin role and BRD-026 (its task-execution
-> requirement) were removed from `BRD.md` at explicit user request — a scope
-> reduction relative to the source SOW, not an SOW-driven change. References to
-> "facilities" below are retained where they describe the source SOW's original
-> text/rationale; the corresponding BRD linkage has been corrected where it
-> pointed at the now-removed BRD-026.
+**Last Updated:** 2026-09-28
+**Status:** Pending Review (linked to BRD Status) — all 11 open questions
+resolved by user answers; formal Gate 0 PR review sign-off still required.
 
-| ID | Assumption | Rationale | Linked BRD Item | Status |
-|---|---|---|---|---|
-| ASM-001 | The existing One-Point Employee Portal's identity/access model can be integrated with as-is; no new identity provider is built. | Source SOW §5 (v1.1) / Out of Scope (v1.4): "building ... an identity provider" remains out of scope. | BRD-001, Out of Scope | Still valid, but see ASM-008 (authentication model is now explicitly open). |
-| ASM-002 | Receiving-manager approval is treated as an optional/conditional review step (not always required) until confirmed. | v1.1 called it "proposed, not confirmed"; v1.4 refines it to "configurable per company policy" — still not confirmed which default applies. | BRD-006, BRD-023, BRD-OQ-1, BRD-OQ-9 | Superseded wording, same open status. |
-| ASM-003 | Downstream HR/payroll/IT/facilities systems expose an integrable API or an agreed task-handoff mechanism; this project does not build new source-system functionality. | Source SOW §3.3 (v1.1) / §15, §19 (v1.4) and Out of Scope. | BRD-009, BRD-OQ-3 | Still valid. |
-| ASM-004 | "Node.js backend" in the source SOW is satisfied by this repository's Express (TypeScript) backend, and "PostgreSQL" is satisfied via Sequelize ORM. | Source SOW §5 (v1.1) / §15 (v1.4) names Next.js + Node.js + PostgreSQL; this repository was scaffolded with Next.js (frontend) and Express + Sequelize/PostgreSQL (backend) during `/int-project-setup`. | Dependencies | Still valid. |
-| ASM-005 | `Draft` (unsubmitted, saved) request state is treated as optional/not guaranteed until confirmed. | v1.1 and v1.4 both state: "Draft — ... optional if draft saving is enabled/approved." | BRD-014, BRD-OQ-8 | Still valid, unchanged in v1.4. |
-| ASM-006 | No measurable performance/availability/retention targets are assumed by default; these are treated as `[Open]` rather than inferred numeric defaults. | v1.1 §7 and v1.4 §16 both explicitly defer these to discovery; INT standards prohibit inventing constraints not supported by the BRD. | BRD-OQ-7 | Still valid, unchanged in v1.4. |
-| ASM-007 | Withdrawal of a submitted request by the employee is NOT assumed to be supported by default, pending confirmation. | v1.1 and v1.4 both state: "withdrawal rules to be confirmed." | BRD-OQ-5 | Still valid, unchanged in v1.4. |
-| ASM-008 | **`[New]`** No default authentication model (local credentials vs. enterprise SSO vs. hybrid) is assumed; all three remain open until the organisation confirms. | v1.4 §18 explicitly asks the organisation to confirm this; no default is stated in the SOW. | BRD-001, BRD-OQ-12 | New in this revision. |
-| ASM-009 | **`[New]`** No default User ID naming/numbering convention or password policy is assumed; these are treated as organisation-supplied configuration, not invented values. | v1.4 §18 defers both to organisation confirmation. | BRD-017, BRD-OQ-11, BRD-OQ-13 | New in this revision. |
-| ASM-010 | **`[New]`** Vacancy capacity-reservation timing (at submission, at manager approval, or at HR validation) is NOT assumed by default; no reservation point is inferred. | v1.4 §8 explicitly states this "will be confirmed during discovery." | BRD-021, BRD-OQ-14 | New in this revision. |
-| ASM-011 | **`[New]`** Document storage/retention/classification/allowed-file-type/access policy is NOT assumed; no default values (e.g., max file size, retention period) are invented. | v1.4 §12 explicitly defers all of these to discovery. | BRD-027, BRD-OQ-16 | New in this revision. |
-| ASM-012 | **`[New]`** Organisation metadata fields HR updates post-approval, and their authoritative source system, are NOT assumed. | v1.4 §11 explicitly states these "will be confirmed during discovery." | BRD-024, BRD-OQ-15 | New in this revision. Linkage corrected in Revision 3 from BRD-026 (now Removed) to BRD-024, the org-metadata/payroll requirement. |
-| ASM-013 | **`[New]`** Reassignment/escalation of a Reporting Manager's worklist item (present in v1.1's manager actions) is assumed to now be covered generically by Super Admin's administrative-intervention capability (BRD-028) rather than a manager-level self-service action, since v1.4's manager action list (§6.3) no longer lists reassignment/escalation explicitly. | v1.1 §3.2 listed "reassignment/escalation controls" under manager worklist actions; v1.4 §6.3 lists only approve/reject/clarify/comment for Reporting Manager, while §6.1 gives Super Admin explicit "reassign or administratively intervene" authority. | BRD-006, BRD-028, BRD-OQ-9 | New in this revision — flagged for reviewer confirmation, not a confident inference. |
+| ID | Assumption | Rationale / Source | Impact if Wrong |
+|---|---|---|---|
+| A-01 | Authentication model resolved to local credentials (BRD-OQ-01); no SSO/hybrid integration in scope unless later added under change control. | User-provided answer, 2026-09-28. | Login/account-provisioning requirements (BRD-001, BRD-004–009, NFR-001) would need rework if SSO is later required. |
+| A-02 | User ID convention resolved to role-prefixed IDs (`EMP/MGR/HR/IT######`); password/security policy per BRD-007. | User-provided answer, 2026-09-28. | User ID generation logic (BRD-004) would need rework if a different convention is later mandated. |
+| A-03 | Receiving Manager review stage is optional/configurable via Super Admin, not always active. | SOW §3, §6.3, §9 step 3 ("if configured"); confirmed by user answer to BRD-OQ-04. | Workflow routing (BRD-018) must support both configurations; UAT scope affected. |
+| A-04 | Facilities/Admin role and its task-execution responsibilities are excluded from scope, at explicit user request, despite the source SOW describing them throughout (§3, §6.6). | User instruction overriding the SOW; flagged per AGENTS.md conflict-flagging governance rather than silently applied. | If a later stakeholder review restores Facilities/Admin, the actor table, BRD-003/010/013/016/018/022, related Business Rules, Dependencies, Out of Scope, and Acceptance Criteria entries would need to be reinstated. |
+| A-05 | Payroll calculation, compensation rules and statutory processing remain outside system scope; portal only tracks handoff/status. | SOW §11, §19 (Out of Scope). | Any expectation of in-portal payroll computation would be a scope change requiring change control. |
+| A-06 | Document storage resolved to local server storage; PDF and image files only; no malware-scanning, retention, archive, or deletion policy required per current organisational decision. | User-provided answer to BRD-OQ-08, 2026-09-28. | Document management requirements (BRD-021) would need rework if a future security review mandates scanning/retention. |
+| A-07 | Vacancy capacity is reserved only at HR validation/approval (not submission or manager approval); over-allocation is prevented via DB transaction/concurrency control. | User-provided answer to BRD-OQ-05/BRD-OQ-06, 2026-09-28. | Vacancy/capacity logic (BRD-017) would need rework if reservation timing is later changed. |
+| A-08 | Dates, effort, team composition and commercials are intentionally excluded from the BRD; they belong to a separate project plan. | SOW §21 closing note. | None to BRD content; flagged so downstream planning doesn't expect these details here. |
+| A-09 | Performance, availability, backup, retention and monitoring targets are deferred to infrastructure/deployment planning, not fixed in this BRD. | User-provided answer to BRD-OQ-09, 2026-09-28. | NFR-009 remains a placeholder until deployment planning; cannot be used as a hard SLA today. |
+| A-10 | Transfer completion is gated solely on final IT approval (BRD-014, BRD-018, BRD-019), at explicit user request, overriding the source SOW's HR/Portal-verifies-all-mandatory-tasks completion rule (§9 step 6, §10). IT approval is mandatory for every transfer; transfers with no IT task use "No IT Action Required" (BRD-OQ-11 resolved). | User instruction overriding the SOW; flagged per AGENTS.md conflict-flagging governance rather than silently applied. | If HR/Portal-based verification is later restored, BRD-013, BRD-014, BRD-018, BRD-019, the Business Rules entry, and the Acceptance Criteria completion bullet would need to be reverted. |
+| A-11 | Changing a previously approved Department/Business Unit, Designation, Location, or Reporting Manager during HR validation triggers Receiving Manager re-approval (BRD-024) only when Receiving Manager approval is enabled. | User-provided answer to BRD-OQ-07, 2026-09-28 — new requirement not present in the source SOW. | Spec/plan work for HR organisation-metadata editing must implement the re-approval branch and its audit trail. |
 
-## Open Items Requiring Reviewer Resolution
-All items in `BRD.md` → Open Questions (BRD-OQ-1 through BRD-OQ-17) must be
-explicitly answered by the Gate 0 reviewer per `.agent/rules` — see the
-standardized Gate 0 BRD PR Review template requirement in `int-brd-ingestion`.
-BRD-OQ-9 through BRD-OQ-17 are new in this revision (v1.4 ingestion).
+## Continuous Sync Note
+
+Per `AGENTS.md` and the INT BRD ingestion skill, this file must be updated in
+lockstep with any future revision of `.ai-context/BRD.md`, alongside
+`brd-change-log.md`, `status.md`, `dashboard.html`, and `prompt_history.md`.

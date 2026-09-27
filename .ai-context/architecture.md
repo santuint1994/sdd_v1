@@ -38,31 +38,25 @@ sdd_v1/
 ├── tests/
 │   ├── frontend/
 │   └── backend/
-├── frontend/                     # Next.js (TypeScript, App Router, Tailwind)
-│   └── src/
-│       └── app/
-│           ├── layout.tsx        # Root layout, entry point
-│           ├── page.tsx          # Root page
-│           └── globals.css
-└── backend/                      # Express (TypeScript) + Sequelize
-    └── src/
-        ├── index.ts              # Server entry point
-        ├── config/
-        │   └── config.json       # Sequelize DB config (dev/test/prod)
-        ├── models/                # Sequelize models
-        ├── controllers/           # Route handlers
-        ├── routes/                # Express routers
-        ├── middlewares/           # Auth/validation/error middlewares
-        ├── services/              # Business logic
-        ├── migrations/            # Sequelize migrations
-        └── seeders/               # Sequelize seeders
+├── frontend/                     # Next.js (TypeScript, App Router, Tailwind) — FRONTEND ONLY
+│                                  # See .ai-context/Frontend-Architecture.md for the
+│                                  # full frontend structure and boundaries.
+└── backend/                      # Express (TypeScript) + Sequelize — SEPARATE APPLICATION
+                                   # See .ai-context/Backend-Architecture.md for the
+                                   # full backend structure, layering rules, and target
+                                   # architecture (current vs. target state).
 ```
 
 ## Module Boundaries
-- **frontend/**: Next.js app, owns UI, routing (App Router), and client-side state.
-  Consumes the backend via HTTP (base URL configured via environment variable).
+- **frontend/**: Next.js app (App Router), owns UI, routing, and client-side state.
+  Consumes the backend via HTTP only; no direct database or server-side backend
+  logic. Full frontend internal structure and boundaries are maintained in
+  `.ai-context/Frontend-Architecture.md`, not here.
 - **backend/**: Express API, owns business logic, persistence (PostgreSQL via
-  Sequelize), and authentication (JWT).
+  Sequelize), and authentication (JWT). Fully independent, separately deployable
+  application — the frontend has no direct database or server-side backend logic.
+  Full backend internal structure and layering rules are maintained in
+  `.ai-context/Backend-Architecture.md`, not here.
 
 ## Entry Points
 - Frontend dev server: `frontend/src/app/layout.tsx` (via `npm run dev` in `frontend/`)
@@ -70,11 +64,8 @@ sdd_v1/
   `GET /health`.
 
 ## Data Layer
-- Sequelize CLI configured via `backend/.sequelizerc`.
-- Config: `backend/src/config/config.json` (development/test/production PostgreSQL
-  connections — placeholder credentials, must be overridden via environment/local
-  config before use).
-- Migrations: `backend/src/migrations/` (empty — no models defined yet).
+Backend data-layer details (Sequelize config, migrations, seeders) are documented
+in `.ai-context/Backend-Architecture.md` (§8 Database Architecture).
 
 ## Notes
 This file must be re-synced (directory tree re-scanned) whenever the execution layer
