@@ -4,6 +4,10 @@
 > execution turns. New entries are always appended below existing entries.
 
 ### [2026-09-28 00:00]
+**User Request:** Update the Gate 1 (Spec Peer Review) reviewer to Shamik Bhattacharya (shamik.bhattacharya@indusnet.co.in).
+**Agent Action:** Updated `.ai-context/project_context.md` reviewer roster, changing the Gate 1 Reviewer (Project Manager / Product Owner) entry from Santu Pradhan to Shamik Bhattacharya — shamik.bhattacharya@indusnet.co.in.
+
+### [2026-09-28 00:00]
 **User Request:** Provided a reusable enterprise backend architecture generation prompt and asked to update the "Backend Architecture.md" file with it.
 **Agent Action:** Confirmed with the user that no such file existed yet (only `.ai-context/architecture.md`, which documents the scanned/actual structure) and, per the user's choice, created a new `.ai-context/Backend-Architecture.md` documenting the target enterprise-grade, domain-agnostic Node.js/TypeScript/Express/Sequelize architecture (stack, layered module pattern, folder structure, auth/authz, validation, error handling, logging, security, integrations, jobs/events/cache, docs, testing, env config, health/versioning, shutdown, Docker/CI-CD, code quality, and principles), noting it is reference documentation only — implementing it against the actual codebase still requires going through the SDD lifecycle (spec, Gate 1, plan, tasks, TDD, Gate 2).
 
