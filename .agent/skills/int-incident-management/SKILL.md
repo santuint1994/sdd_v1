@@ -83,7 +83,7 @@ The Spec was correct, but the implementation violated the Spec's Acceptance Crit
 ## 3. Genuine New Requirement
 The issue report requests new business functionality not covered by the existing BRD baseline.
 - Route to: `int-brd-ingestion` workflow.
-- Action: Create a new BRD entry, record in `brd-change-log.md`, pass Gate 1 review, and launch the normal SDD feature lifecycle. Do NOT treat as an emergency hotfix.
+- Action: Create a new BRD entry, record in `brd-change-log.md`, pass Gate 0 (BRD) and Gate 1 (spec) review, and launch the normal SDD feature lifecycle. Do NOT treat as an emergency hotfix.
 
 ---
 

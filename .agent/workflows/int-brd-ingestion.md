@@ -85,7 +85,7 @@ Each BRD revision should record:
 - Test Impact
 - Existing Implementation Impact
 - Architecture Impact
-- Gate 1 Status
+- Gate 0 Status
 - Approval Date
 - Approved By
 - Approval Notes
@@ -193,7 +193,7 @@ Example:
 ```markdown
 ### Version 1.0
 
-Status: Pending Gate 1
+Status: Pending Gate 0
 
 Summary:
 Initial <Project Name> requirements.
@@ -202,9 +202,9 @@ Changes:
 - Initial BRD
 
 Impacted Modules:
-- Pending Gate 1
+- Pending Gate 0
 
-Gate 1:
+Gate 0:
 Pending
 ```
 
@@ -265,7 +265,7 @@ Update BRD Change Log
       ↓
 Update .ai-context/BRD.md & .ai-context/assumptions.md with the new baseline
       ↓
-Return to Gate 0 Review / Gate 1 Alignment
+Return to Gate 0 Review (PM / BA re-approval)
       ↓
 STOP
 ```
@@ -341,7 +341,7 @@ Example:
 ```markdown
 ### Version 1.1
 
-Status: Pending Gate 1
+Status: Pending Gate 0
 
 Summary:
 Updated requirements received from client.
@@ -388,7 +388,7 @@ Existing Implementation Impact:
 Architecture Impact:
 - <impact>
 
-Gate 1 Status:
+Gate 0 Status:
 Pending
 
 Approval Date:
@@ -427,11 +427,13 @@ The workflow MUST NOT:
 
 ---
 
-# 10. Gate 1 Handoff
+# 10. Gate 0 / Gate 1 Handoff
 
-BRD ingestion does not approve architecture.
+BRD ingestion does not approve the BRD or architecture. The BRD is first reviewed at
+Gate 0 (Project Manager / Business Analyst). Gate 1 (Spec Peer Review) cannot begin
+until Gate 0 is approved.
 
-After the initial BRD or revised BRD is prepared:
+After the initial BRD or revised BRD is prepared and Gate 0 approved:
 
 ```text
 .ai-context/BRD.md
@@ -445,7 +447,7 @@ Spec / Architecture analysis
 Gate 1
 ```
 
-For a revised BRD, Gate 1 must consider the documented change impact.
+For a revised BRD, Gate 0 must re-approve the revision and Gate 1 must consider the documented change impact.
 
 Business implementation MUST NOT be modified until the revised requirements and affected architecture have passed the required approval.
 

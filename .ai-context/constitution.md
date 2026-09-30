@@ -7,6 +7,18 @@
 > are placeholders, not project-specific constraints, and must not be treated as
 > approved requirements.
 
+## Governance Flow
+- BRD Preparation → Gate 0: BRD Review (Project Manager / Business Analyst) →
+  Gate 1 (Spec Peer Review) → Gate 2 (Code Review) → Development / Implementation.
+- Gate 0 is the first review gate and the only BRD review gate. The project cannot
+  proceed to Gate 1 until Gate 0 is approved.
+- Requested BRD changes require a BRD update and resubmission for Gate 0.
+- Gate 0 decisions are recorded (reviewer, review date, status, comments,
+  approval/rejection) in `.ai-context/pr_reviews/BRD-<timestamp>.md`.
+- Gate 0, Gate 1, and Gate 2 reviewers are assigned separately in
+  `.ai-context/project_context.md`. A Gate 0 reviewer holds no Gate 1 or Gate 2
+  authority unless separately assigned.
+
 ## Testing Discipline
 - Test-first (TDD) discipline: tests are written before implementation (RED → GREEN).
 - Automated tests live under `tests/frontend/` and `tests/backend/`.

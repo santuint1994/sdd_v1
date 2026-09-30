@@ -144,7 +144,7 @@ The system **STRICTLY STOPS** and refuses to proceed to downstream steps (`.plan
 
 1. **Role-Based Spec & Artifact Filtering & Listing**:
    The agent queries `.ai-context/BRD.md`, `.ai-context/specs/`, and `.ai-context/dashboard.html` for artifacts waiting for review where current user identity matches the assigned reviewer roster:
-   - **BRD Approver (Gate 0)**: Shows pending BRD PR Reviews (`.ai-context/BRD.md` status = `Pending Review`).
+   - **BRD Approver (Gate 0 — Project Manager / Business Analyst)**: Shows pending BRD PR Reviews (`.ai-context/BRD.md` status = `Pending Review`). Gate 0 authority does not include Gate 1 or Gate 2 authority unless separately assigned in the roster.
    - **Gate 1 Approver**: Shows pending Gate 1 Spec Peer Reviews (`In Peer Review`).
    - **Gate 2 Approver**: Shows pending Gate 2 Code Reviews (`In QA`).
    - **Multi-Role Approver**: Shows ALL assigned pending reviewals (BRD, Gate 1 Specs, Gate 2 Code) in the same listing!
@@ -157,7 +157,7 @@ The system **STRICTLY STOPS** and refuses to proceed to downstream steps (`.plan
 
    | # | Item / Spec ID | Title | Gate Level | Assigned Role | Author/Dev | Current Status |
    |---|---|---|---|---|---|---|
-   | 1 | `BRD-Baseline` | Project Requirement Baseline | **Gate 0** | BRD Reviewer | PM / Lead | Pending BRD Review |
+   | 1 | `BRD-Baseline` | Project Requirement Baseline | **Gate 0** | BRD Reviewer (PM / BA) | BRD Author | Pending BRD Review |
    | 2 | `auth-service` | User Authentication Spec | **Gate 1** | Gate 1 Reviewer | Dev A | Pending Spec Review |
    | 3 | `payment-gateway` | Payment Gateway Code | **Gate 2** | Gate 2 Reviewer | Dev B | Pending Code Review |
    | 4 | `order-engine` | Order Processing Spec | **Gate 1 & Gate 2** | Dual Reviewer | Dev C | Pending Spec Review |

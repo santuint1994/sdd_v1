@@ -4,7 +4,7 @@
 > the project is designed to grow into. It is domain-agnostic; no business-specific
 > functionality is defined here. Business modules live under `backend/src/modules/`.
 > This document does not itself authorize implementation — module code still follows
-> the SDD lifecycle (Spec → Gate 1 → Plan → Tasks → TDD → Gate 2) defined in
+> the SDD lifecycle (BRD → Gate 0 → Spec → Gate 1 → Plan → Tasks → TDD → Gate 2) defined in
 > `AGENTS.md`. See `.ai-context/architecture.md` for the currently scanned/actual
 > repository structure.
 
@@ -418,5 +418,5 @@ validation, centralized error architecture, Winston logging, Swagger docs,
 
 Moving the actual codebase toward this target architecture is an
 implementation change and follows this repository's SDD lifecycle
-(spec → Gate 1 peer review → plan → tasks → TDD → Gate 2 review) rather than
+(BRD → Gate 0 BRD review → spec → Gate 1 peer review → plan → tasks → TDD → Gate 2 review) rather than
 being applied directly from this document.

@@ -59,7 +59,7 @@ Example:
 
 ### Version 1.0
 
-Status: Pending Gate 1
+Status: Pending Gate 0
 
 Summary:
 Initial XCEED Dynamic Form Management POC requirements.
@@ -68,9 +68,9 @@ Changes:
 - Initial BRD
 
 Impacted Modules:
-- Pending Gate 1
+- Pending Gate 0
 
-Gate 1:
+Gate 0:
 Pending
 
 ## BRD Revision

@@ -30,9 +30,10 @@
 > user and incorporated into this revision (see the Open Questions table for
 > resolution status). Per the Gate 0 BRD PR Review protocol, these answers
 > must still be recorded in a formal `.ai-context/pr_reviews/BRD-<timestamp>.md`
-> review file by the assigned PM/TL reviewer (identity validated by
-> `git config user.email` against the reviewer roster) before Status can move
-> from Pending Review to Approved.
+> review file by the assigned Gate 0 reviewer (Project Manager and/or Business
+> Analyst; identity validated by `git config user.email` against the reviewer
+> roster) before Status can move from Pending Review to Approved. Gate 0 is the
+> first review gate; this BRD cannot proceed to Gate 1 until it is approved.
 
 ---
 
@@ -446,7 +447,8 @@ alongside it.
 All 11 open questions below have been answered by the user and incorporated
 into the requirement IDs shown. Formal Gate 0 sign-off (recorded in
 `.ai-context/pr_reviews/BRD-<timestamp>.md` by the assigned, email-verified
-PM/TL reviewer) is still required before Status moves to Approved.
+Project Manager / Business Analyst reviewer) is still required before Status
+moves to Approved.
 
 | ID | Open Question | Status | Resolution Summary | Incorporated In |
 |---|---|---|---|---|
@@ -508,3 +510,21 @@ PM/TL reviewer) is still required before Status moves to Approved.
   rejection, clarification, capacity constraints, organisation-metadata
   change re-approval, reassignment, document handling, IT "No Action
   Required" completion, integration failure and final completion.
+
+---
+
+## Governance & Gate 0 Approval Record
+
+Governance flow: BRD Preparation → **Gate 0: BRD Review (Project Manager /
+Business Analyst)** → Gate 1 (Spec Peer Review) → Gate 2 (Code Review) →
+Development / Implementation.
+
+- The BRD cannot proceed to Gate 1 until Gate 0 is approved.
+- If changes are requested, the BRD is updated and resubmitted for Gate 0.
+- Gate 0 reviewers hold no Gate 1 or Gate 2 authority unless separately assigned in
+  `.ai-context/project_context.md`.
+- Full review detail is stored in `.ai-context/pr_reviews/BRD-<timestamp>.md`.
+
+| Gate | Reviewer Role | Reviewer | Review Date | Status | Comments |
+|---|---|---|---|---|---|
+| Gate 0 — BRD Review | Project Manager / Business Analyst | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | — | Pending Review | — |

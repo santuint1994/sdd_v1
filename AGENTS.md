@@ -28,12 +28,26 @@ this file and the `.agent/` control plane first.
 
 ## SDD Lifecycle Summary
 
-BRD Ingestion → Gate 0 (BRD Review) → Spec Draft → Gate 1 (Spec Peer Review) →
-Plan → Tasks → TDD (RED → GREEN) → Gate 2 (Code Review) → Release.
+BRD Preparation / Ingestion → Gate 0 (BRD Review — Project Manager / Business
+Analyst) → Spec Draft → Gate 1 (Spec Peer Review) → Plan → Tasks →
+TDD (RED → GREEN) → Gate 2 (Code Review) → Release.
 
-Specs may not be drafted until `.ai-context/BRD.md` is Gate 0 approved. Rejected or
-"Changes Requested" specs block all downstream planning, tasks, tests, and
-implementation until resubmitted and re-approved.
+Gate 0 is the first review gate and is the only BRD review gate. Gate 1 reviews
+feature specs, not the BRD itself. The project cannot proceed to Gate 1 until Gate 0
+is approved.
+
+Specs may not be drafted until `.ai-context/BRD.md` is Gate 0 approved. If the
+Project Manager or Business Analyst requests changes, the BRD must be updated and
+resubmitted for Gate 0. Rejected or "Changes Requested" specs block all downstream
+planning, tasks, tests, and implementation until resubmitted and re-approved.
+
+### Gate Responsibility Matrix
+
+| Gate | Reviews | Reviewer Role | Record |
+|---|---|---|---|
+| Gate 0 | BRD | Project Manager and/or Business Analyst | `.ai-context/pr_reviews/BRD-<timestamp>.md` |
+| Gate 1 | Feature spec | Project Manager / Product Owner (Gate 1 Reviewer) | `.ai-context/pr_reviews/GATE1-<slug>-*.md` |
+| Gate 2 | Code | Technical Lead / Architect (Gate 2 Reviewer) | `.ai-context/pr_reviews/GATE2-<slug>-*.md` |
 
 ## Governance Rules
 
@@ -41,6 +55,12 @@ implementation until resubmitted and re-approved.
   the reviewer roster in `.ai-context/project_context.md` / `constitution.md`). Name
   matching is not sufficient.
 - Pulling code does not grant approval rights; role separation is strictly enforced.
+- Gate 0, Gate 1, and Gate 2 reviewer roles are separate. A Gate 0 reviewer does not
+  automatically receive Gate 1 or Gate 2 approval authority; each gate requires its
+  own explicit roster assignment.
+- Every Gate 0 decision must record the reviewer, review date, status, comments, and
+  approval/rejection information in `.ai-context/pr_reviews/BRD-<timestamp>.md`, the
+  dashboard, `status.md`, and `prompt_history.md`.
 - The Gate Review Dashboard HTML, spec files, PR review records, `status.md`, and
   `prompt_history.md` must stay synchronized.
 - Never fabricate reviewer names/emails, technologies, or architectural constraints

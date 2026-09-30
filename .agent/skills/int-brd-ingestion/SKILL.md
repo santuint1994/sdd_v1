@@ -1,6 +1,6 @@
 ---
 name: int-brd-ingestion
-description: Manage BRD document ingestion from docs/, maintain .ai-context/BRD.md requirement baselines, analyze BRD changes via brd-change-log.md, and generate Gate 1-approved business module structures.
+description: Manage BRD document ingestion from docs/, maintain .ai-context/BRD.md requirement baselines, analyze BRD changes via brd-change-log.md, and generate business module structures after Gate 0 (BRD) and Gate 1 approval.
 ---
 
 # INT BRD Ingestion & Business Module Generation
@@ -99,16 +99,17 @@ Standard in force: **INT Engineering Guidelines — Specification-Driven Deliver
 | Technical Lead / Architect | <Name> | <email@domain.com> | Owns this constitution; default Gate 2 code reviewer; technical concurrence at Gate 1 |
 | Senior Software Engineer | <Name> | <email@domain.com> | Default Spec Author for feature and retro-specs |
 | Project Manager | <Name> | <email@domain.com> | Owns BRD entries and product-side sign-off; default Gate 1 reviewer |
+| Project Manager / Business Analyst | <Name> | <email@domain.com> | Gate 0 BRD reviewer; holds no Gate 1 or Gate 2 authority unless separately assigned |
 
 ### Core Governance Rules:
 - **Author ≠ Reviewer**: Gate 1 reviewer is never the spec author (Default: SSE authors → PM reviews).
 - **Technical Concurrence**: Gate 1 requires recorded TL technical concurrence whenever a spec touches Security Posture or Architectural Constraints.
-- **Reviewer Split**: Gate 1 = Intent / Scope / BRD-traceability review (PM); Gate 2 = Technical evidence & code review (TL).
+- **Reviewer Split**: Gate 0 = BRD review (PM / BA); Gate 1 = Spec intent / scope / BRD-traceability review (PM); Gate 2 = Technical evidence & code review (TL).
 - **Gate 1 SLA**: Same working day for specs with ≤ 5 ACs; 48 hours maximum.
 
 ### INT Amendments to SDD v1.0:
 1. **Granular Chain**: BRD/SRS → Spec → Plan → Tasks.
-2. **First Quality Gate**: Spec Review (Gate 1) is mandatory before coding begins.
+2. **Quality Gates**: BRD Review (Gate 0) is mandatory before spec drafting; Spec Review (Gate 1) is mandatory before coding begins.
 3. **Slugs & Identifiers**: Mandatory sub-identifiers for specs, plans, tasks, test cases, and branches.
 4. **Status Board**: Maintained for every item in `.ai-context/status.md`.
 5. **Traceable Artifacts**: Releases (`.ai-context/releases/`), hotfixes (`.ai-context/hotfixes/`), and change requests (`.ai-context/change_requests/`).
@@ -221,7 +222,7 @@ Update .ai-context/BRD.md & .ai-context/assumptions.md
        ↓
 Log changes in .ai-context/brd-change-log.md
        ↓
-Gate 0 Change Re-Approval / Gate 1 Alignment
+Gate 0 Change Re-Approval (PM / BA)
 ```
 
 ## Rules for BRD Revisions:
@@ -229,7 +230,7 @@ Gate 0 Change Re-Approval / Gate 1 Alignment
 - **Continuous Assumptions Sync**: Whenever there is any update or revision in the existing BRD, `.ai-context/assumptions.md` MUST be updated as well along with `BRD.md`, `brd-change-log.md`, and all other parameters.
 - `.ai-context/brd-change-log.md` captures change history and impact traceability. It MUST NOT replace or override `.ai-context/BRD.md`.
 - Do NOT silently renumber existing BRD requirement IDs when updating requirements.
-- Any change affecting existing specs or architecture requires Gate 1 re-review.
+- Any BRD revision requires Gate 0 re-approval; any change affecting existing specs or architecture also requires Gate 1 re-review.
 
 ---
 
