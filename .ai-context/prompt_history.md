@@ -88,3 +88,7 @@
 ### [2026-09-29 12:10]
 **User Request:** Change the Gate 1 reviewer email to shamik.bhattacharya@intglobal.com.
 **Agent Action:** Updated the Gate 1 (Project Manager / Product Owner) entry in the roster and approval matrix of `.ai-context/project_context.md` from shamik.bhattacharya@indusnet.co.in to shamik.bhattacharya@intglobal.com. Gate 0 and Gate 2 entries unchanged.
+
+### [2026-09-30 14:46]
+**User Request:** Ran `/int-pr-gate-workflow`, chose to review the pending Gate 0 BRD, asked for feedback on the BRD and acceptance criteria, then provided 22 Gate 0 review comments.
+**Agent Action:** Verified `git config user.email` (shamik.bhattacharya@intglobal.com) against the Gate 0 reviewer roster: authorised. Gave advisory feedback, then recorded the reviewer's 22 comments as a Gate 0 **Changes Requested** review in `.ai-context/pr_reviews/BRD-20260930-144648.md` (scorecard: Not Ready for Gate 1). Synced `BRD.md` (Status line and Gate 0 approval record), `assumptions.md` (status), `status.md`, `dashboard.html`, and `brd-change-log.md`. Requirement content was not changed; the author must update `BRD.md` and `assumptions.md` and re-submit for Gate 0. Spec drafting and Gate 1 stay blocked.

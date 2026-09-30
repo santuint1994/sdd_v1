@@ -18,14 +18,16 @@ Gate 1 can begin.
 
 | Gate | Artifact | Reviewer Role | Status | Reviewer | Review Date |
 |---|---|---|---|---|---|
-| Gate 0 | `BRD.md` | Project Manager / Business Analyst | Pending Review | Shamik Bhattacharya | — |
+| Gate 0 | `BRD.md` | Project Manager / Business Analyst | Changes Requested | Shamik Bhattacharya | 2026-09-30 |
 | Gate 1 | Specs | Project Manager / Product Owner | Blocked (awaiting Gate 0) | — | — |
 | Gate 2 | Code | Technical Lead / Architect | Not started | — | — |
 - [x] BRD ingested (`docs/` → `/int-brd-ingestion`)
 
 ## BRD
-`.ai-context/BRD.md` — Internal Transfer Digital Journey — **Status: Pending
-Review**. Built from `docs/Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf`
+`.ai-context/BRD.md` — Internal Transfer Digital Journey — **Status: Changes
+Requested** (Gate 0 review 2026-09-30, Shamik Bhattacharya — 22 comments in
+`.ai-context/pr_reviews/BRD-20260930-144648.md`; author must update `BRD.md` and
+`assumptions.md` to resolve them and re-submit for Gate 0). Built from `docs/Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf`
 (SOW v1.4). All 11 open questions (BRD-OQ-01 … BRD-OQ-11) answered by the
 user and incorporated into the requirements, including a new re-approval
 requirement (BRD-024) not in the source SOW. Formal Gate 0 BRD PR Review

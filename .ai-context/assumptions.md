@@ -5,8 +5,12 @@ Tracks assumptions made while building `.ai-context/BRD.md` from
 sync with the BRD; updated whenever the BRD changes.
 
 **Last Updated:** 2026-09-28
-**Status:** Pending Review (linked to BRD Status) — all 11 open questions
-resolved by user answers; formal Gate 0 PR review sign-off still required.
+**Status:** Changes Requested (linked to BRD Status) — Gate 0 review on
+2026-09-30 by Shamik Bhattacharya returned 22 comments
+(`.ai-context/pr_reviews/BRD-20260930-144648.md`). Comments 5 and 7 require that
+eligibility rules and the per-field source of truth be supplied by the business,
+not assumed. This register must be updated with the BRD and re-submitted for
+Gate 0.
 
 | ID | Assumption | Rationale / Source | Impact if Wrong |
 |---|---|---|---|

@@ -1,7 +1,7 @@
 # Business Requirements Document (BRD)
 ## Internal Transfer Digital Journey
 
-**Status:** Pending Review
+**Status:** Changes Requested (Gate 0 review 2026-09-30 — see `.ai-context/pr_reviews/BRD-20260930-144648.md`)
 **Source:** `docs/Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf` (internally titled SOW v1.4, 27 September 2026, "Draft for stakeholder review")
 **Last Updated:** 2026-09-28
 
@@ -527,4 +527,4 @@ Development / Implementation.
 
 | Gate | Reviewer Role | Reviewer | Review Date | Status | Comments |
 |---|---|---|---|---|---|
-| Gate 0 — BRD Review | Project Manager / Business Analyst | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | — | Pending Review | — |
+| Gate 0 — BRD Review | Project Manager / Business Analyst | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-09-30 14:46:48 | Changes Requested | 22 comments: authentication/session, API-level authorisation, workflow state model, vacancy reservation/release, eligibility, multiple active requests, source of truth, effective date, BRD-024 retained, payroll completion gating IT Final Approval, IT Final Approval retained, integration contracts, document security, editing, withdrawal, rejection/resubmission, clarification, reassignment, notifications, audit logging, minimum performance targets, mandatory negative UAT scenarios. Full detail: `.ai-context/pr_reviews/BRD-20260930-144648.md`. BRD and assumptions.md must be updated and re-submitted for Gate 0. |
