@@ -92,3 +92,67 @@
 ### [2026-09-30 14:46]
 **User Request:** Ran `/int-pr-gate-workflow`, chose to review the pending Gate 0 BRD, asked for feedback on the BRD and acceptance criteria, then provided 22 Gate 0 review comments.
 **Agent Action:** Verified `git config user.email` (shamik.bhattacharya@intglobal.com) against the Gate 0 reviewer roster: authorised. Gave advisory feedback, then recorded the reviewer's 22 comments as a Gate 0 **Changes Requested** review in `.ai-context/pr_reviews/BRD-20260930-144648.md` (scorecard: Not Ready for Gate 1). Synced `BRD.md` (Status line and Gate 0 approval record), `assumptions.md` (status), `status.md`, `dashboard.html`, and `brd-change-log.md`. Requirement content was not changed; the author must update `BRD.md` and `assumptions.md` and re-submit for Gate 0. Spec drafting and Gate 1 stay blocked.
+
+### [2026-09-30 15:00]
+**User Request:** Ran `/int-project-resume` to reconstruct the current project state.
+**Agent Action:** Read-only state inspection (status.md, BRD Gate 0 record, roster, git status/log); found Gate 0 = Changes Requested (22 comments, reviewer Shamik Bhattacharya), BRD/assumptions unmodified since the review, working tree clean, specs and Gate 1/2 blocked. Presented next-action options and awaited developer confirmation; no project artifacts were modified.
+
+### [2026-09-30 15:20]
+**User Request:** Provided the author response to Gate 0 review comment 1 (Authentication & Session Management): lockout, lock duration, idle timeout, password complexity, temporary password, reset/deactivation session invalidation, credential logging, MFA/SSO out of scope.
+**Agent Action:** Added BRD-025 (Authentication & Session Security Policy) to `BRD.md` and updated BRD-006, BRD-007, NFR-001, NFR-003, BRD-OQ-02, Assumptions and Acceptance Criteria. Added A-12 to `assumptions.md` (temporary-password expiry period left open, not assumed) and an Author Responses table to `pr_reviews/BRD-20260930-144648.md`. Synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (1 of 22 addressed); spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 15:30]
+**User Request:** Clarified that the temporary password stays valid until the user's first login, where it must be changed before proceeding.
+**Agent Action:** Closed the open temporary-password-expiry point on Gate 0 comment 1: updated the Temporary password row in BRD-025 (`BRD.md`), A-12 in `assumptions.md`, the clarification note in `pr_reviews/BRD-20260930-144648.md`, and the `brd-change-log.md` entry. Gate 0 remains Changes Requested (1 of 22 addressed); Gate 1 and spec drafting stay blocked.
+
+### [2026-09-30 15:45]
+**User Request:** Provided the author response to Gate 0 review comment 2 (Role & API-Level Authorization): backend/API-authoritative authorization chain, 401/403 rules, direct-API rejection, and audit of sensitive actions.
+**Agent Action:** Added BRD-026 (Role & API-Level Authorization) to `BRD.md` and updated NFR-002 and Acceptance Criteria. Added A-13 to `assumptions.md` (detailed role/action/scope matrix not assumed) and comment 2 to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`. Synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (2 of 22 addressed); spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 16:10]
+**User Request:** Provided the author response to Gate 0 review comment 3 (Workflow State Management): controlled transition matrix, rejection, clarification, withdrawal, vacancy impact, completion rule and backend enforcement.
+**Agent Action:** Added BRD-027 (Workflow State Management, full transition matrix) to `BRD.md`; reconciled BRD-019, BRD-014, Business Rules, Assumptions and Acceptance Criteria; raised open questions BRD-OQ-12 to 14 for gaps (withdrawal cut-off, Block/Resume/Cancel/Reassign, HR/Payroll routing). Added A-14 to `assumptions.md` and comment 3 to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`. Synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (3 of 22 addressed); spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 16:40]
+**User Request:** Provided the author response to Gate 0 review comment 4 (Vacancy Reservation & Capacity): reservation timing, release/retain rules, HR vacancy change, concurrency control and vacancy status rules.
+**Agent Action:** Added BRD-028 (Vacancy Reservation & Capacity) to `BRD.md`; reconciled BRD-017, BRD-027, BRD-OQ-06, Business Rules and Acceptance Criteria; raised open question BRD-OQ-15 for undefined edge cases (resume validation, resumed request on a non-Open vacancy, releasing role, "Available" vs "Open"). Added A-15 to `assumptions.md` and comment 4 to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`. Synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (4 of 22 addressed); spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 17:10]
+**User Request:** Provided the author response to Gate 0 review comment 5 (Employee Eligibility): Active status, no minimum tenure, one active request at a time, pending-transfer restriction, Available vacancy, mandatory organisation data, HR validation, and no assumed HR restrictions.
+**Agent Action:** Added BRD-029 (Employee Eligibility for Internal Transfer) to `BRD.md` and updated BRD-013, Business Rules, Assumptions and Acceptance Criteria; raised open question BRD-OQ-16 for undefined points (Blocked/Information Required as active, source of truth and missing-data handling, HR-ineligible outcome, repeat vacancy request). Added A-16 to `assumptions.md` and comment 5 to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`. Synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (5 of 22 addressed); spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 17:40]
+**User Request:** Provided the author response to Gate 0 review comment 6 (Multiple Active Transfer Requests): one active request per employee, active and final statuses, same-vacancy rule, new request after Rejected/Withdrawn/Cancelled/Completed, and backend/database enforcement.
+**Agent Action:** Added BRD-030 (One Active Transfer Request per Employee) to `BRD.md` and updated BRD-029, BRD-027, Business Rules, Open Questions and Acceptance Criteria; answered BRD-OQ-16 points (a) and (d) and raised BRD-OQ-17 (Draft as active, mandatory database-level enforcement, HTTP status of the rejection, cool-down after Completed). Added A-17 to `assumptions.md` and comment 6 to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`. Synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (6 of 22 addressed); spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 18:10]
+**User Request:** Provided the answer to open question BRD-OQ-12 (withdrawal rules: allowed until HR approval, mandatory reason, reservation release, downstream cancellation, Withdrawn is final and not reopenable).
+**Agent Action:** Incorporated the answer into BRD-027 in `BRD.md` (withdrawal rules plus four Withdraw matrix rows) and reconciled Business Rules, Assumptions, Acceptance Criteria and the Open Questions table (BRD-OQ-12 now Resolved). Updated A-14 in `assumptions.md`, added comment 15 to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (7 of 22 addressed); spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 18:40]
+**User Request:** Provided the answer to open question BRD-OQ-13 (rules for Block, Resume, Cancel and Reassign: allowed roles, mandatory reasons, resulting statuses, vacancy and audit handling).
+**Agent Action:** Added the four action rules and ten transition-matrix rows to BRD-027 in `BRD.md` and reconciled BRD-019, BRD-028, Business Rules, Assumptions, Acceptance Criteria and the Open Questions table (BRD-OQ-13 now Resolved; new BRD-OQ-18 for residual gaps). Updated A-14 and A-15 in `assumptions.md`, added a comment 18 (part) row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 19:10]
+**User Request:** Provided the answer to open question BRD-OQ-14 (HR Confirmation as an activity not a status, sequential HR then Payroll Processing, manual Payroll completion by an authorised HR user, 403 response for invalid transitions).
+**Agent Action:** Updated the BRD-027 transition matrix, routing rules and backend-enforcement rule in `BRD.md` and reconciled BRD-018, BRD-024, Business Rules, Assumptions, Acceptance Criteria and the Open Questions table (BRD-OQ-14 now Resolved). Updated A-14 in `assumptions.md`, added a comments 3/10 (part) row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 19:40]
+**User Request:** Provided the answer to open question BRD-OQ-15 (resume revalidation, Full/On Hold/Closed vacancy handling for Blocked requests, who may release an in-flight reservation, and Available = Open with capacity above zero).
+**Agent Action:** Added the four vacancy edge-case rules to BRD-028 in `BRD.md` and reconciled the reservation-rules table, BRD-029, BRD-OQ-18(c), Acceptance Criteria and the Open Questions table (BRD-OQ-15 now Resolved). Updated A-15 in `assumptions.md`, added a comment 4 (part) row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 20:10]
+**User Request:** Provided the answer to open question BRD-OQ-16 (Blocked/Info Required as active, HR system as authoritative employee-data source with missing-data block, HR reject vs request clarification for ineligible employees, same-vacancy reapplication).
+**Agent Action:** Added the source-of-truth, missing-data and HR-ineligible rules to BRD-029 in `BRD.md` and reconciled BRD-013, Business Rules, Dependencies, Assumptions, Acceptance Criteria and the Open Questions table (BRD-OQ-16 now Resolved; new BRD-OQ-19 for per-field source, synchronisation and conflict gaps). Updated A-16 and added A-18 in `assumptions.md`, added a comments 5/7 (part) row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 20:40]
+**User Request:** Provided the answer to open question BRD-OQ-19 (per-field source of truth with the portal as operational source, no HR-system synchronisation this phase, in-flight data handling, HR updates limited to the portal, missing-data correction by the assigned HR team).
+**Agent Action:** Replaced the external-HR-system source-of-truth wording in BRD-029 with the per-field ownership table and the no-synchronisation, in-flight, HR-update and missing-data rules, and reconciled BRD-020, Business Rules, Dependencies, Out of Scope, Assumptions, Acceptance Criteria and the Open Questions table (BRD-OQ-19 now Resolved; BRD-OQ-16(b) marked as refined). Rewrote A-18 (and adjusted A-16) in `assumptions.md`, added a comment 7 row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 21:10]
+**User Request:** Provided the answer to open question BRD-OQ-17 (Draft not active, mandatory backend and database enforcement, HTTP 409 ACTIVE_TRANSFER_ALREADY_EXISTS, no cool-down after Completed).
+**Agent Action:** Replaced the open-gap note in BRD-030 in `BRD.md` with the four confirmed rules and reconciled the After Completed row, Acceptance Criteria and Open Questions table (BRD-OQ-17 now Resolved). Updated A-17 in `assumptions.md`, the comment 6 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Only BRD-OQ-18 remains open.
+
+### [2026-09-30 19:45]
+**User Request:** Provided the answer to open question BRD-OQ-18 (HR-controlled and IT-controlled stages for Block/Resume, HR Cancel limits, failed Resume revalidation, Draft exclusion, and who may Resume a Blocked request).
+**Agent Action:** Added the stage definitions, Draft exclusion, cross-role Resume rules and HR Cancel limits to BRD-027 in `BRD.md` (rules and transition-matrix rows) and reconciled BRD-019, BRD-028, Business Rules, Acceptance Criteria and the Open Questions table (BRD-OQ-18 now Resolved). Updated A-14 in `assumptions.md`, added a comment 18 (part) row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
