@@ -3,7 +3,7 @@
 
 **Status:** Changes Requested (Gate 0 review 2026-09-30 — see `.ai-context/pr_reviews/BRD-20260930-144648.md`)
 **Source:** `docs/Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf` (internally titled SOW v1.4, 27 September 2026, "Draft for stakeholder review")
-**Last Updated:** 2026-09-30 (BRD-OQ-18 resolved — HR-controlled and IT-controlled stages defined for Block/Resume, HR Cancel limited to Pending HR Review / HR Processing / Payroll Processing with other stages requiring Super Admin, Draft excluded from all four actions, cross-role Resume rules, BRD-027 updated; BRD-OQ-17 resolved — Draft not active, mandatory backend + database enforcement, HTTP 409 `ACTIVE_TRANSFER_ALREADY_EXISTS`, no cool-down after Completed, BRD-030 updated; BRD-OQ-19 resolved — portal is the operational source of employee/organisation data with per-field ownership, no HR-system synchronisation this phase, comment 7 addressed; BRD-OQ-16 resolved — employee-data source of truth, missing-data handling and HR-ineligible outcome in BRD-029, comment 7 addressed with BRD-OQ-19; Gate 0 comments 1–6 and 15 addressed — BRD-025 – BRD-030, plus the withdrawal rules in BRD-027 (BRD-OQ-12 resolved) and the Block/Resume/Cancel/Reassign rules in BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4); comments 8–14 and 16–22 outstanding, several partially covered by BRD-027, BRD-029 and BRD-030)
+**Last Updated:** 2026-10-01 (document upload validation error responses confirmed in BRD-021 — HTTP 413 `FILE_SIZE_EXCEEDED`, HTTP 415 `UNSUPPORTED_FILE_TYPE` / `INVALID_FILE_TYPE`, invalid file not stored; Gate 0 comment 13 addressed — document upload and access secured at API/server level in BRD-021: PDF/image only, 5 MB per file, MIME and extension validation, file-name sanitisation, local server storage, role/organisation-scoped authenticated access, no public URLs, audit logging; Gate 0 comment 12 addressed — no external Payroll/HR integration in the current phase, Payroll manual by HR; any future integration needs an approved contract covering the eleven required elements, NFR-006 retry/idempotency/visibility rules confirmed; 2026-09-30: HR cancellation of Blocked requests answered — HR may cancel HR-blocked requests, not IT-blocked ones, Super Admin any Blocked request, BRD-027 updated; Gate 0 comment 8 addressed — Effective Transfer Date rule BRD-031: current date to 30 days ahead, no past dates for any role, weekends/holidays allowed, expired date must be updated before completion, no re-approval unless Super Admin configures it; BRD-OQ-20 resolved — Employee edits in Draft only, HR during approval, Super Admin for intervention, business time zone, inclusive fixed 30-day limit, optional re-approval to configured approver, expired date corrected by HR or Super Admin; BRD-OQ-18 resolved — HR-controlled and IT-controlled stages defined for Block/Resume, HR Cancel limited to Pending HR Review / HR Processing / Payroll Processing with other stages requiring Super Admin, Draft excluded from all four actions, cross-role Resume rules, BRD-027 updated; BRD-OQ-17 resolved — Draft not active, mandatory backend + database enforcement, HTTP 409 `ACTIVE_TRANSFER_ALREADY_EXISTS`, no cool-down after Completed, BRD-030 updated; BRD-OQ-19 resolved — portal is the operational source of employee/organisation data with per-field ownership, no HR-system synchronisation this phase, comment 7 addressed; BRD-OQ-16 resolved — employee-data source of truth, missing-data handling and HR-ineligible outcome in BRD-029, comment 7 addressed with BRD-OQ-19; Gate 0 comments 1–6, 8 and 15 addressed — BRD-025 – BRD-031, plus the withdrawal rules in BRD-027 (BRD-OQ-12 resolved) and the Block/Resume/Cancel/Reassign rules in BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4); comments 14 and 16–22 outstanding, several partially covered by BRD-027, BRD-029 and BRD-030)
 
 > This baseline was rebuilt from scratch from the source SOW. A prior working
 > copy of this file (and of `assumptions.md`, `architecture.md`, `dashboard.html`,
@@ -286,6 +286,15 @@ alongside it.
       applicable) and remarks/comments (where applicable). A Payroll
       API/callback integration is **not required** for the current phase unless
       separately approved and an integration contract is provided.
+      **Gate 0 comment 10 confirmation:** there is no Payroll system/API
+      integration, callback or status update in the current phase; the
+      transfer cannot proceed to IT Final Approval while any mandatory Payroll
+      activity is incomplete, and once all mandatory Payroll activities are
+      Completed the request proceeds to the next applicable IT stage. Payroll
+      calculation, compensation, salary processing and statutory processing are
+      outside the portal, which only manages and tracks the Payroll activity
+      and its completion status. Payroll completion and every related status
+      change are recorded in the audit log (BRD-022).
     - **(d) Invalid transition response:** see "Backend enforcement" below.
   - **HR metadata change / re-approval (BRD-024 remains mandatory):** if HR
     changes a previously approved Department/Business Unit, Designation,
@@ -357,6 +366,14 @@ alongside it.
     and (5) IT Final Approval is complete. The system must not allow IT Final
     Approval while a mandatory Payroll activity is incomplete. IT Final
     Approval remains the mandatory final gate.
+    **Gate 0 comment 11 confirmation:** IT Final Approval is mandatory for
+    every transfer and is the final step before Completed. With IT work:
+    IT Task Completion → IT Final Approval → Completed; without IT work:
+    No IT Action Required → IT Final Approval → Completed. Reporting Manager,
+    Receiving Manager, HR approval and Payroll completion cannot, individually
+    or collectively, complete the transfer; the system sets Completed only
+    after all required prior activities are done and IT gives Final Approval.
+    The IT Final Approval action is recorded in the audit log (BRD-022).
   - **Backend enforcement:** all transitions are enforced by the backend/API,
     which validates `Authenticated User → Role → Organisation Scope → Transfer
     Request → Current Status → Requested Action → Allowed Next Status`
@@ -434,12 +451,19 @@ alongside it.
         HR Processing or Payroll Processing** (BRD-OQ-18(b) resolved). For any
         other active workflow stage cancellation requires **Super Admin**
         action.
+      - *Blocked requests (resolved, 2026-09-30):* **HR** may Cancel a request
+        that is currently **Blocked** only if it was blocked during an
+        HR-controlled stage (including when HR itself blocked it), within its
+        scope. **HR cannot Cancel** a Blocked request that originated from an
+        IT-controlled stage. **Super Admin** may Cancel a Blocked request at any
+        stage as administrative intervention.
       - *Reason:* **mandatory**.
       - *Result:* `Active Transfer → Cancelled`. Cancelled is a **final/closed**
         status and the request **cannot be reopened**. The workflow stops; any
         active vacancy reservation is released; pending downstream Payroll/IT
-        tasks are cancelled where applicable; stakeholders are notified; the
-        cancellation is audited.
+        tasks are cancelled where applicable; the Employee and relevant
+        stakeholders are notified; the cancellation is audited. The same result
+        applies when a Blocked request is cancelled.
       - A Completed, Rejected, Withdrawn or already Cancelled request **cannot be
         cancelled**. To apply again the employee creates a **new Transfer
         Request** under BRD-030 and the workflow starts from the beginning.
@@ -475,6 +499,9 @@ alongside it.
     | Blocked (during an IT-controlled stage, within IT scope) | IT | Resume | Previous IT-controlled status | Remarks recorded | No | Relevant stakeholders notified | As above |
     | Any active / non-final status | Super Admin | Cancel | Cancelled | **Yes** | No | Relevant stakeholders notified | Reservation released; pending Payroll/IT tasks cancelled where applicable |
     | Pending HR Review / HR Processing / Payroll Processing (within HR scope) | HR | Cancel | Cancelled | **Yes** | No | Relevant stakeholders notified | As above |
+    | Blocked (blocked during an HR-controlled stage, within HR scope) | HR | Cancel | Cancelled | **Yes** | No | Employee and relevant stakeholders notified | Reservation released; pending Payroll/IT tasks cancelled where applicable |
+    | Blocked (blocked during an IT-controlled stage) | HR | Cancel | **Refused** — HR cannot cancel an IT-blocked request | — | — | — | No change; attempt audited as a security event |
+    | Blocked (any stage) | Super Admin | Cancel | Cancelled | **Yes** | No | Employee and relevant stakeholders notified | Reservation released; pending Payroll/IT tasks cancelled where applicable |
     | Active pending task | Super Admin | Reassign | Same status, new assignee | **Yes** | No | New assignee notified | No status or reservation change |
     | HR-controlled task (within HR scope) | HR | Reassign | Same status, new assignee | **Yes** | No | New assignee notified | As above |
 
@@ -488,10 +515,13 @@ alongside it.
     (e) Super Admin may Resume any authorised Blocked request, HR only
     HR-controlled blocks and IT only IT-controlled blocks, with no cross-resume
     between HR and IT. Block, Resume, Cancel and Reassign are all audited.
-    *Not stated in the answer, therefore not assumed:* whether HR may Cancel a
-    request that is currently Blocked (the stage it was blocked from is stored,
-    but the answer lists only the three active HR stages) — until confirmed, a
-    Blocked request is cancelled by Super Admin.
+    **Follow-up answer (2026-09-30):** HR may Cancel a request that is currently
+    Blocked if it was blocked during an HR-controlled stage (the stored
+    pre-block stage decides); HR cannot Cancel a Blocked request originating
+    from an IT-controlled stage; Super Admin may Cancel a Blocked request at any
+    stage. A reason is mandatory, the request becomes Cancelled and the workflow
+    ends, any reserved vacancy/capacity is released, the action is audited and
+    the Employee and relevant stakeholders are notified.
     (Withdraw rows: defined above, BRD-OQ-12 resolved.)
 - **BRD-028** — Vacancy Reservation & Capacity (Gate 0 comment 4, author
   response 2026-09-30). Vacancy capacity is controlled by the backend to
@@ -796,6 +826,57 @@ alongside it.
   active request, vacancy availability (BRD-028) and applicable HR/business
   rules.
 
+- **BRD-031** — Effective Transfer Date Validation (Gate 0 comment 8, author
+  response 2026-09-30). The system validates the Effective Transfer Date
+  against one approved rule set, applied identically to every role involved in
+  the transfer and approval process.
+
+  `Current Date ≤ Effective Transfer Date ≤ Current Date + 30 Days`
+
+  | Rule | Requirement |
+  |---|---|
+  | Past dates | **Not allowed.** A date earlier than the current date is rejected. |
+  | Current date | **Allowed.** "Current date" is determined in the **application/server-configured business time zone**. |
+  | Future dates | Allowed up to a **maximum of 30 calendar days** in the future, **inclusive** (current date to current date + 30 days); the 30-day limit is **fixed for the current phase** and not configurable by users; the date may be selected from the current date up to that limit. A future date is **not mandatory**, so no minimum notice period applies. |
+  | Who the rule applies to | **All roles** involved in the transfer and approval process — the same restriction applies to the employee at submission and to any authorised role that sets or changes the date. |
+  | Who can set or change the date | **Employee** — selects or modifies the date only while the request is in **Draft**; after submission the Employee **cannot modify** it. **HR** — may modify it during the approval process when a date adjustment is required. **Super Admin** — may modify it when administrative intervention is required. No other role may change it. |
+  | Modification by an authorised role | An updated date must follow the same rule and **cannot be a past date**. |
+  | Weekends and holidays | **Allowed** as Effective Transfer Dates. No weekend or holiday calendar check is performed. |
+  | Approval completed after the date has passed | The transfer **cannot be completed with an expired date**. **HR** updates it to a valid current or future date while the request is in an HR-controlled stage; once the request has progressed beyond the HR-controlled stages, **Super Admin** performs the administrative intervention so the date can be corrected. The updated date must still satisfy the current date to +30 calendar days rule. |
+  | Re-approval on change | Changing **only** the Effective Transfer Date **does not trigger re-approval by default**. If re-approval for a date change is enabled in the **Super Admin workflow configuration**, the request returns to the **configured approval stage/approver**. |
+
+  **Enforcement.** The rule is validated by the backend/API for every create or
+  change of the date; frontend date-picker limits are UX only (BRD-026). A date
+  outside the permitted range is rejected with a validation message and the
+  stored date is unchanged.
+
+  **Change of the date.** Each change is audited (BRD-022) with the previous
+  value, new value, changed by, role, date/time and reason/remarks. The
+  re-approval setting is a **Super Admin configuration**; when it is not
+  configured, a date change does not alter the workflow status and does not send
+  the request back to any approver. BRD-024 is unaffected: it continues to
+  govern Department/Business Unit, Designation, Location and Reporting Manager
+  only.
+
+  **Expired date at completion (BRD-OQ-20(d)).** If the selected date becomes a
+  past date before the transfer is completed, the request cannot be completed
+  with it (the IT Final Approval gate in BRD-014/BRD-027 is not satisfied until
+  the date is corrected). HR-controlled stages are Pending HR Review, HR
+  Processing and Payroll Processing (BRD-027): HR corrects the date there; in
+  Pending IT Action and Pending IT Final Approval, Super Admin performs the
+  administrative intervention. The corrected date is validated by the same rule.
+  Every correction is audited.
+
+  **Employee editing (BRD-OQ-20(a)).** The Employee's ability to set or change
+  the date ends at submission; editing of other submitted fields remains subject
+  to the open comment 14 rules.
+
+  **Resolved (BRD-OQ-20, 2026-09-30):** modifying roles and stages, business
+  time zone, inclusive and fixed 30-day limit, optional re-approval routing to
+  the configured stage/approver, and the owner of an expired-date correction are
+  all answered above. The approver(s) and stage for the optional re-approval are
+  whatever Super Admin configures; none is assumed.
+
 ### Role-Based Functional Scope
 - **BRD-010** — Super Admin can create/edit/activate/deactivate Locations;
   create/manage Departments and Designations; create Vacancies with
@@ -913,8 +994,12 @@ alongside it.
     both previous and updated values and can approve, reject with mandatory
     reason, request clarification, or add comments. HR must provide a
     reason/remark when making the change.
-  - **If disabled**, the transfer continues without returning to a
-    Receiving Manager, using the updated organisational information.
+  - **If not enabled/configured**, the transfer continues without returning
+    to a Receiving Manager, following the workflow configured by the Super
+    Admin and using the updated organisational information.
+  - **No bypass:** HR cannot bypass the configured re-approval process when
+    any of these four organisation details is changed; BRD-024 remains
+    mandatory (Gate 0 comment 9).
   - The audit log records: changed field, previous value, new value,
     changed by, changed date/time, change reason/remarks, whether
     re-approval was triggered, Receiving Manager decision, decision
@@ -923,12 +1008,34 @@ alongside it.
   linked to the relevant employee and/or transfer request; document access
   follows role and organisational scope; document metadata includes
   category/type, uploader, upload timestamp and employee/request reference.
-  Document policy (resolved, see BRD-OQ-08): allowed file types are **PDF
-  and image formats** only; maximum file size to be confirmed/configured;
-  storage is **local server storage**; malware scanning, retention, archive
-  and deletion policy are **not required**. Document upload and access
-  actions (upload, view, uploaded-by, upload date/time, category/type,
-  associated employee, associated transfer reference) are auditable.
+  Document policy (resolved, see BRD-OQ-08 and Gate 0 comment 13): allowed
+  file types are **PDF and image formats** only; maximum file size is
+  **5 MB per file**; storage is **configured local server storage** for the
+  current phase; malware scanning, retention, archive and deletion policy are
+  **not required**. Document security is enforced at the **API/server level**
+  and does not rely on frontend restrictions:
+  - The server validates the uploaded file **MIME type** against the allowed
+    PDF/image types and the **file extension** against the allowed document
+    types; file names are **sanitised** before storage.
+  - Documents are accessed only through an **authenticated and authorised
+    API/server endpoint**; they are **never exposed through unrestricted
+    public URLs**.
+  - Access follows the user's role and assigned organisation scope; users
+    cannot access documents belonging to employees/transfers outside their
+    authorised scope. Every view/download request verifies that the
+    requester may access the associated employee/transfer.
+  - Document upload and access actions (upload, view, download,
+    uploaded-by, upload date/time, category/type, associated employee,
+    associated transfer reference) are captured in the audit log where
+    applicable.
+  - **Validation failures:** uploads are rejected at the API/server level
+    and the invalid file is not stored. A file over 5 MB returns **HTTP 413
+    Payload Too Large** (`FILE_SIZE_EXCEEDED`); an unsupported file
+    type/format returns **HTTP 415 Unsupported Media Type**
+    (`UNSUPPORTED_FILE_TYPE`); a MIME type/file extension mismatch returns
+    **HTTP 415** (`INVALID_FILE_TYPE`). Each response carries a clear error
+    code and message for the frontend to display. These rules apply to all
+    document uploads in the portal.
 - **BRD-022** — All material actions across every role are auditable,
   capturing actor/user, role, action, affected entity/request, timestamp,
   previous/new values, status/state and remarks. Covers user
@@ -973,7 +1080,11 @@ alongside it.
 - **NFR-005 (Auditability):** Protected, tamper-resistant audit records for
   material decisions, configuration changes and security events.
 - **NFR-006 (Reliability):** Recoverable integration failures, clear error
-  ownership, and safeguards against duplicate downstream execution.
+  ownership, and safeguards against duplicate downstream execution. Retrying
+  an integration request must not create duplicate downstream transactions;
+  a failed integration remains visible with its failure status/error details
+  and supports an authorised retry where applicable (see Integration
+  Requirements in Business Rules).
 - **NFR-007 (Privacy):** Employee and document access restricted to
   authorised roles and organisational scope.
 - **NFR-008 (Accessibility/Usability):** Aligns with organisational portal
@@ -1039,7 +1150,8 @@ alongside it.
   revalidating business conditions incl. vacancy (Super Admin any; HR and IT
   only their own controlled stages; no cross-resume between HR and IT); Cancel
   = permanently close (Super Admin; HR in scope only during Pending HR Review,
-  HR Processing and Payroll Processing; Cancelled is final and
+  HR Processing and Payroll Processing, or when the request is Blocked and was
+  blocked during one of those stages — never an IT-blocked request; Cancelled is final and
   not reopenable; Completed/Rejected/Withdrawn/Cancelled requests cannot be
   cancelled; employee-initiated stop is Withdrawal); Reassign = change task
   ownership only, without changing status or bypassing approvals. None of the
@@ -1047,6 +1159,16 @@ alongside it.
   Cancel and Reassign require a mandatory reason, and all four actions are
   audited. None may bypass mandatory Reporting Manager, Receiving Manager, HR,
   Payroll or IT Final Approval requirements.
+- The Effective Transfer Date must be the current date (in the application/
+  server-configured business time zone) or a date up to 30 calendar days in the
+  future, inclusive; the 30-day limit is fixed in the current phase. Past dates
+  are rejected for every role. The Employee may set or change the date only in
+  Draft; HR may change it during approval and Super Admin for administrative
+  intervention. Weekends and holidays are allowed. A transfer cannot be
+  completed with an expired date: HR corrects it in an HR-controlled stage,
+  Super Admin beyond those stages. Changing only the date does not trigger
+  re-approval unless Super Admin enables it, in which case the request returns
+  to the configured stage/approver; every change is audited (BRD-031).
 - If HR changes a previously approved Department/Business Unit,
   Designation, Location, or Reporting Manager value, and Receiving Manager
   approval is enabled, the request must automatically return to the
@@ -1071,10 +1193,28 @@ alongside it.
 - Receiving Manager review stage is enabled or disabled by configurable
   company policy, not hard-coded.
 - Document access is scoped by role and organisation; users do not
-  automatically gain access to all employee documents.
+  automatically gain access to all employee documents. Upload and access
+  are secured at the API/server level (5 MB per file, PDF/image only, MIME
+  and extension validation, sanitised file names, authenticated endpoint,
+  no public URLs; BRD-021, Gate 0 comment 13).
 - Payroll calculations, compensation rules and statutory processing remain
   the responsibility of the authoritative payroll system; the portal only
   coordinates the handoff/status.
+- **Integration Requirements (Gate 0 comment 12, 2026-10-01).** For the
+  current phase **no external Payroll or HR system integration/API is
+  defined**; Payroll activity is completed manually by the authorised HR user
+  in the portal (BRD-027(c)) and no unspecified external integration is
+  assumed. If any external integration is introduced later, its integration
+  contract must be defined and approved **before implementation** and must
+  include: API/interface details, authentication method, request and response
+  formats, required fields, success and failure responses, timeout and retry
+  rules, duplicate request handling, idempotency mechanism, status mapping,
+  error handling and source of truth. Per NFR-006, integration failures must
+  be recoverable and auditable, and retrying a request must not create
+  duplicate downstream transactions. A failed integration remains visible in
+  the system with its failure status/error details and supports an authorised
+  retry where applicable. Detailed API contracts are documented separately
+  before any external integration is implemented.
 
 ---
 
@@ -1086,6 +1226,9 @@ alongside it.
   portal by Super Admin / HR in the current phase (BRD-029, BRD-OQ-19). No
   external HR-system dependency exists; any future HR-system integration needs
   its own approved contract.
+- No external Payroll/HR integration exists in the current phase; any future
+  integration depends on a separately documented and approved contract
+  (Business Rules — Integration Requirements, NFR-006).
 - Authoritative payroll system for payroll calculation, compensation and
   statutory processing (portal only coordinates task handoff/status).
 - IT service-management system/process for access provisioning and
@@ -1108,8 +1251,9 @@ alongside it.
 - User ID convention is role-prefixed (`EMP/MGR/HR/IT######`) and the
   password/lockout/session policy follows BRD-007 and BRD-025 (BRD-OQ-02
   resolved; configuration values confirmed 2026-09-30).
-- HR will provide vacancy/capacity policy edge cases and effective-date rules
-  beyond what is captured in BRD-013 and BRD-017/BRD-024. Eligibility rules are
+- HR will provide vacancy/capacity policy edge cases beyond what is captured in
+  BRD-013 and BRD-017/BRD-024. Effective-date rules are as defined in BRD-031
+  (BRD-OQ-20 resolved). Eligibility rules are
   as defined in BRD-029; no further HR eligibility restrictions are assumed, and
   any additional ones must be supplied and approved by HR/business first.
   Employee and organisation data are maintained in the portal by Super Admin /
@@ -1174,7 +1318,7 @@ alongside it.
 
 BRD-OQ-01 … BRD-OQ-11 below have been answered by the user and incorporated
 into the requirement IDs shown. BRD-OQ-12, BRD-OQ-13, BRD-OQ-14 and BRD-OQ-15 (**now Resolved**, 2026-09-30) were raised while
-addressing Gate 0 comment 3, BRD-OQ-15 while addressing comment 4, BRD-OQ-16 while addressing comment 5 (**now Resolved**, 2026-09-30: points (a) and (d) by the comment 6 response, points (b) and (c) by the author answer on the employee-data source and HR-ineligible outcome), BRD-OQ-17 while addressing comment 6 (**now Resolved**, 2026-09-30), BRD-OQ-18 while resolving BRD-OQ-13 (**now Resolved**, 2026-09-30), and BRD-OQ-19 while resolving BRD-OQ-16(b) (**now Resolved**, 2026-09-30); all others are **Open**; the Gate 0 reviewer must answer
+addressing Gate 0 comment 3, BRD-OQ-15 while addressing comment 4, BRD-OQ-16 while addressing comment 5 (**now Resolved**, 2026-09-30: points (a) and (d) by the comment 6 response, points (b) and (c) by the author answer on the employee-data source and HR-ineligible outcome), BRD-OQ-17 while addressing comment 6 (**now Resolved**, 2026-09-30), BRD-OQ-18 while resolving BRD-OQ-13 (**now Resolved**, 2026-09-30), and BRD-OQ-19 while resolving BRD-OQ-16(b) (**now Resolved**, 2026-09-30), and BRD-OQ-20 while addressing comment 8 (**now Resolved**, 2026-09-30); all others are **Open**; the Gate 0 reviewer must answer
 them before approval. Formal Gate 0 sign-off (recorded in
 `.ai-context/pr_reviews/BRD-<timestamp>.md` by the assigned, email-verified
 Project Manager / Business Analyst reviewer) is still required before Status
@@ -1189,18 +1333,19 @@ moves to Approved.
 | BRD-OQ-05 | At what point is vacancy capacity reserved — submission, approval, or HR validation? | Resolved | Reserved only at HR validation/approval against the selected vacancy. | BRD-017 |
 | BRD-OQ-06 | What are the agreed concurrency/reservation rules to prevent vacancy over-allocation, and what is vacancy closure/hold behaviour for in-progress requests? | Resolved | `Available = Capacity − Allocated/Reserved`; DB transaction/concurrency control; no new allocation once Full/On Hold/Closed; existing in-flight requests unaffected. Detailed in Gate 0 comment 4 response (2026-09-30): in-flight reservations are released only by an authorised, audited business action. | BRD-017, BRD-028, Business Rules |
 | BRD-OQ-07 | What are the organisation metadata fields HR must update/assign, and what is the authoritative source system for them? | Resolved | Department/Business Unit, Designation, Location, Reporting Manager, Effective Date, payroll reference; changing a previously approved value triggers the BRD-024 re-approval rule. | BRD-020, BRD-024 |
-| BRD-OQ-08 | What are the allowed document file types, maximum size, storage location, malware-scanning requirement, retention period, and deletion policy? | Resolved | PDF and image files only; local server storage; no malware scanning, retention, archive, or deletion policy required; max size to be confirmed/configured. | BRD-021 |
+| BRD-OQ-08 | What are the allowed document file types, maximum size, storage location, malware-scanning requirement, retention period, and deletion policy? | Resolved | PDF and image files only; local server storage; no malware scanning, retention, archive, or deletion policy required; maximum size 5 MB per file (Gate 0 comment 13); server-side MIME/extension validation, file-name sanitisation, authenticated access only. | BRD-021 |
 | BRD-OQ-09 | What are the specific performance, availability, backup, retention and monitoring targets? | Resolved (deferred) | Deferred to infrastructure/deployment planning; confirmed before production deployment. | NFR-009 |
 | BRD-OQ-10 | What is the exact reviewer sequence, HR eligibility rules, organisation hierarchy source, withdrawal rules, and escalation rules to be confirmed before build approval? | Resolved | Reviewer sequence per BRD-018; rejection requires reason; clarification returns to responsible user without losing history; withdrawal permitted pre-completion per policy and audited; escalation configurable via dashboards/notifications. | BRD-018, BRD-023, Business Rules |
 | BRD-OQ-11 | Since IT final approval now gates transfer completion, what happens for a transfer with no applicable IT task? | Resolved | IT final approval is mandatory for every transfer; if no IT work applies, IT selects "No IT Action Required," may add remarks, and still gives Final Approval. | BRD-014 |
 | BRD-OQ-12 | What is the last workflow stage at which an employee may withdraw a transfer, is a withdrawal reason mandatory, and can a withdrawn request be reopened? | Resolved | Withdrawal allowed until HR approval (Pending Reporting Manager Approval, Pending Receiving Manager Approval if applicable, Info Required, Pending HR Review); after HR approval only the separate Cancellation process applies. Reason mandatory and audited. Withdrawn is final and cannot be reopened; reapplying creates a new Transfer Request. | BRD-027, BRD-030 (Gate 0 comments 3, 15) |
 | BRD-OQ-13 | Which roles may Block, Resume, Cancel or Reassign a transfer, from which statuses, and what are the resulting statuses? The BRD-027 matrix contains no rows for these. | Resolved | **Block:** Super Admin (any non-final stage), HR (HR/Payroll processing, in scope), IT (IT processing, in scope); reason mandatory; → Blocked with previous status stored; reservation retained; Reporting Manager, Receiving Manager and Employee cannot block. **Resume:** Super Admin, HR (HR-blocked, in scope), IT (IT-blocked, in scope); returns to the status blocked from after revalidating business conditions incl. vacancy validity/capacity. **Cancel:** Super Admin; HR in scope where policy permits; reason mandatory; → Cancelled (final, not reopenable); reservation released, downstream tasks cancelled; not possible from Completed/Rejected/Withdrawn/Cancelled; new request via BRD-030. **Reassign:** Super Admin; HR for HR-controlled tasks in scope; reason mandatory; status unchanged, new assignee needs role and scope; no bypass of mandatory approvals; BRD-024 applies if org metadata also changes. All four audited. | BRD-027, BRD-019, BRD-028 (Gate 0 comments 3, 4, 18) |
-| BRD-OQ-18 | Residual points in the BRD-OQ-13 answer: (a) which workflow statuses are "HR/Payroll-related processing" (e.g. HR Processing, Payroll Processing, Pending HR Review?) and "IT processing" (e.g. Pending IT Action, Pending IT Final Approval?) for HR/IT Block and Resume; (b) which company policy decides when HR may Cancel, and from which statuses; (c) what happens if revalidation on Resume fails — **answered by BRD-OQ-15(a): the request stays Blocked until HR/Super Admin resolve it**; (d) do Block, Cancel and Reassign apply to an unsubmitted Draft; (e) may a Super Admin Resume a request that HR or IT blocked, and may HR/IT resume one Super Admin blocked? | Resolved | **(a)** HR-controlled stages: Pending HR Review, HR Processing, Payroll Processing; IT-controlled stages: Pending IT Action, Pending IT Final Approval; HR/IT may Block/Resume only within their own stages and assigned scope. **(b)** HR may Cancel within scope during Pending HR Review, HR Processing and Payroll Processing, reason mandatory; other active stages require Super Admin; Cancelled is final, not reopenable, reservation released. **(c)** Already resolved by BRD-OQ-15(a): request stays Blocked until HR/Super Admin resolve it. **(d)** Block, Resume, Cancel and Reassign do not apply to an unsubmitted Draft (employee may edit or discard it). **(e)** Super Admin may Resume any authorised Blocked request; HR only HR-controlled blocks; IT only IT-controlled blocks; no cross-resume between HR and IT; all actions audited. | BRD-027, BRD-019 (Gate 0 comments 3, 4, 18) |
+| BRD-OQ-18 | Residual points in the BRD-OQ-13 answer: (a) which workflow statuses are "HR/Payroll-related processing" (e.g. HR Processing, Payroll Processing, Pending HR Review?) and "IT processing" (e.g. Pending IT Action, Pending IT Final Approval?) for HR/IT Block and Resume; (b) which company policy decides when HR may Cancel, and from which statuses; (c) what happens if revalidation on Resume fails — **answered by BRD-OQ-15(a): the request stays Blocked until HR/Super Admin resolve it**; (d) do Block, Cancel and Reassign apply to an unsubmitted Draft; (e) may a Super Admin Resume a request that HR or IT blocked, and may HR/IT resume one Super Admin blocked? | Resolved | **(a)** HR-controlled stages: Pending HR Review, HR Processing, Payroll Processing; IT-controlled stages: Pending IT Action, Pending IT Final Approval; HR/IT may Block/Resume only within their own stages and assigned scope. **(b)** HR may Cancel within scope during Pending HR Review, HR Processing and Payroll Processing, reason mandatory; other active stages require Super Admin; Cancelled is final, not reopenable, reservation released. **(c)** Already resolved by BRD-OQ-15(a): request stays Blocked until HR/Super Admin resolve it. **(d)** Block, Resume, Cancel and Reassign do not apply to an unsubmitted Draft (employee may edit or discard it). **(e)** Super Admin may Resume any authorised Blocked request; HR only HR-controlled blocks; IT only IT-controlled blocks; no cross-resume between HR and IT; all actions audited. **Follow-up (2026-09-30):** HR may Cancel a Blocked request blocked during an HR-controlled stage, HR cannot Cancel an IT-blocked request, Super Admin may Cancel a Blocked request at any stage (reason mandatory, reservation released, audited, Employee and stakeholders notified). | BRD-027, BRD-019 (Gate 0 comments 3, 4, 18) |
 | BRD-OQ-14 | Clarify matrix routing: (a) is "HR Confirmation" a distinct status or part of HR Processing; (b) is HR Processing before, or parallel with, Payroll Processing; (c) which Payroll completion source applies (manual by authorised user, payroll API, or callback); (d) what response applies to a rejected invalid-transition attempt? | Resolved | **(a)** HR Confirmation is an activity within HR Processing, not a status; after BRD-024 re-approval the request returns to HR Processing. **(b)** Sequential: HR Processing → Payroll Processing → Pending IT Action. **(c)** Current phase: an authorised HR user manually marks the Payroll activity completed (status, completed by, date/time, reference, remarks recorded); no payroll calculation and no Payroll API/callback unless separately approved with an integration contract. **(d)** HTTP 403 `INVALID_WORKFLOW_TRANSITION` ("The requested action is not permitted for the current transfer status."); status unchanged, no downstream effects, rejected attempt audited as a security event. IT Final Approval remains the mandatory final gate. | BRD-027, BRD-019, BRD-018, BRD-024 (Gate 0 comments 3, 10) |
 | BRD-OQ-15 | Vacancy edge cases left by BRD-028: (a) what validation applies when a Blocked request resumes "subject to validation"; (b) if the vacancy is On Hold/Closed/Full when a request resumes, does the existing reservation continue; (c) which authorised role may explicitly release an in-flight reservation after a vacancy status change; (d) does the reviewer's "Available" vacancy status correspond to "Open" in BRD-017? | Resolved | **(a)** Revalidate vacancy exists/not deleted, reservation belongs to the same request and is valid, capacity not exceeded, employee/vacancy match approved details, no conflicting final allocation; success returns to the blocked-from stage, failure keeps the request Blocked for HR/Super Admin to resolve. **(b)** Status change never auto-releases a reservation: Full — continues, may resume; On Hold — retained, stays Blocked until reopened or cancelled/released; Closed — retained, cannot resume, HR/Super Admin must reopen, move the employee to another vacancy, or cancel and release. **(c)** HR (in scope) and Super Admin may release manually with mandatory reason, audited; Reporting Manager, Receiving Manager, Employee and IT cannot; Rejected/Withdrawn/Cancelled release automatically. **(d)** Yes: Available = status Open AND Available Capacity > 0; Open/Full/On Hold/Closed remain the stored statuses. | BRD-028, BRD-017, BRD-027, BRD-029 (Gate 0 comment 4) |
 | BRD-OQ-16 | Eligibility gaps left by BRD-029: (a) do Blocked / On Hold and Information Required requests count as "active" for the one-active-request rule — **answered by BRD-030: yes**; (b) what is the authoritative source for Employment Status and the mandatory organisation data (Employee ID, Department/BU, Designation, Location, Reporting Manager), and what happens when any of it is missing (Gate 0 comment 7); (c) what outcome applies when HR finds the employee ineligible at HR Review (reject or return for correction); (d) may the same vacancy be requested again after a Rejected/Withdrawn/Cancelled request — **answered by BRD-030: a new request is allowed subject to current eligibility and vacancy availability, with no extra same-vacancy restriction stated**? | Resolved | **(a)** Blocked / On Hold and Info Required / Clarification are **active**; only Completed, Rejected, Withdrawn and Cancelled are final (BRD-030). **(b)** Initially answered as "authoritative HR system / employee master data"; **refined by BRD-OQ-19 (2026-09-30): in the current phase the portal is the operational source, maintained by Super Admin / HR, with no HR-system synchronisation.** If any mandatory data is missing the employee cannot submit, no capacity is reserved, a clear validation message names the missing information and directs the employee to the assigned HR team, and the portal never invents or substitutes missing data; after HR corrects it the employee may submit subject to normal eligibility. **(c)** Not eligible under business/HR policy: HR **Rejects** with mandatory reason (Pending HR Review → Rejected; employee notified; reason visible as policy permits; reservation released; no Payroll/IT processing; audited; final). Correctable missing/incorrect information: **Request Clarification** (Pending HR Review → Info Required → Pending HR Review). **(d)** A new request for the same vacancy is allowed after Rejected/Withdrawn/Cancelled (new ID, eligibility and vacancy revalidated, workflow restarted, no approvals reused) subject to current eligibility, no other active request, vacancy Open/Available with capacity (BRD-030). | BRD-029, BRD-030, BRD-013, BRD-027, BRD-028 (Gate 0 comments 5, 6, 7) |
 | BRD-OQ-17 | Gaps left by BRD-030: (a) does an unsubmitted Draft count as an active request, given the response bars *creating* another request but omits Draft from the active list; (b) is database-level enforcement (e.g. a uniqueness constraint or locking on the employee) mandatory, as the reviewer's "application/database level" requires, or only "where appropriate"; (c) which HTTP status code and error structure apply to the duplicate-active rejection; (d) does any cool-down or waiting period apply after Completed, beyond eligibility rules and HR/business policies? | Resolved | **(a)** No: an unsubmitted Draft is not active; the restriction starts on successful submission; one employee may have at most one submitted active request. **(b)** Yes: enforcement is mandatory at backend/API **and** database level and must prevent simultaneous submissions creating multiple active requests; frontend validation is UX only. **(c)** HTTP 409 Conflict, `code: ACTIVE_TRANSFER_ALREADY_EXISTS`, message "You already have an active internal transfer request. Please wait until the existing request is completed or closed before submitting a new request."; the existing request is unchanged. **(d)** No cool-down in the current phase; after Completed a new request may be submitted immediately subject to eligibility, no other active request, vacancy availability and HR/business rules; new ID, workflow restarts, eligibility and vacancy revalidated, no approvals reused. | BRD-030 (Gate 0 comments 6, 16) |
 | BRD-OQ-19 | Residual points in the BRD-OQ-16(b) answer (Gate 0 comment 7 asks for a source of truth **per field**): (a) which source applies to Employee Name, Email, HR assignment and any other organisation metadata not named in the answer; (b) how and how often the portal synchronises from the HR system (real-time, scheduled, on demand) and what applies when the HR system is unavailable; (c) when portal data differs from the HR master, which value wins in an in-flight request; (d) BRD-020/BRD-024 let HR assign or update organisation metadata in the portal — does that update the HR master, or must it be corrected in the HR system first; (e) which HR team(s) are contacted for a missing-data correction. | Resolved | **(a)** Per-field ownership assigned (Employee ID, Name, Email, Employment Status, Department/BU, Designation, Location, Reporting Manager, HR/IT Assignment, Effective Transfer Date, Vacancy, Payroll reference, transfer-specific metadata) to the portal, maintained by Super Admin and/or HR; Department, Designation, Location and Vacancy only from portal master data, never free text. **(b)** No HR-system integration or synchronisation (real-time, scheduled, callback) in the current phase and no dependency on HR-system availability; any future integration needs its own approved contract, frequency, ownership, failure handling and reconciliation rules. **(c)** The workflow uses current approved portal data; an in-flight transfer uses the values stored on the Transfer Request, including HR changes made during processing; BRD-024 applies to Department/BU, Designation, Location, Reporting Manager changes when Receiving Manager approval is enabled; previous and new values audited. **(d)** HR updates under BRD-020/BRD-024 change portal / Transfer Request data only and do not update an external HR master; any external change follows the organisation's HR process outside the portal. **(e)** Employee cannot edit controlled data; assigned HR team (from Location / HR assignment) corrects within scope, coordinating with Super Admin where needed; eligibility and required data revalidated before the workflow continues. | BRD-029, BRD-020, BRD-024, Dependencies, Out of Scope (Gate 0 comment 7) |
+| BRD-OQ-20 | Residual points in the Effective Transfer Date answer (Gate 0 comment 8, BRD-031): (a) which specific roles may modify the date and at which workflow stages; (b) which time zone defines the "current date" and whether the 30-day limit is inclusive and fixed or configurable; (c) when Super Admin configures re-approval on a date change, which approver(s) must re-approve and whether it is per organisation/team or global; (d) which role must update an expired date and from which status (for example HR Processing or Pending IT Final Approval) before completion. | Resolved | **(a)** Employee selects/modifies the date only in Draft and not after submission; HR may modify during approval; Super Admin for administrative intervention. **(b)** Application/server-configured business time zone; current date to +30 calendar days inclusive; limit fixed for the current phase, not user-configurable. **(c)** No re-approval by default; if enabled in Super Admin workflow configuration, returns to the configured approval stage/approver. **(d)** An expired date blocks completion; HR updates it in an HR-controlled stage, Super Admin beyond those stages; the new date must satisfy the same rule. | BRD-031 (Gate 0 comment 8) |
 
 ---
 
@@ -1294,6 +1439,17 @@ moves to Approved.
   new Transfer Request ID, revalidates eligibility and vacancy availability,
   starts the approval workflow from the beginning, reuses no earlier approvals
   and leaves the earlier request unchanged as history.
+- Effective Transfer Date (BRD-031): the current date (business time zone) and
+  any date up to 30 calendar days ahead, inclusive, are accepted; a past date
+  and a date beyond the 30-day limit are rejected by the backend with a
+  validation message and the stored date is unchanged. Only the Employee (in
+  Draft), HR (during approval) and Super Admin (administrative intervention) can
+  change the date; an Employee cannot change it after submission. Weekend and
+  holiday dates are accepted. A request whose date has expired cannot be
+  completed until HR (HR-controlled stage) or Super Admin (later stages)
+  updates it to a valid date. A date change is audited and does not trigger
+  re-approval unless Super Admin has enabled it, in which case the request
+  returns to the configured stage/approver.
 - Reporting Manager and configured Receiving Manager can take permitted
   actions with decisions and reasons recorded.
 - HR can validate eligibility, target organisation, vacancy/capacity and
@@ -1335,7 +1491,7 @@ moves to Approved.
   Pending HR Review / HR Processing / Payroll Processing) and IT (in scope, during
   Pending IT Action / Pending IT Final Approval) may Block, and Reporting Manager,
   Receiving Manager and Employee are refused; HR cannot Resume an IT-blocked
-  request nor IT an HR-blocked one, HR cannot Cancel outside its three stages,
+  request nor IT an HR-blocked one, HR cannot Cancel outside its three stages (a Blocked request only if it was blocked in one of them, never an IT-blocked request; Super Admin may cancel a Blocked request at any stage),
   and none of the four actions applies to a Draft; a blocked request stores its previous status, allows no normal
   processing, keeps its reservation and resumes to the stored status only after
   revalidation. Cancel by Super Admin or in-scope HR (HR stages only) requires a reason, moves
@@ -1366,4 +1522,4 @@ Development / Implementation.
 
 | Gate | Reviewer Role | Reviewer | Review Date | Status | Comments |
 |---|---|---|---|---|---|
-| Gate 0 — BRD Review | Project Manager / Business Analyst | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-09-30 14:46:48 | Changes Requested | 22 comments: authentication/session, API-level authorisation, workflow state model, vacancy reservation/release, eligibility, multiple active requests, source of truth, effective date, BRD-024 retained, payroll completion gating IT Final Approval, IT Final Approval retained, integration contracts, document security, editing, withdrawal, rejection/resubmission, clarification, reassignment, notifications, audit logging, minimum performance targets, mandatory negative UAT scenarios. Full detail: `.ai-context/pr_reviews/BRD-20260930-144648.md`. BRD and assumptions.md must be updated and re-submitted for Gate 0. Author progress 2026-09-30: comments 1–6 and 15 addressed (BRD-025 – BRD-030; withdrawal rules in BRD-027 / BRD-OQ-12); Block/Resume/Cancel/Reassign rules added to BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4) and the eligibility gaps (BRD-OQ-16 resolved — HR system as source of truth, missing-data block, HR reject vs clarification; comment 7 partly covered) and the employee-data source of truth (BRD-OQ-19 resolved — portal is the operational source, per-field ownership, no HR-system synchronisation, comment 7 addressed); and the Block/Resume/Cancel/Reassign residual points (BRD-OQ-18 resolved — HR/IT controlled stages, HR Cancel limited to three HR stages, Draft excluded, cross-role Resume rules; comment 18 partly covered); comments 8–14 and 16–22 outstanding (9–11, 16–17 partially covered by BRD-027; 16 partially covered by BRD-030). |
+| Gate 0 — BRD Review | Project Manager / Business Analyst | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-09-30 14:46:48 | Changes Requested | 22 comments: authentication/session, API-level authorisation, workflow state model, vacancy reservation/release, eligibility, multiple active requests, source of truth, effective date, BRD-024 retained, payroll completion gating IT Final Approval, IT Final Approval retained, integration contracts, document security, editing, withdrawal, rejection/resubmission, clarification, reassignment, notifications, audit logging, minimum performance targets, mandatory negative UAT scenarios. Full detail: `.ai-context/pr_reviews/BRD-20260930-144648.md`. BRD and assumptions.md must be updated and re-submitted for Gate 0. Author progress 2026-09-30: comments 1–6 and 15 addressed (BRD-025 – BRD-030; withdrawal rules in BRD-027 / BRD-OQ-12); Block/Resume/Cancel/Reassign rules added to BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4) and the eligibility gaps (BRD-OQ-16 resolved — HR system as source of truth, missing-data block, HR reject vs clarification; comment 7 partly covered) and the employee-data source of truth (BRD-OQ-19 resolved — portal is the operational source, per-field ownership, no HR-system synchronisation, comment 7 addressed); and the Block/Resume/Cancel/Reassign residual points (BRD-OQ-18 resolved — HR/IT controlled stages, HR Cancel limited to three HR stages, Draft excluded, cross-role Resume rules; comment 18 partly covered); comments 14 and 16–22 outstanding (16–17 partially covered by BRD-027; 16 partially covered by BRD-030). |

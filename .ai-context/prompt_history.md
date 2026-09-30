@@ -156,3 +156,39 @@
 ### [2026-09-30 19:45]
 **User Request:** Provided the answer to open question BRD-OQ-18 (HR-controlled and IT-controlled stages for Block/Resume, HR Cancel limits, failed Resume revalidation, Draft exclusion, and who may Resume a Blocked request).
 **Agent Action:** Added the stage definitions, Draft exclusion, cross-role Resume rules and HR Cancel limits to BRD-027 in `BRD.md` (rules and transition-matrix rows) and reconciled BRD-019, BRD-028, Business Rules, Acceptance Criteria and the Open Questions table (BRD-OQ-18 now Resolved). Updated A-14 in `assumptions.md`, added a comment 18 (part) row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 22:30]
+**User Request:** Provided the answer for peer review comment 8 (Effective Transfer Date: current date to 30 days ahead, no past dates for any role, weekends/holidays allowed, expired date updated before completion, no re-approval unless Super Admin configures it).
+**Agent Action:** Added BRD-031 to `BRD.md` and reconciled Business Rules, Dependencies, Acceptance Criteria and the Open Questions table (new BRD-OQ-20 for residual gaps: modifying roles, time zone, re-approval approvers, expired-date owner). Added A-19 in `assumptions.md`, a comment 8 row in the Author Responses table of `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (8 of 22 addressed); spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 22:50]
+**User Request:** Provided the answer to open question BRD-OQ-20 (who may change the effective date, business time zone and inclusive fixed 30-day limit, optional re-approval routing, and expired-date correction by HR or Super Admin).
+**Agent Action:** Updated BRD-031 in `BRD.md` (editing roles, time zone, inclusive fixed limit, re-approval routing, expired-date ownership) and reconciled Business Rules, Dependencies, Acceptance Criteria and the Open Questions table (BRD-OQ-20 now Resolved). Rewrote A-19 in `assumptions.md`, updated the comment 8 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 23:10]
+**User Request:** Confirmed that HR may cancel a Blocked request blocked in an HR-controlled stage (not an IT-blocked one) and that Super Admin may cancel a Blocked request at any stage, with mandatory reason, capacity release, audit and notification.
+**Agent Action:** Added the Blocked-request cancellation rule, three transition-matrix rows and the follow-up note to BRD-027 in `BRD.md` (replacing the not-assumed residual) and reconciled Business Rules, Acceptance Criteria and the BRD-OQ-18 row. Updated A-14 in `assumptions.md`, the comment 18 (part) row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-09-30 23:30]
+**User Request:** Provided the answer to Gate 0 comment 9 (HR Organisation Metadata Changes: configured re-approval workflow, Receiving Manager re-approval when enabled, audit fields, BRD-024 remains mandatory with no HR bypass).
+**Agent Action:** Added the not-configured and no-bypass wording to BRD-024 in `BRD.md` (the rest already matched), updated A-11 in `assumptions.md`, added a comment 9 row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (9 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 09:30]
+**User Request:** Provided the answer to Gate 0 comment 10 (Payroll Task Completion: manual HR completion, no Payroll API/callback, IT Final Approval blocked until complete, payroll processing out of scope, audited).
+**Agent Action:** Added the comment 10 confirmation to BRD-027 rule (c) in `BRD.md`, added a comment 10 row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (10 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 10:00]
+**User Request:** Provided the answer to Gate 0 comment 11 (IT Final Approval is the mandatory final completion gate for every transfer, with or without IT work, and is audited).
+**Agent Action:** Added the comment 11 confirmation to the BRD-027 completion rule in `BRD.md`, added a comment 11 row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (11 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 10:30]
+**User Request:** Provided the answer to Gate 0 comment 12 (Integration Requirements: no external Payroll/HR integration in the current phase, contract required before any future integration, NFR-006 retry and visibility rules).
+**Agent Action:** Added an Integration Requirements rule to Business Rules in `BRD.md` and reconciled NFR-006 and Dependencies. Added a comment 12 row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (12 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 11:00]
+**User Request:** Provided the answer to Gate 0 comment 13 (Document Upload & Access: API/server-level security, PDF/image only, 5 MB per file, MIME and extension validation, file-name sanitisation, local server storage, role/organisation-scoped authenticated access, no public URLs, audit logging).
+**Agent Action:** Expanded BRD-021 in `BRD.md` with the confirmed rules and reconciled Business Rules and the BRD-OQ-08 row (maximum size now 5 MB). Updated A-06 in `assumptions.md`, added a comment 13 row to the Author Responses table in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (13 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 11:20]
+**User Request:** Answered the follow-up on Gate 0 comment 13: document upload validation failures return HTTP 413 (`FILE_SIZE_EXCEEDED`) and HTTP 415 (`UNSUPPORTED_FILE_TYPE`, `INVALID_FILE_TYPE`), with server-side rejection and no file stored.
+**Agent Action:** Added the validation-failure rule to BRD-021 in `BRD.md`, updated A-06 in `assumptions.md` and the comment 13 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (13 of 22 addressed); spec drafting and Gate 1 remain blocked.
