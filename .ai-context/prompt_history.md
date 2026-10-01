@@ -220,3 +220,27 @@
 ### [2026-10-01 13:30]
 **User Request:** Remove the Settings section and all Settings-related functionality from `dashboard.html` and the `.agent` documentation.
 **Agent Action:** Removed the Settings panel, view, "System" nav group, profile-menu Settings link, simulated-error and reset-preferences handlers (`forceError`, `toggle-error`, `reset-prefs`) and the unused cog/refresh icons from `dashboard.html`; kept the header theme menu, sidebar collapse and panel Retry. Updated `.agent/dashboard/behavior-spec.md` and `business-rules.md`; verified all routes load in headless Chrome with no errors (`#/settings` falls back to the dashboard).
+
+### [2026-10-01 14:00]
+**User Request:** Provided the answer to Gate 0 comment 16 (Rejection & Resubmission: mandatory reason, audited, Employee notified, Rejected final with capacity released, no same-reference resubmission, new application is a new request with a new ID and restarted workflow).
+**Agent Action:** Added BRD-033 and a Business Rules entry and Acceptance Criteria bullet to `BRD.md` (BRD-027 rejection rule reconciled), added A-21 to `assumptions.md`, recorded a comment 16 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (15 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 14:30]
+**User Request:** Provided the answer to Gate 0 comment 17 (Clarification: mandatory reason/question, Information Required temporary state, responsible user notified and responds, same transfer reference, audited requests/responses, return to the same stage/reviewer, multiple cycles, no workflow restart).
+**Agent Action:** Added BRD-034 plus Business Rules and Acceptance Criteria entries to `BRD.md` (BRD-027 clarification rule reconciled), added A-22 to `assumptions.md`, recorded a comment 17 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (16 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 15:00]
+**User Request:** Provided the answer to Gate 0 comment 18 (Administrative Reassignment: Super Admin only, mandatory reason, new assignee notified, previous assignee keeps history visibility but cannot act, no re-approval, same workflow stage, audited, no bypass of mandatory approvals or IT Final Approval).
+**Agent Action:** Added BRD-035 to `BRD.md` and reconciled the BRD-027 Reassign rule and matrix rows (HR reassign allowance withdrawn), BRD-OQ-13, BRD-010, Business Rules and Acceptance Criteria; added A-23 to `assumptions.md`, a comment 18 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (17 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 15:30]
+**User Request:** Provided the answer to Gate 0 comment 19 (Notifications: twelve mandatory events as Event → Recipient → Channel → Message → Mandatory/Optional; notification failure must not fail, roll back or corrupt the core transfer transaction, is logged, and may be retried without repeating the workflow transaction or creating duplicates).
+**Agent Action:** Added BRD-036 plus Business Rules and Acceptance Criteria entries to `BRD.md` (BRD-023 cross-referenced), added A-24 to `assumptions.md`, recorded a comment 19 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (18 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 15:45]
+**User Request:** Clarified Gate 0 comment 19 that notifications are delivered by both email and in-app.
+**Agent Action:** Updated BRD-036 (added a channel rule: "Email / In-app" events use both channels; account creation and reset stay Email only), the Business Rules and Acceptance Criteria entries, A-24 (removed the open channel question), the comment 19 review row and the change-log entry.
+
+### [2026-10-01 16:10]
+**User Request:** Provided the answer to Gate 0 comment 20 (Audit Logging: record content, Super Admin system-wide view with scoped access for others, append-only records, Super Admin-only audited export, lifetime retention with no manual deletion, no credentials in audit logs, security events audited).
+**Agent Action:** Added BRD-037 plus Business Rules and Acceptance Criteria entries to `BRD.md` (BRD-022 and NFR-005 cross-referenced), added A-25 to `assumptions.md`, recorded a comment 20 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (19 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; comments 21–22 outstanding; spec drafting and Gate 1 remain blocked.

@@ -498,7 +498,7 @@ button.gate-card:hover { border-color: var(--border-strong); background: var(--s
         <tr>
           <td>BRD.md — Internal Transfer Digital Journey</td>
           <td>Shamik Bhattacharya (shamik.bhattacharya@intglobal.com)</td>
-          <td><span class="badge bad">Changes Requested</span> — 22 comments; 14 of 22 addressed by author (comment 14, transfer request editing in BRD-032 — Employee edits in Draft only, post-submission changes by authorised HR/Super Admin with BRD-024 re-approval, no silent overwrite, full audit; comment 13, document upload/access secured at API/server level, PDF/image only, 5 MB, MIME/extension validation, authenticated scoped access, no public URLs, HTTP 413/415 upload validation errors; comment 12, no external Payroll/HR integration this phase, future integrations need an approved contract before implementation, NFR-006 retry/idempotency rules; comment 11, IT Final Approval mandatory final gate for every transfer; comment 10, Payroll completion manual by HR, no API/callback, blocks IT Final Approval; comment 9, BRD-024 confirmed — re-approval mandatory, no HR bypass; comment 1, BRD-025; comment 2, BRD-026; comment 3, BRD-027; comment 4, BRD-028; comment 5, BRD-029; comment 6, BRD-030; comment 8, BRD-031 Effective Transfer Date; comment 15, BRD-027 withdrawal rules), 8 outstanding; BRD-OQ-20 resolved (Employee edits date in Draft only, HR during approval, Super Admin for intervention; business time zone; inclusive fixed 30-day limit; optional re-approval to configured approver; expired date corrected by HR or Super Admin); BRD-OQ-12 and BRD-OQ-13 resolved (Block/Resume/Cancel/Reassign rules in BRD-027; comment 18 partly covered), BRD-OQ-14 resolved (HR Processing → Payroll Processing sequential, manual Payroll completion, 403 INVALID_WORKFLOW_TRANSITION), BRD-OQ-15 resolved (resume revalidation, reservations never auto-released, HR/Super Admin manual release, Available = Open with capacity &gt; 0), BRD-OQ-16 resolved (missing mandatory data blocks submission, HR rejects ineligible employee with reason or requests clarification for correctable data), BRD-OQ-19 resolved (portal is the operational employee-data source with per-field ownership, no HR-system synchronisation this phase; comment 7 addressed), open questions BRD-OQ-17 resolved (Draft not active, mandatory backend + database enforcement, HTTP 409 ACTIVE_TRANSFER_ALREADY_EXISTS, no cool-down); BRD-OQ-18 resolved (HR-controlled stages Pending HR Review / HR Processing / Payroll Processing and IT-controlled stages Pending IT Action / Pending IT Final Approval, HR Cancel limited to the three HR stages, Draft excluded, no cross-role Resume; comment 18 further covered; HR may cancel a Blocked request blocked in an HR-controlled stage, not an IT-blocked one, Super Admin any Blocked request); see <code>pr_reviews/BRD-20260930-144648.md</code></td>
+          <td><span class="badge bad">Changes Requested</span> — 22 comments; 19 of 22 addressed by author (comment 20, audit logging in BRD-037 — audit record content, Super Admin system-wide view with other users limited to role/organisation scope, append-only records never overwritten, Super Admin-only export that is itself audited, lifetime retention with no manual deletion, no credentials in audit logs, security events audited; comment 19, notifications in BRD-036 — twelve mandatory events with recipient/channel/message, notification failure never fails or rolls back the core transaction, failures logged, retry without repeating the workflow transaction, no duplicate actions or transitions; comment 18, administrative reassignment in BRD-035 — Super Admin only (HR can no longer reassign), mandatory reason, new assignee notified, previous assignee keeps history visibility but cannot act, no re-approval, same workflow stage, audited, no bypass of mandatory approvals or IT Final Approval; comment 17, clarification in BRD-034 — mandatory reason, Information Required as a temporary state, same transfer reference, audited requests/responses, return to the same stage/reviewer, multiple cycles, no workflow restart; comment 16, rejection &amp; resubmission in BRD-033 — mandatory reason, audited, Employee notified, Rejected final with capacity released, no same-reference resubmission, new application is a new request with new ID and restarted workflow; comment 14, transfer request editing in BRD-032 — Employee edits in Draft only, post-submission changes by authorised HR/Super Admin with BRD-024 re-approval, no silent overwrite, full audit; comment 13, document upload/access secured at API/server level, PDF/image only, 5 MB, MIME/extension validation, authenticated scoped access, no public URLs, HTTP 413/415 upload validation errors; comment 12, no external Payroll/HR integration this phase, future integrations need an approved contract before implementation, NFR-006 retry/idempotency rules; comment 11, IT Final Approval mandatory final gate for every transfer; comment 10, Payroll completion manual by HR, no API/callback, blocks IT Final Approval; comment 9, BRD-024 confirmed — re-approval mandatory, no HR bypass; comment 1, BRD-025; comment 2, BRD-026; comment 3, BRD-027; comment 4, BRD-028; comment 5, BRD-029; comment 6, BRD-030; comment 8, BRD-031 Effective Transfer Date; comment 15, BRD-027 withdrawal rules), 3 outstanding; BRD-OQ-20 resolved (Employee edits date in Draft only, HR during approval, Super Admin for intervention; business time zone; inclusive fixed 30-day limit; optional re-approval to configured approver; expired date corrected by HR or Super Admin); BRD-OQ-12 and BRD-OQ-13 resolved (Block/Resume/Cancel/Reassign rules in BRD-027; comment 18 addressed in BRD-035), BRD-OQ-14 resolved (HR Processing → Payroll Processing sequential, manual Payroll completion, 403 INVALID_WORKFLOW_TRANSITION), BRD-OQ-15 resolved (resume revalidation, reservations never auto-released, HR/Super Admin manual release, Available = Open with capacity &gt; 0), BRD-OQ-16 resolved (missing mandatory data blocks submission, HR rejects ineligible employee with reason or requests clarification for correctable data), BRD-OQ-19 resolved (portal is the operational employee-data source with per-field ownership, no HR-system synchronisation this phase; comment 7 addressed), open questions BRD-OQ-17 resolved (Draft not active, mandatory backend + database enforcement, HTTP 409 ACTIVE_TRANSFER_ALREADY_EXISTS, no cool-down); BRD-OQ-18 resolved (HR-controlled stages Pending HR Review / HR Processing / Payroll Processing and IT-controlled stages Pending IT Action / Pending IT Final Approval, HR Cancel limited to the three HR stages, Draft excluded, no cross-role Resume; comment 18 addressed; HR may cancel a Blocked request blocked in an HR-controlled stage, not an IT-blocked one, Super Admin any Blocked request); see <code>pr_reviews/BRD-20260930-144648.md</code></td>
           <td>2026-09-30</td>
         </tr>
       </tbody>
@@ -568,7 +568,7 @@ const DATA = {
         summary: 'One active request per employee, enforced in backend and database; duplicate submission returns HTTP 409 ACTIVE_TRANSFER_ALREADY_EXISTS.' },
       { n: 7,  title: 'Employee Data Source of Truth', status: 'partial', resp: '2026-09-30', inc: ['BRD-029','BRD-020','BRD-024','BRD-OQ-19','A-18'],
         summary: 'Portal is the operational source with per-field ownership; no HR-system synchronisation this phase.',
-        flag: 'The author response (BRD-OQ-19) is marked addressed, but the official count of 14/22 does not include comment 7. Confirm the count with the reviewer.' },
+        flag: 'The author response (BRD-OQ-19) is marked addressed, but the official count of 18/22 does not include comment 7. Confirm the count with the reviewer.' },
       { n: 8,  title: 'Effective Transfer Date', status: 'addressed', resp: '2026-09-30', inc: ['BRD-031','BRD-OQ-20','A-19'],
         summary: 'Current date to +30 calendar days inclusive; no past dates; Employee edits in Draft only; HR during approval; Super Admin for intervention.' },
       { n: 9,  title: 'HR Organisation Metadata Changes', status: 'addressed', resp: '2026-09-30', inc: ['BRD-024','A-11'],
@@ -585,12 +585,16 @@ const DATA = {
         summary: 'Employee edits in Draft only; after submission HR/Super Admin change with BRD-024 re-approval; no silent overwrite; full audit, original values kept.' },
       { n: 15, title: 'Withdrawal', status: 'addressed', resp: '2026-09-30', inc: ['BRD-027','BRD-OQ-12'],
         summary: 'Employee may withdraw until HR approval; reason mandatory; Withdrawn is final; reapplying creates a new request.' },
-      { n: 16, title: 'Rejection & Resubmission', status: 'partial', resp: null, inc: ['BRD-027','BRD-030'], summary: 'Partly covered by BRD-027 and BRD-030.' },
-      { n: 17, title: 'Clarification', status: 'partial', resp: null, inc: ['BRD-027'], summary: 'Partly covered by BRD-027.' },
-      { n: 18, title: 'Administrative Reassignment', status: 'partial', resp: '2026-09-30', inc: ['BRD-027','BRD-019','BRD-028','BRD-OQ-13','BRD-OQ-18'],
-        summary: 'Block/Resume/Cancel/Reassign rules defined; previous-assignee visibility not yet stated.' },
-      { n: 19, title: 'Notifications', status: 'open', resp: null, inc: [], summary: 'Not yet addressed.' },
-      { n: 20, title: 'Audit Logging', status: 'open', resp: null, inc: [], summary: 'Not yet addressed.' },
+      { n: 16, title: 'Rejection & Resubmission', status: 'addressed', resp: '2026-10-01', inc: ['BRD-033','BRD-030','BRD-027','BRD-028','A-21'],
+        summary: 'Reason mandatory and audited; Employee notified; Rejected is final and releases capacity; no same-reference resubmission — a new application gets a new ID, revalidation and a restarted workflow.' },
+      { n: 17, title: 'Clarification', status: 'addressed', resp: '2026-10-01', inc: ['BRD-034','BRD-027','BRD-022','A-22'],
+        summary: 'Reason mandatory; Information Required is temporary; same transfer reference; requests and responses audited; returns to the same stage/reviewer; multiple cycles; no workflow restart.' },
+      { n: 18, title: 'Administrative Reassignment', status: 'addressed', resp: '2026-10-01', inc: ['BRD-035','BRD-027','BRD-022','BRD-OQ-13','A-23'],
+        summary: 'Super Admin only (HR can no longer reassign); reason mandatory; new assignee notified; previous assignee keeps history visibility but cannot act; no re-approval; same workflow stage; audited; no bypass of mandatory approvals or IT Final Approval.' },
+      { n: 19, title: 'Notifications', status: 'addressed', resp: '2026-10-01', inc: ['BRD-036','BRD-023','BRD-022','NFR-006','A-24'],
+        summary: 'Twelve mandatory events with recipient, channel and message; notification failure never fails or rolls back the core transaction; failures logged; retry without repeating the workflow transaction; no duplicate actions or transitions.' },
+      { n: 20, title: 'Audit Logging', status: 'addressed', resp: '2026-10-01', inc: ['BRD-037','BRD-022','NFR-005','BRD-025','A-25'],
+        summary: 'Audit record content defined; Super Admin views all, others only within role and organisation scope; append-only, never overwritten; Super Admin-only export that is itself audited; lifetime retention, no manual deletion; no credentials in audit logs; security events audited.' },
       { n: 21, title: 'Performance & Availability', status: 'open', resp: null, inc: ['NFR-009'],
         summary: 'Not yet addressed. NFR-009 currently defers all targets to infrastructure planning.' },
       { n: 22, title: 'Mandatory Negative Acceptance Scenarios', status: 'open', resp: null, inc: [], summary: 'Not yet addressed.' }
@@ -598,7 +602,7 @@ const DATA = {
     // Gate 0 review criteria and the comments attached to each
     criteria: [
       { n: 1,  name: 'Business Requirements Clarity',      passed: true,  comments: [] },
-      { n: 2,  name: 'Functional Requirements',            passed: false, comments: [3,4,5,6,7,8,14,15,16,17,18] },
+      { n: 2,  name: 'Functional Requirements',            passed: false, comments: [3,4,5,6,7,8,14,15,16,17,18,19] },
       { n: 3,  name: 'Non-Functional Requirements',        passed: false, comments: [1,2,20,21] },
       { n: 4,  name: 'Business Rules',                     passed: false, comments: [4,5,6,8,10,15,16] },
       { n: 5,  name: 'Workflows',                          passed: false, comments: [3,9,14,15,16,17] },
@@ -638,8 +642,8 @@ const DATA = {
     ['BRD-019','Status and exception model','Transfer Workflow',[3,11]],
     ['BRD-020','HR organisation metadata updates','Transfer Workflow',[7]],
     ['BRD-021','Document upload and access','Documents, Audit & Notifications',[13]],
-    ['BRD-022','Audit logging of material actions','Documents, Audit & Notifications',[10,11]],
-    ['BRD-023','Notifications','Documents, Audit & Notifications',[]],
+    ['BRD-022','Audit logging of material actions','Documents, Audit & Notifications',[10,11,20]],
+    ['BRD-023','Notifications','Documents, Audit & Notifications',[19]],
     ['BRD-024','Organisation-metadata change re-approval','Transfer Workflow',[7,9]],
     ['BRD-025','Authentication & session security policy','Identity & Security',[1],'new'],
     ['BRD-026','Role & API-level authorization','Identity & Security',[2],'new'],
@@ -649,11 +653,16 @@ const DATA = {
     ['BRD-030','One active transfer request per employee','Transfer Workflow',[6,16],'new'],
     ['BRD-031','Effective transfer date validation','Transfer Workflow',[8],'new'],
     ['BRD-032','Transfer request editing','Transfer Workflow',[14],'new'],
+    ['BRD-033','Rejection and resubmission','Transfer Workflow',[16],'new'],
+    ['BRD-034','Clarification','Transfer Workflow',[17],'new'],
+    ['BRD-035','Administrative reassignment','Transfer Workflow',[18],'new'],
+    ['BRD-036','Notifications','Documents, Audit & Notifications',[19],'new'],
+    ['BRD-037','Audit logging','Documents, Audit & Notifications',[20],'new'],
     ['NFR-001','Authentication','Identity & Security',[1]],
     ['NFR-002','Authorisation','Identity & Security',[2]],
     ['NFR-003','Credential security','Identity & Security',[1]],
     ['NFR-004','Transport & data protection','Identity & Security',[]],
-    ['NFR-005','Auditability','Documents, Audit & Notifications',[]],
+    ['NFR-005','Auditability','Documents, Audit & Notifications',[20]],
     ['NFR-006','Reliability (integration failures, retries)','Quality & Reliability',[12]],
     ['NFR-007','Privacy','Identity & Security',[]],
     ['NFR-008','Accessibility / usability','Quality & Reliability',[]],

@@ -3,7 +3,7 @@
 
 **Status:** Changes Requested (Gate 0 review 2026-09-30 — see `.ai-context/pr_reviews/BRD-20260930-144648.md`)
 **Source:** `docs/Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf` (internally titled SOW v1.4, 27 September 2026, "Draft for stakeholder review")
-**Last Updated:** 2026-10-01 (Gate 0 comment 14 addressed — Transfer Request Editing rules in BRD-032: Employee edits all fields in Draft only, no Employee edit after submission, post-submission changes by authorised HR / Super Admin with BRD-024 re-approval, no silent overwrite, full audit of each change with original values retained; document upload validation error responses confirmed in BRD-021 — HTTP 413 `FILE_SIZE_EXCEEDED`, HTTP 415 `UNSUPPORTED_FILE_TYPE` / `INVALID_FILE_TYPE`, invalid file not stored; Gate 0 comment 13 addressed — document upload and access secured at API/server level in BRD-021: PDF/image only, 5 MB per file, MIME and extension validation, file-name sanitisation, local server storage, role/organisation-scoped authenticated access, no public URLs, audit logging; Gate 0 comment 12 addressed — no external Payroll/HR integration in the current phase, Payroll manual by HR; any future integration needs an approved contract covering the eleven required elements, NFR-006 retry/idempotency/visibility rules confirmed; 2026-09-30: HR cancellation of Blocked requests answered — HR may cancel HR-blocked requests, not IT-blocked ones, Super Admin any Blocked request, BRD-027 updated; Gate 0 comment 8 addressed — Effective Transfer Date rule BRD-031: current date to 30 days ahead, no past dates for any role, weekends/holidays allowed, expired date must be updated before completion, no re-approval unless Super Admin configures it; BRD-OQ-20 resolved — Employee edits in Draft only, HR during approval, Super Admin for intervention, business time zone, inclusive fixed 30-day limit, optional re-approval to configured approver, expired date corrected by HR or Super Admin; BRD-OQ-18 resolved — HR-controlled and IT-controlled stages defined for Block/Resume, HR Cancel limited to Pending HR Review / HR Processing / Payroll Processing with other stages requiring Super Admin, Draft excluded from all four actions, cross-role Resume rules, BRD-027 updated; BRD-OQ-17 resolved — Draft not active, mandatory backend + database enforcement, HTTP 409 `ACTIVE_TRANSFER_ALREADY_EXISTS`, no cool-down after Completed, BRD-030 updated; BRD-OQ-19 resolved — portal is the operational source of employee/organisation data with per-field ownership, no HR-system synchronisation this phase, comment 7 addressed; BRD-OQ-16 resolved — employee-data source of truth, missing-data handling and HR-ineligible outcome in BRD-029, comment 7 addressed with BRD-OQ-19; Gate 0 comments 1–6, 8 and 15 addressed — BRD-025 – BRD-031, plus the withdrawal rules in BRD-027 (BRD-OQ-12 resolved) and the Block/Resume/Cancel/Reassign rules in BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4); comments 14 and 16–22 outstanding, several partially covered by BRD-027, BRD-029 and BRD-030)
+**Last Updated:** 2026-10-01 (Gate 0 comment 20 addressed — Audit Logging rules in BRD-037: every material business, workflow, administrative and security-related action is audited with actor, role, action, related entity/request, date/time, previous/new value, previous/new status and remarks/reason where applicable; Super Admin views all audit logs while other users see only audit information within their role and organisation scope; audit records are append-only, never edited or overwritten (a change creates a new entry); only Super Admin may export audit logs and each export is itself audited; retained for the lifetime of the system with no manual deletion through the application; plaintext, temporary and reset passwords, authentication tokens and other credentials are never stored in audit logs; security events (login failures, account lock/unlock, password reset, role/permission changes, administrative interventions) are audited; Gate 0 comment 19 addressed — Notification rules in BRD-036: mandatory notifications follow Event → Recipient → Channel → Message → Mandatory/Optional for twelve events (user account created, credential/password reset, transfer submitted, approval required, clarification requested, approval completed, transfer rejected, HR action required, Payroll task assigned, IT task assigned, task blocked, transfer completed), all Mandatory; account creation and reset by Email only, workflow events by both Email and In-app; a notification failure never fails, rolls back or corrupts the core transfer transaction (no exception), the workflow action stays recorded, failures are logged for audit/troubleshooting, a failed notification may be retried without repeating the workflow transaction, and notification processing never creates duplicate transfer actions or workflow transitions; Gate 0 comment 18 addressed — Administrative Reassignment rules in BRD-035: only the Super Admin may reassign active workflow tasks (Reporting Manager, Receiving Manager, HR, IT) to a user with the required role and organisation/location scope; reason mandatory; new assignee becomes responsible and is notified; previous assignee keeps visibility through workflow/audit history but can no longer act unless reassigned back; no re-approval and completed approvals stay valid; request continues from the same workflow stage; every reassignment audited; no bypass of mandatory approvals, IT Final Approval, role permissions, organisation scope or security controls; the earlier BRD-027 allowance for HR to reassign is withdrawn; Gate 0 comment 17 addressed — Clarification rules in BRD-034: mandatory clarification reason/question, request moves to Information Required (temporary state), Employee or responsible user notified and responds under the same transfer reference, every request/response audited (requested by, question/reason, response, responded by, date/time), request returns to the same stage and reviewer, previous approvals and history retained, multiple cycles allowed, no restart of the approval workflow unless a separate re-approval rule applies; Gate 0 comment 16 addressed — Rejection & Resubmission rules in BRD-033: mandatory rejection reason, workflow-history and audit record (rejected by, reason, date/time), Employee notified, Rejected is final with reserved capacity released, no reopen or resubmission under the same reference, a new application is a new transfer request with a new reference, eligibility and vacancy revalidated, full workflow restarted, no approvals carried forward, rejected request kept in history; Gate 0 comment 14 addressed — Transfer Request Editing rules in BRD-032: Employee edits all fields in Draft only, no Employee edit after submission, post-submission changes by authorised HR / Super Admin with BRD-024 re-approval, no silent overwrite, full audit of each change with original values retained; document upload validation error responses confirmed in BRD-021 — HTTP 413 `FILE_SIZE_EXCEEDED`, HTTP 415 `UNSUPPORTED_FILE_TYPE` / `INVALID_FILE_TYPE`, invalid file not stored; Gate 0 comment 13 addressed — document upload and access secured at API/server level in BRD-021: PDF/image only, 5 MB per file, MIME and extension validation, file-name sanitisation, local server storage, role/organisation-scoped authenticated access, no public URLs, audit logging; Gate 0 comment 12 addressed — no external Payroll/HR integration in the current phase, Payroll manual by HR; any future integration needs an approved contract covering the eleven required elements, NFR-006 retry/idempotency/visibility rules confirmed; 2026-09-30: HR cancellation of Blocked requests answered — HR may cancel HR-blocked requests, not IT-blocked ones, Super Admin any Blocked request, BRD-027 updated; Gate 0 comment 8 addressed — Effective Transfer Date rule BRD-031: current date to 30 days ahead, no past dates for any role, weekends/holidays allowed, expired date must be updated before completion, no re-approval unless Super Admin configures it; BRD-OQ-20 resolved — Employee edits in Draft only, HR during approval, Super Admin for intervention, business time zone, inclusive fixed 30-day limit, optional re-approval to configured approver, expired date corrected by HR or Super Admin; BRD-OQ-18 resolved — HR-controlled and IT-controlled stages defined for Block/Resume, HR Cancel limited to Pending HR Review / HR Processing / Payroll Processing with other stages requiring Super Admin, Draft excluded from all four actions, cross-role Resume rules, BRD-027 updated; BRD-OQ-17 resolved — Draft not active, mandatory backend + database enforcement, HTTP 409 `ACTIVE_TRANSFER_ALREADY_EXISTS`, no cool-down after Completed, BRD-030 updated; BRD-OQ-19 resolved — portal is the operational source of employee/organisation data with per-field ownership, no HR-system synchronisation this phase, comment 7 addressed; BRD-OQ-16 resolved — employee-data source of truth, missing-data handling and HR-ineligible outcome in BRD-029, comment 7 addressed with BRD-OQ-19; Gate 0 comments 1–6, 8 and 15 addressed — BRD-025 – BRD-031, plus the withdrawal rules in BRD-027 (BRD-OQ-12 resolved) and the Block/Resume/Cancel/Reassign rules in BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4); comments 21–22 outstanding)
 
 > This baseline was rebuilt from scratch from the source SOW. A prior working
 > copy of this file (and of `assumptions.md`, `architecture.md`, `dashboard.html`,
@@ -306,18 +306,21 @@ alongside it.
     and change reason.
   - **Rejection:** reason mandatory; request moves to Rejected; employee
     notified; any active vacancy reservation released; pending downstream tasks
-    do not continue; rejection and reason audited. Whether a rejected request
-    may be resubmitted as a new transfer request is defined in BRD-030: a
-    Rejected request is closed and any new request gets a new reference, restarts
-    the workflow and reuses no earlier approvals. Other comment 16 points
-    (notification and workflow-history detail) remain under that comment.
-  - **Clarification:** Reporting Manager, Receiving Manager and HR may request
-    clarification where applicable. The request moves to Info Required; the
-    question/comment is recorded; the employee is notified and submits the
-    requested information; the request returns to the stage from which
-    clarification was requested; complete clarification history is retained;
-    multiple cycles are supported. Clarification does not cancel the transfer
-    or release the vacancy reservation.
+    do not continue; rejection recorded in the workflow history and audit log
+    (rejected by, reason, date/time). Rejected is final: the same request cannot
+    be reopened or resubmitted. A new application is a new transfer request under
+    BRD-030 / BRD-033 with a new reference, a restarted workflow and no earlier
+    approvals reused (Gate 0 comment 16).
+  - **Clarification** (BRD-034, Gate 0 comment 17): Reporting Manager,
+    Receiving Manager and HR may request clarification where applicable, with a
+    mandatory reason/question. The request moves to Info Required (a temporary
+    state); the Employee or appropriate responsible user is notified and
+    provides the requested information under the same transfer reference; the
+    request returns to the same stage and reviewer from which clarification was
+    requested; complete clarification history, previous approvals and workflow
+    history are retained; multiple cycles are supported. Clarification does not
+    cancel the transfer, restart the approval workflow or release the vacancy
+    reservation.
   - **Withdrawal** (BRD-OQ-12 resolved, 2026-09-30): the employee may withdraw
     **until HR approves the transfer request**. Withdrawal is permitted only
     from: Pending Reporting Manager Approval; Pending Receiving Manager
@@ -467,25 +470,24 @@ alongside it.
       - A Completed, Rejected, Withdrawn or already Cancelled request **cannot be
         cancelled**. To apply again the employee creates a **new Transfer
         Request** under BRD-030 and the workflow starts from the beginning.
-    - **Reassign** — moves responsibility for an active approval/processing task
-      from one authorised user to another (e.g. Reporting Manager → another
-      Reporting Manager, Receiving Manager → another Receiving Manager, HR →
-      another HR user, IT task → another IT user).
-      - *Who:* **Super Admin** (any active workflow task, to another eligible
-        user); **HR** for HR-controlled downstream tasks within HR's authorised
-        scope, where permitted.
+    - **Reassign** (BRD-035, Gate 0 comment 18 resolved 2026-10-01) — moves
+      responsibility for an active approval/processing task from one authorised
+      user to another (Reporting Manager, Receiving Manager, HR or IT task).
+      - *Who:* **Super Admin only**. HR, IT, Reporting Manager, Receiving
+        Manager and Employee cannot reassign.
       - *Reason:* **mandatory**. The new assignee must hold the required
-        **role and organisational scope**.
+        **role and organisational/location scope** for the task.
       - *Result:* the workflow status does **not** change (`Pending IT Action →
-        Reassign IT User → Pending IT Action`); only ownership changes.
-      - After reassignment the old assignee loses action permission on that task
-        (unless independently retained through their role/scope), the new
-        assignee is notified, and previously completed approvals stay in the
-        workflow history. Reassignment cannot be used to bypass mandatory
-        approvals. If it also changes Department/Business Unit, Designation,
-        Location or Reporting Manager, the **BRD-024 re-approval rule** applies
-        where required. The audit log records old assignee, new assignee,
-        reason, changed by, date/time and current workflow status.
+        Reassign IT User → Pending IT Action`); only the responsible assignee
+        changes and the request continues from the **same workflow stage**.
+      - After reassignment the old assignee keeps **visibility through the
+        workflow/audit history** but can no longer act on that task unless it is
+        reassigned back; the new assignee is notified. Reassignment triggers
+        **no re-approval** and does not invalidate completed approvals, and it
+        cannot be used to bypass mandatory approvals, IT Final Approval, role
+        permissions, organisation scope or other security controls. The audit
+        log records previous assignee, new assignee, reassigned by, reason,
+        date/time and affected workflow stage. Full rules: BRD-035.
 
     Rows added to the transition matrix:
 
@@ -502,8 +504,8 @@ alongside it.
     | Blocked (blocked during an HR-controlled stage, within HR scope) | HR | Cancel | Cancelled | **Yes** | No | Employee and relevant stakeholders notified | Reservation released; pending Payroll/IT tasks cancelled where applicable |
     | Blocked (blocked during an IT-controlled stage) | HR | Cancel | **Refused** — HR cannot cancel an IT-blocked request | — | — | — | No change; attempt audited as a security event |
     | Blocked (any stage) | Super Admin | Cancel | Cancelled | **Yes** | No | Employee and relevant stakeholders notified | Reservation released; pending Payroll/IT tasks cancelled where applicable |
-    | Active pending task | Super Admin | Reassign | Same status, new assignee | **Yes** | No | New assignee notified | No status or reservation change |
-    | HR-controlled task (within HR scope) | HR | Reassign | Same status, new assignee | **Yes** | No | New assignee notified | As above |
+    | Active pending task (Reporting Manager, Receiving Manager, HR or IT) | Super Admin | Reassign | Same status, new assignee | **Yes** | No | New assignee notified | No status, re-approval or reservation change |
+    | Any active task | HR / IT / Reporting Manager / Receiving Manager / Employee | Reassign | **Refused** — only Super Admin may reassign (BRD-035) | — | — | — | No change; attempt audited as a security event |
 
     **BRD-OQ-18 resolved (2026-09-30):** (a) the HR-controlled and IT-controlled
     stages are defined above; (b) HR may Cancel only during Pending HR Review, HR
@@ -900,6 +902,176 @@ alongside it.
   submitted request (BRD-026, BRD-027); frontend read-only display is UX only.
   A change by HR or Super Admin without a recorded reason is rejected.
 
+- **BRD-033** — Rejection & Resubmission (Gate 0 comment 16, author response
+  2026-10-01). Rejected is a final status; a new application is always a new
+  transfer request.
+
+  | Question (Gate 0 comment 16) | Requirement |
+  |---|---|
+  | Rejection reason | **Mandatory** for every rejection (Reporting Manager, Receiving Manager, Receiving Manager re-approval and HR rejections in BRD-027). A rejection without a reason is refused by the backend. |
+  | Workflow history and audit | The rejection is recorded in the **workflow history and audit log** (BRD-022) with **rejected by, rejection reason and date/time**. |
+  | Notification | The **Employee is notified** of the rejection. |
+  | Resulting status | The request moves to **Rejected**, a **final** status for that transfer request. No further approval, Payroll or IT processing continues. |
+  | Vacancy | Any vacancy/capacity reserved for the rejected request is **released** (BRD-028). |
+  | Reopen / resubmit same request | A rejected request **cannot be reopened or resubmitted under the same transfer request/reference**. |
+  | Who can apply again | The **Employee** creates and submits a **new transfer request**. |
+  | New reference | The system generates a **new transfer reference/ID**. |
+  | Previous approvals | **Not carried forward**; earlier approvals are never reused. |
+  | Eligibility | **Revalidated** for the new request (BRD-029). |
+  | Vacancy availability | **Rechecked** under the applicable vacancy rules (BRD-028). |
+  | Workflow | The new request starts the **complete approval workflow from the beginning** (BRD-027). |
+  | History | The rejected request remains available in the history and audit log for traceability. |
+
+  **Summary.** Rejected remains final; any later application is a new transfer
+  request with a new workflow. The one-active-request rule (BRD-030) is satisfied
+  because Rejected is a closed status. Enforcement is by the backend/API (BRD-026,
+  BRD-027): any attempt to edit, resubmit, approve or otherwise move a Rejected
+  request is rejected as an invalid workflow transition.
+
+- **BRD-034** — Clarification (Gate 0 comment 17, author response 2026-10-01).
+  Information Required is a temporary state; the request always returns to the
+  stage from which clarification was requested.
+
+  | Question (Gate 0 comment 17) | Requirement |
+  |---|---|
+  | Clarification reason/question | **Mandatory.** A clarification request without a reason/question is refused by the backend. |
+  | Resulting status | The request moves to **Information Required** (Info Required in BRD-027). |
+  | Who is notified | The **Employee or the appropriate responsible user** is notified that additional information is required. |
+  | Who can respond | The **responsible user** can provide the requested information/clarification. |
+  | Transfer reference | Providing clarification **does not create a new transfer request**; the **same transfer reference** continues. |
+  | Audit and workflow history | Every clarification request and response is kept in the **workflow history and audit log** (BRD-022): **requested by, question/reason, response, responded by, and date/time**. |
+  | Return stage | After the information is provided, the request returns to the **same workflow stage/reviewer from which clarification was requested**. |
+  | Previous approvals and history | Previous approvals and workflow history remain available and are **never removed or overwritten**. |
+  | Continuation | The workflow continues from that stage according to the configured approval process. |
+  | Multiple cycles | **Multiple clarification cycles are allowed** whenever additional information is required. |
+  | Restart of workflow | Clarification **does not restart the complete approval workflow**, unless the information provided results in a change subject to a separate re-approval rule (e.g. BRD-024 for HR changes to Department/Business Unit, Designation, Location or Reporting Manager). |
+
+  **Summary.** Information Required is a temporary state: the reviewer asks, the
+  responsible user answers on the same transfer reference, and the request
+  returns to the same stage and reviewer with all approvals and history intact.
+  The Info Required rows of the BRD-027 matrix apply (no vacancy reservation is
+  created or released by clarification; an existing reservation is retained).
+  Enforcement is by the backend/API (BRD-026, BRD-027): a response is accepted
+  only from the responsible user, and an invalid transition is refused.
+
+- **BRD-035** — Administrative Reassignment (Gate 0 comment 18, author response
+  2026-10-01). Reassignment changes only the responsible assignee; it never
+  changes or skips the required approval workflow.
+
+  | Question (Gate 0 comment 18) | Requirement |
+  |---|---|
+  | Who can perform reassignment | **Only the Super Admin.** The earlier BRD-027 allowance for HR to reassign HR-controlled tasks is withdrawn. |
+  | Which roles/tasks can be reassigned | Workflow tasks assigned to the **Reporting Manager, Receiving Manager, HR and IT**, where applicable, between users who hold the appropriate **role and organisation/location scope** for that task. |
+  | Reason | **Mandatory.** A reassignment without a reason is refused by the backend. |
+  | Who becomes responsible | The **new assignee** becomes responsible for the pending task. |
+  | Previous assignee | Retains **visibility through the workflow/audit history** but is **no longer permitted to act** on the reassigned task unless it is reassigned back to them. |
+  | Notification | The **new assignee is notified** about the reassigned task. |
+  | Re-approval | Reassignment **does not trigger re-approval** and does not invalidate approvals already completed. |
+  | Workflow stage | The request **continues from the same workflow stage** with the new assignee; the status does not change. |
+  | Audit | Every reassignment is recorded in the **audit log** (BRD-022): **previous assignee, new assignee, reassigned by, reason, date/time and affected workflow stage.** |
+  | Controls not bypassed | Reassignment does **not** bypass mandatory approvals, **IT Final Approval**, role permissions, organisation scope or other security controls. |
+
+  **Summary.** Administrative reassignment changes the responsible assignee
+  only; it does not change or skip the required approval workflow. Enforcement is
+  by the backend/API (BRD-026, BRD-027): a reassignment by any non-Super Admin
+  role, without a reason, to a user lacking the required role/scope, or on a
+  Draft or final-status request is refused, and the attempt is audited as a
+  security event. If a separate HR change to Department/Business Unit,
+  Designation, Location or Reporting Manager is made, BRD-024 applies to that
+  change, not to the reassignment itself.
+
+- **BRD-036** — Notifications (Gate 0 comment 19, author response 2026-10-01).
+  The portal generates notifications for key transfer workflow events. Each
+  mandatory notification is defined as **Event → Recipient → Channel → Message →
+  Mandatory/Optional**:
+
+  | Event | Recipient | Channel | Message / Purpose | Requirement |
+  |---|---|---|---|---|
+  | User account created | New User | Email | Account creation and temporary login credentials | Mandatory |
+  | Credential / password reset | User | Email | Password reset information / instructions | Mandatory |
+  | Transfer submitted | Employee | Email / In-app | Transfer request submitted successfully | Mandatory |
+  | Approval required | Assigned Approver | Email / In-app | Transfer request requires review / approval | Mandatory |
+  | Clarification requested | Employee / Responsible User | Email / In-app | Additional information / clarification required | Mandatory |
+  | Approval completed | Employee | Email / In-app | Transfer request approved at the applicable stage | Mandatory |
+  | Transfer rejected | Employee | Email / In-app | Transfer rejected, with the rejection reason | Mandatory |
+  | HR action required | Assigned HR | Email / In-app | Transfer requires HR action | Mandatory |
+  | Payroll task assigned | Authorized HR | Email / In-app | Payroll-related activity requires completion | Mandatory |
+  | IT task assigned | Assigned IT User | Email / In-app | IT activity requires action | Mandatory |
+  | Task blocked | Employee and relevant assigned user(s) | Email / In-app | Transfer / task has been blocked, including the reason | Mandatory |
+  | Transfer completed | Employee and relevant stakeholders | Email / In-app | Employee transfer successfully completed | Mandatory |
+
+  **Channel rule (author clarification 2026-10-01).** Where the channel is
+  "Email / In-app", the notification is delivered by **both Email and In-app**.
+  User account creation and credential / password reset are **Email only**.
+
+  **Notification failure.**
+  - A notification failure does **not fail, roll back or corrupt** the core
+    transfer transaction. This has no exception.
+  - The transfer / workflow action stays successfully recorded even if delivery
+    fails.
+  - Every notification failure is **logged for audit and troubleshooting**
+    (BRD-022).
+  - A failed notification may be **retried** without repeating the underlying
+    workflow transaction.
+  - Notification processing never creates duplicate transfer actions or
+    duplicate workflow transitions (retries are idempotent, NFR-006).
+
+  **Summary.** Notifications support the workflow but remain separate from the
+  core transfer transaction. The twelve events are the mandatory minimum; the
+  other notifications already required by this BRD (for example BRD-033
+  rejection, BRD-034 clarification and BRD-035 reassignment) remain in force and
+  follow the same failure rules.
+
+- **BRD-037** — Audit Logging (Gate 0 comment 20, author response 2026-10-01).
+  The system maintains an **audit log for all material business, workflow,
+  administrative and security-related actions** (extends BRD-022).
+
+  **Audit record content.** Each audit record captures, where applicable:
+
+  | Field | Captured |
+  |---|---|
+  | Actor | User who performed the action |
+  | Role | Role of the actor at the time of the action |
+  | Action | Action performed |
+  | Entity | Related employee / entity / transfer request |
+  | Date and time | When the action occurred |
+  | Previous value / new value | Value before and after a change |
+  | Previous / new status | Status before and after a transition |
+  | Remarks / reason | Reason or remarks supplied with the action |
+
+  **Audit log access.**
+  - **Super Admin** can view audit logs across the whole system.
+  - Other users can view audit information only for the **entities, requests
+    and activities within their assigned role and organisation scope**.
+  - Users have no access to audit information outside their authorised scope
+    (enforced by the backend/API, BRD-026).
+
+  **Audit log modification.**
+  - Audit records are **append-only**.
+  - Audit records cannot be edited through normal application functionality.
+  - Existing audit records are never overwritten when data changes; a **new
+    audit entry** is created instead.
+
+  **Export.**
+  - **Super Admin** can export audit logs for reporting / audit purposes.
+  - No other role can export audit logs.
+  - The export activity is itself recorded in the audit log.
+
+  **Retention and deletion.**
+  - Audit logs are retained for the **lifetime of the system**.
+  - Manual deletion of audit records through normal application functionality
+    is **not permitted**.
+
+  **Security.**
+  - Plaintext passwords, temporary passwords, reset passwords, authentication
+    tokens and other sensitive credentials are **never stored in audit logs**
+    (BRD-025).
+  - Security-related events are audited where applicable: login failures,
+    account lock / unlock, password reset, role / permission changes, and
+    administrative interventions. Authorisation denials on protected resources
+    and invalid workflow transition attempts remain audited as security events
+    (BRD-026, BRD-027).
+
 ### Role-Based Functional Scope
 - **BRD-010** — Super Admin can create/edit/activate/deactivate Locations;
   create/manage Departments and Designations; create Vacancies with
@@ -907,8 +1079,9 @@ alongside it.
   HR, IT, Reporting Manager and Employee users with appropriate mappings;
   generate login credentials during account creation;
   manage user-role mappings; view all employees, vacancies, transfer
-  requests, workflow tasks and audit history; reassign or administratively
-  intervene in transfer workflows where policy permits.
+  requests, workflow tasks and audit history; reassign workflow tasks
+  (BRD-035) or administratively intervene in transfer workflows where policy
+  permits.
 - **BRD-011** — Employee can log in, change temporary password on first
   login, view own profile (department, designation, location, Reporting
   Manager), browse eligible internal vacancies (subject to visibility rules),
@@ -1067,7 +1240,8 @@ alongside it.
   clarification, approvals/rejections, HR validation/allocation/metadata
   updates, payroll/IT task events, document actions, and administrative
   interventions. Plaintext passwords must never be written
-  to the audit log.
+  to the audit log. The audit record content, access, append-only, export,
+  retention and security rules are defined in BRD-037 (Gate 0 comment 20).
 - **BRD-023** — Notifications cover account creation/activation (where
   approved), transfer submission, action required, clarification,
   approval/rejection, downstream task assignment, delays/blockage and final
@@ -1077,7 +1251,8 @@ alongside it.
   organisation-wide reporting, other roles receive restricted reporting per
   policy. Overdue approvals/tasks are identifiable through dashboards and
   notifications; any automatic escalation timeline or recipient rules are
-  configurable per company policy (resolved, see BRD-OQ-10).
+  configurable per company policy (resolved, see BRD-OQ-10). The mandatory
+  event matrix and failure handling are defined in BRD-036 (Gate 0 comment 19).
 
 ---
 
@@ -1101,7 +1276,11 @@ alongside it.
 - **NFR-004 (Transport & Data Protection):** Encrypted transport and
   protection of personal/employee information.
 - **NFR-005 (Auditability):** Protected, tamper-resistant audit records for
-  material decisions, configuration changes and security events.
+  material decisions, configuration changes and security events. Audit records
+  are append-only, retained for the lifetime of the system, viewable by Super
+  Admin system-wide and by other users only within their role and organisation
+  scope, exportable by Super Admin only (the export is itself audited), and
+  never contain passwords or authentication credentials (BRD-037).
 - **NFR-006 (Reliability):** Recoverable integration failures, clear error
   ownership, and safeguards against duplicate downstream execution. Retrying
   an integration request must not create duplicate downstream transactions;
@@ -1177,7 +1356,8 @@ alongside it.
   blocked during one of those stages — never an IT-blocked request; Cancelled is final and
   not reopenable; Completed/Rejected/Withdrawn/Cancelled requests cannot be
   cancelled; employee-initiated stop is Withdrawal); Reassign = change task
-  ownership only, without changing status or bypassing approvals. None of the
+  ownership only (Super Admin only, BRD-035), without changing status or
+  bypassing approvals. None of the
   four applies to an unsubmitted Draft. Block,
   Cancel and Reassign require a mandatory reason, and all four actions are
   audited. None may bypass mandatory Reporting Manager, Receiving Manager, HR,
@@ -1202,6 +1382,14 @@ alongside it.
   post-submission change is audited with previous value, new value, changed by,
   date/time, reason and whether re-approval was triggered, and original values
   remain in the audit history (BRD-032, Gate 0 comment 14).
+- Rejection requires a mandatory reason and is recorded in the workflow history
+  and audit log (rejected by, reason, date/time); the Employee is notified, the
+  request becomes Rejected (final) and any reserved capacity is released. A
+  rejected request cannot be reopened or resubmitted under the same reference:
+  the Employee must submit a new transfer request with a new reference, eligibility
+  and vacancy availability revalidated, the complete workflow restarted and no
+  previous approvals carried forward; the rejected request stays in history and
+  audit (BRD-033, BRD-030, Gate 0 comment 16).
 - If HR changes a previously approved Department/Business Unit,
   Designation, Location, or Reporting Manager value, and Receiving Manager
   approval is enabled, the request must automatically return to the
@@ -1211,6 +1399,53 @@ alongside it.
   include a mandatory reason; a reviewer can instead request additional
   information/clarification, and the request returns to the appropriate
   responsible user without losing prior workflow history.
+- A clarification request requires a mandatory reason/question and moves the
+  request to Information Required (a temporary state); the Employee or
+  appropriate responsible user is notified and responds under the same transfer
+  reference, no new request is created, and the request returns to the same
+  stage and reviewer from which clarification was requested. Each request and
+  response is recorded in the workflow history and audit log (requested by,
+  question/reason, response, responded by, date/time); previous approvals and
+  history are never removed or overwritten; multiple cycles are allowed; the
+  complete approval workflow is not restarted unless the information provided
+  triggers a separate re-approval rule such as BRD-024 (BRD-034, Gate 0
+  comment 17).
+- Administrative reassignment (BRD-035): only the Super Admin may reassign a
+  workflow task (Reporting Manager, Receiving Manager, HR or IT) and only to a
+  user with the required role and organisation/location scope; a reason is
+  mandatory. The new assignee becomes responsible and is notified; the previous
+  assignee keeps visibility through the workflow/audit history but cannot act
+  unless the task is reassigned back. Reassignment triggers no re-approval,
+  keeps completed approvals valid and continues from the same workflow stage.
+  Every reassignment is audited (previous assignee, new assignee, reassigned by,
+  reason, date/time, workflow stage) and never bypasses mandatory approvals, IT
+  Final Approval, role permissions, organisation scope or security controls
+  (Gate 0 comment 18).
+- Notifications (BRD-036): the twelve mandatory events (user account created,
+  credential / password reset, transfer submitted, approval required,
+  clarification requested, approval completed, transfer rejected, HR action
+  required, Payroll task assigned, IT task assigned, task blocked, transfer
+  completed) each notify the defined recipient by the defined channel (Email only
+  for account creation and reset; both Email and In-app for workflow events). A
+  notification failure never fails, rolls back or corrupts the core transfer
+  transaction; the workflow action stays recorded, the failure is logged for
+  audit and troubleshooting, and the notification may be retried without
+  repeating the workflow transaction or creating a duplicate transfer action or
+  workflow transition (Gate 0 comment 19).
+- Audit logging (BRD-037): all material business, workflow, administrative and
+  security-related actions are recorded with actor, role, action, related
+  employee/entity/transfer request, date/time, previous and new value,
+  previous and new status and remarks/reason where applicable. Audit records
+  are append-only: they are not edited or overwritten through normal
+  application functionality, and a change creates a new entry. Super Admin
+  views all audit logs; other users view only audit information within their
+  assigned role and organisation scope. Only Super Admin can export audit logs,
+  and each export is itself audited. Audit logs are kept for the lifetime of
+  the system and cannot be deleted manually through the application. Plaintext,
+  temporary and reset passwords, authentication tokens and other sensitive
+  credentials are never stored in audit logs; login failures, account
+  lock/unlock, password reset, role/permission changes and administrative
+  interventions are audited (Gate 0 comment 20).
 - The employee can withdraw the transfer request only until HR approves it
   (from Pending Reporting Manager Approval, Pending Receiving Manager Approval,
   Info Required or Pending HR Review), with a mandatory reason. Withdrawn is
@@ -1371,7 +1606,7 @@ moves to Approved.
 | BRD-OQ-10 | What is the exact reviewer sequence, HR eligibility rules, organisation hierarchy source, withdrawal rules, and escalation rules to be confirmed before build approval? | Resolved | Reviewer sequence per BRD-018; rejection requires reason; clarification returns to responsible user without losing history; withdrawal permitted pre-completion per policy and audited; escalation configurable via dashboards/notifications. | BRD-018, BRD-023, Business Rules |
 | BRD-OQ-11 | Since IT final approval now gates transfer completion, what happens for a transfer with no applicable IT task? | Resolved | IT final approval is mandatory for every transfer; if no IT work applies, IT selects "No IT Action Required," may add remarks, and still gives Final Approval. | BRD-014 |
 | BRD-OQ-12 | What is the last workflow stage at which an employee may withdraw a transfer, is a withdrawal reason mandatory, and can a withdrawn request be reopened? | Resolved | Withdrawal allowed until HR approval (Pending Reporting Manager Approval, Pending Receiving Manager Approval if applicable, Info Required, Pending HR Review); after HR approval only the separate Cancellation process applies. Reason mandatory and audited. Withdrawn is final and cannot be reopened; reapplying creates a new Transfer Request. | BRD-027, BRD-030 (Gate 0 comments 3, 15) |
-| BRD-OQ-13 | Which roles may Block, Resume, Cancel or Reassign a transfer, from which statuses, and what are the resulting statuses? The BRD-027 matrix contains no rows for these. | Resolved | **Block:** Super Admin (any non-final stage), HR (HR/Payroll processing, in scope), IT (IT processing, in scope); reason mandatory; → Blocked with previous status stored; reservation retained; Reporting Manager, Receiving Manager and Employee cannot block. **Resume:** Super Admin, HR (HR-blocked, in scope), IT (IT-blocked, in scope); returns to the status blocked from after revalidating business conditions incl. vacancy validity/capacity. **Cancel:** Super Admin; HR in scope where policy permits; reason mandatory; → Cancelled (final, not reopenable); reservation released, downstream tasks cancelled; not possible from Completed/Rejected/Withdrawn/Cancelled; new request via BRD-030. **Reassign:** Super Admin; HR for HR-controlled tasks in scope; reason mandatory; status unchanged, new assignee needs role and scope; no bypass of mandatory approvals; BRD-024 applies if org metadata also changes. All four audited. | BRD-027, BRD-019, BRD-028 (Gate 0 comments 3, 4, 18) |
+| BRD-OQ-13 | Which roles may Block, Resume, Cancel or Reassign a transfer, from which statuses, and what are the resulting statuses? The BRD-027 matrix contains no rows for these. | Resolved | **Block:** Super Admin (any non-final stage), HR (HR/Payroll processing, in scope), IT (IT processing, in scope); reason mandatory; → Blocked with previous status stored; reservation retained; Reporting Manager, Receiving Manager and Employee cannot block. **Resume:** Super Admin, HR (HR-blocked, in scope), IT (IT-blocked, in scope); returns to the status blocked from after revalidating business conditions incl. vacancy validity/capacity. **Cancel:** Super Admin; HR in scope where policy permits; reason mandatory; → Cancelled (final, not reopenable); reservation released, downstream tasks cancelled; not possible from Completed/Rejected/Withdrawn/Cancelled; new request via BRD-030. **Reassign:** Super Admin; reason mandatory; status unchanged, new assignee needs role and scope; no bypass of mandatory approvals. *(Superseded 2026-10-01 by Gate 0 comment 18 / BRD-035: HR may no longer reassign — Super Admin only; reassignment itself triggers no re-approval.)* All four audited. | BRD-027, BRD-019, BRD-028 (Gate 0 comments 3, 4, 18) |
 | BRD-OQ-18 | Residual points in the BRD-OQ-13 answer: (a) which workflow statuses are "HR/Payroll-related processing" (e.g. HR Processing, Payroll Processing, Pending HR Review?) and "IT processing" (e.g. Pending IT Action, Pending IT Final Approval?) for HR/IT Block and Resume; (b) which company policy decides when HR may Cancel, and from which statuses; (c) what happens if revalidation on Resume fails — **answered by BRD-OQ-15(a): the request stays Blocked until HR/Super Admin resolve it**; (d) do Block, Cancel and Reassign apply to an unsubmitted Draft; (e) may a Super Admin Resume a request that HR or IT blocked, and may HR/IT resume one Super Admin blocked? | Resolved | **(a)** HR-controlled stages: Pending HR Review, HR Processing, Payroll Processing; IT-controlled stages: Pending IT Action, Pending IT Final Approval; HR/IT may Block/Resume only within their own stages and assigned scope. **(b)** HR may Cancel within scope during Pending HR Review, HR Processing and Payroll Processing, reason mandatory; other active stages require Super Admin; Cancelled is final, not reopenable, reservation released. **(c)** Already resolved by BRD-OQ-15(a): request stays Blocked until HR/Super Admin resolve it. **(d)** Block, Resume, Cancel and Reassign do not apply to an unsubmitted Draft (employee may edit or discard it). **(e)** Super Admin may Resume any authorised Blocked request; HR only HR-controlled blocks; IT only IT-controlled blocks; no cross-resume between HR and IT; all actions audited. **Follow-up (2026-09-30):** HR may Cancel a Blocked request blocked during an HR-controlled stage, HR cannot Cancel an IT-blocked request, Super Admin may Cancel a Blocked request at any stage (reason mandatory, reservation released, audited, Employee and stakeholders notified). | BRD-027, BRD-019 (Gate 0 comments 3, 4, 18) |
 | BRD-OQ-14 | Clarify matrix routing: (a) is "HR Confirmation" a distinct status or part of HR Processing; (b) is HR Processing before, or parallel with, Payroll Processing; (c) which Payroll completion source applies (manual by authorised user, payroll API, or callback); (d) what response applies to a rejected invalid-transition attempt? | Resolved | **(a)** HR Confirmation is an activity within HR Processing, not a status; after BRD-024 re-approval the request returns to HR Processing. **(b)** Sequential: HR Processing → Payroll Processing → Pending IT Action. **(c)** Current phase: an authorised HR user manually marks the Payroll activity completed (status, completed by, date/time, reference, remarks recorded); no payroll calculation and no Payroll API/callback unless separately approved with an integration contract. **(d)** HTTP 403 `INVALID_WORKFLOW_TRANSITION` ("The requested action is not permitted for the current transfer status."); status unchanged, no downstream effects, rejected attempt audited as a security event. IT Final Approval remains the mandatory final gate. | BRD-027, BRD-019, BRD-018, BRD-024 (Gate 0 comments 3, 10) |
 | BRD-OQ-15 | Vacancy edge cases left by BRD-028: (a) what validation applies when a Blocked request resumes "subject to validation"; (b) if the vacancy is On Hold/Closed/Full when a request resumes, does the existing reservation continue; (c) which authorised role may explicitly release an in-flight reservation after a vacancy status change; (d) does the reviewer's "Available" vacancy status correspond to "Open" in BRD-017? | Resolved | **(a)** Revalidate vacancy exists/not deleted, reservation belongs to the same request and is valid, capacity not exceeded, employee/vacancy match approved details, no conflicting final allocation; success returns to the blocked-from stage, failure keeps the request Blocked for HR/Super Admin to resolve. **(b)** Status change never auto-releases a reservation: Full — continues, may resume; On Hold — retained, stays Blocked until reopened or cancelled/released; Closed — retained, cannot resume, HR/Super Admin must reopen, move the employee to another vacancy, or cancel and release. **(c)** HR (in scope) and Super Admin may release manually with mandatory reason, audited; Reporting Manager, Receiving Manager, Employee and IT cannot; Rejected/Withdrawn/Cancelled release automatically. **(d)** Yes: Available = status Open AND Available Capacity > 0; Open/Full/On Hold/Closed remain the stored statuses. | BRD-028, BRD-017, BRD-027, BRD-029 (Gate 0 comment 4) |
@@ -1472,6 +1707,24 @@ moves to Approved.
   new Transfer Request ID, revalidates eligibility and vacancy availability,
   starts the approval workflow from the beginning, reuses no earlier approvals
   and leaves the earlier request unchanged as history.
+- Rejection & resubmission (BRD-033): a rejection without a reason is refused;
+  a valid rejection records rejected by, reason and date/time in the workflow
+  history and audit log, notifies the Employee, sets the request to Rejected
+  (final) and releases any reserved capacity. Reopening, editing or resubmitting
+  a Rejected request under the same reference is refused by the backend; the
+  Employee's new application gets a new transfer reference, revalidates
+  eligibility and vacancy availability, restarts the full workflow with no
+  previous approvals carried forward, and the rejected request remains visible
+  in history and audit.
+- Clarification (BRD-034): a clarification request without a reason/question is
+  refused; a valid request moves the request to Information Required and
+  notifies the Employee or responsible user; the response is accepted under the
+  same transfer reference (no new request is created) and the request returns to
+  the same stage and reviewer; the request, response, requested by, responded by
+  and date/time are visible in the workflow history and audit log; previous
+  approvals and history are unchanged; a second and further clarification
+  cycles are accepted; the complete approval workflow does not restart unless
+  the information provided triggers a separate re-approval rule.
 - Effective Transfer Date (BRD-031): the current date (business time zone) and
   any date up to 30 calendar days ahead, inclusive, are accepted; a past date
   and a date beyond the 30-day limit are rejected by the backend with a
@@ -1520,7 +1773,7 @@ moves to Approved.
 - When HR changes the selected vacancy, the new vacancy is validated and the old
   reservation is released and the new one made in a single transaction; if the
   new reservation fails, the original is unchanged and the change is refused.
-- Block/Resume/Cancel/Reassign (BRD-027): only Super Admin, HR (in scope, during
+- Block/Resume/Cancel (BRD-027): only Super Admin, HR (in scope, during
   Pending HR Review / HR Processing / Payroll Processing) and IT (in scope, during
   Pending IT Action / Pending IT Final Approval) may Block, and Reporting Manager,
   Receiving Manager and Employee are refused; HR cannot Resume an IT-blocked
@@ -1530,10 +1783,40 @@ moves to Approved.
   revalidation. Cancel by Super Admin or in-scope HR (HR stages only) requires a reason, moves
   the request to a final Cancelled status, releases the reservation, cancels
   pending Payroll/IT tasks, and is refused for Completed, Rejected, Withdrawn or
-  already Cancelled requests. Reassign requires a reason and a new assignee with
-  the required role and scope, leaves the status unchanged, removes the old
-  assignee's action permission and never bypasses a mandatory approval. Each
-  action is audited with actor, reason/remarks, date/time and status.
+  already Cancelled requests. Each action is audited with actor,
+  reason/remarks, date/time and status.
+- Administrative reassignment (BRD-035): a reassignment by anyone other than the
+  Super Admin (including HR) is refused with 403; a reassignment without a
+  reason, to a user lacking the required role or organisation/location scope, or
+  on a Draft or final-status request is refused. A valid reassignment leaves the
+  workflow status and completed approvals unchanged, triggers no re-approval,
+  makes the new assignee responsible and notifies them, removes the previous
+  assignee's permission to act on the task while the previous assignee can still
+  see it in the workflow/audit history, and lets the previous assignee act again
+  only if the task is reassigned back. The audit log shows previous assignee,
+  new assignee, reassigned by, reason, date/time and affected workflow stage.
+  Reassignment never lets a mandatory approval, IT Final Approval, role
+  permission, organisation scope or security control be bypassed.
+- Notifications (BRD-036): each of the twelve mandatory events produces a
+  notification to the defined recipient on the defined channel(s) (Email and In-app for workflow events, Email only for account creation and reset). When delivery
+  fails (for example the mail service is unavailable), the transfer or workflow
+  action still succeeds and stays recorded, no status change is rolled back, the
+  failure is written to the log for audit and troubleshooting, and a retry
+  delivers the notification without repeating the workflow transaction and
+  without creating a duplicate transfer action or workflow transition.
+- Audit logging (BRD-037): each material business, workflow, administrative and
+  security-related action produces an audit record with the applicable actor,
+  role, action, related entity/request, date/time, previous and new value,
+  previous and new status and remarks/reason. A change to existing data creates
+  a new audit entry and leaves earlier entries unchanged; no application screen
+  or API edits or deletes an audit record. Super Admin can view all audit logs,
+  while another user sees only audit information within their role and
+  organisation scope and is refused anything outside it. Only Super Admin can
+  export audit logs and the export itself appears in the audit log. No audit
+  record contains a plaintext, temporary or reset password, authentication token
+  or other sensitive credential, and login failures, account lock/unlock,
+  password reset, role/permission changes and administrative interventions are
+  recorded.
 - UAT scenarios cover account creation/login, credential reset, approval,
   rejection, clarification, capacity constraints, organisation-metadata
   change re-approval, reassignment, document handling, IT "No Action
@@ -1555,4 +1838,4 @@ Development / Implementation.
 
 | Gate | Reviewer Role | Reviewer | Review Date | Status | Comments |
 |---|---|---|---|---|---|
-| Gate 0 — BRD Review | Project Manager / Business Analyst | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-09-30 14:46:48 | Changes Requested | 22 comments: authentication/session, API-level authorisation, workflow state model, vacancy reservation/release, eligibility, multiple active requests, source of truth, effective date, BRD-024 retained, payroll completion gating IT Final Approval, IT Final Approval retained, integration contracts, document security, editing, withdrawal, rejection/resubmission, clarification, reassignment, notifications, audit logging, minimum performance targets, mandatory negative UAT scenarios. Full detail: `.ai-context/pr_reviews/BRD-20260930-144648.md`. BRD and assumptions.md must be updated and re-submitted for Gate 0. Author progress 2026-09-30: comments 1–6 and 15 addressed (BRD-025 – BRD-030; withdrawal rules in BRD-027 / BRD-OQ-12); Block/Resume/Cancel/Reassign rules added to BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4) and the eligibility gaps (BRD-OQ-16 resolved — HR system as source of truth, missing-data block, HR reject vs clarification; comment 7 partly covered) and the employee-data source of truth (BRD-OQ-19 resolved — portal is the operational source, per-field ownership, no HR-system synchronisation, comment 7 addressed); and the Block/Resume/Cancel/Reassign residual points (BRD-OQ-18 resolved — HR/IT controlled stages, HR Cancel limited to three HR stages, Draft excluded, cross-role Resume rules; comment 18 partly covered); comments 14 and 16–22 outstanding (16–17 partially covered by BRD-027; 16 partially covered by BRD-030). |
+| Gate 0 — BRD Review | Project Manager / Business Analyst | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-09-30 14:46:48 | Changes Requested | 22 comments: authentication/session, API-level authorisation, workflow state model, vacancy reservation/release, eligibility, multiple active requests, source of truth, effective date, BRD-024 retained, payroll completion gating IT Final Approval, IT Final Approval retained, integration contracts, document security, editing, withdrawal, rejection/resubmission, clarification, reassignment, notifications, audit logging, minimum performance targets, mandatory negative UAT scenarios. Full detail: `.ai-context/pr_reviews/BRD-20260930-144648.md`. BRD and assumptions.md must be updated and re-submitted for Gate 0. Author progress 2026-09-30: comments 1–6 and 15 addressed (BRD-025 – BRD-030; withdrawal rules in BRD-027 / BRD-OQ-12); Block/Resume/Cancel/Reassign rules added to BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4) and the eligibility gaps (BRD-OQ-16 resolved — HR system as source of truth, missing-data block, HR reject vs clarification; comment 7 partly covered) and the employee-data source of truth (BRD-OQ-19 resolved — portal is the operational source, per-field ownership, no HR-system synchronisation, comment 7 addressed); and the Block/Resume/Cancel/Reassign residual points (BRD-OQ-18 resolved — HR/IT controlled stages, HR Cancel limited to three HR stages, Draft excluded, cross-role Resume rules; comment 18 partly covered); comments 14, 16, 17 and 18 addressed on 2026-10-01 (BRD-032, BRD-033, BRD-034 and BRD-035); comment 19 addressed on 2026-10-01 (BRD-036); comment 20 addressed on 2026-10-01 (BRD-037); comments 21–22 outstanding. |
