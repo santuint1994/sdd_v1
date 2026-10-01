@@ -3,7 +3,7 @@
 
 **Status:** Changes Requested (Gate 0 review 2026-09-30 — see `.ai-context/pr_reviews/BRD-20260930-144648.md`)
 **Source:** `docs/Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf` (internally titled SOW v1.4, 27 September 2026, "Draft for stakeholder review")
-**Last Updated:** 2026-10-01 (document upload validation error responses confirmed in BRD-021 — HTTP 413 `FILE_SIZE_EXCEEDED`, HTTP 415 `UNSUPPORTED_FILE_TYPE` / `INVALID_FILE_TYPE`, invalid file not stored; Gate 0 comment 13 addressed — document upload and access secured at API/server level in BRD-021: PDF/image only, 5 MB per file, MIME and extension validation, file-name sanitisation, local server storage, role/organisation-scoped authenticated access, no public URLs, audit logging; Gate 0 comment 12 addressed — no external Payroll/HR integration in the current phase, Payroll manual by HR; any future integration needs an approved contract covering the eleven required elements, NFR-006 retry/idempotency/visibility rules confirmed; 2026-09-30: HR cancellation of Blocked requests answered — HR may cancel HR-blocked requests, not IT-blocked ones, Super Admin any Blocked request, BRD-027 updated; Gate 0 comment 8 addressed — Effective Transfer Date rule BRD-031: current date to 30 days ahead, no past dates for any role, weekends/holidays allowed, expired date must be updated before completion, no re-approval unless Super Admin configures it; BRD-OQ-20 resolved — Employee edits in Draft only, HR during approval, Super Admin for intervention, business time zone, inclusive fixed 30-day limit, optional re-approval to configured approver, expired date corrected by HR or Super Admin; BRD-OQ-18 resolved — HR-controlled and IT-controlled stages defined for Block/Resume, HR Cancel limited to Pending HR Review / HR Processing / Payroll Processing with other stages requiring Super Admin, Draft excluded from all four actions, cross-role Resume rules, BRD-027 updated; BRD-OQ-17 resolved — Draft not active, mandatory backend + database enforcement, HTTP 409 `ACTIVE_TRANSFER_ALREADY_EXISTS`, no cool-down after Completed, BRD-030 updated; BRD-OQ-19 resolved — portal is the operational source of employee/organisation data with per-field ownership, no HR-system synchronisation this phase, comment 7 addressed; BRD-OQ-16 resolved — employee-data source of truth, missing-data handling and HR-ineligible outcome in BRD-029, comment 7 addressed with BRD-OQ-19; Gate 0 comments 1–6, 8 and 15 addressed — BRD-025 – BRD-031, plus the withdrawal rules in BRD-027 (BRD-OQ-12 resolved) and the Block/Resume/Cancel/Reassign rules in BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4); comments 14 and 16–22 outstanding, several partially covered by BRD-027, BRD-029 and BRD-030)
+**Last Updated:** 2026-10-01 (Gate 0 comment 14 addressed — Transfer Request Editing rules in BRD-032: Employee edits all fields in Draft only, no Employee edit after submission, post-submission changes by authorised HR / Super Admin with BRD-024 re-approval, no silent overwrite, full audit of each change with original values retained; document upload validation error responses confirmed in BRD-021 — HTTP 413 `FILE_SIZE_EXCEEDED`, HTTP 415 `UNSUPPORTED_FILE_TYPE` / `INVALID_FILE_TYPE`, invalid file not stored; Gate 0 comment 13 addressed — document upload and access secured at API/server level in BRD-021: PDF/image only, 5 MB per file, MIME and extension validation, file-name sanitisation, local server storage, role/organisation-scoped authenticated access, no public URLs, audit logging; Gate 0 comment 12 addressed — no external Payroll/HR integration in the current phase, Payroll manual by HR; any future integration needs an approved contract covering the eleven required elements, NFR-006 retry/idempotency/visibility rules confirmed; 2026-09-30: HR cancellation of Blocked requests answered — HR may cancel HR-blocked requests, not IT-blocked ones, Super Admin any Blocked request, BRD-027 updated; Gate 0 comment 8 addressed — Effective Transfer Date rule BRD-031: current date to 30 days ahead, no past dates for any role, weekends/holidays allowed, expired date must be updated before completion, no re-approval unless Super Admin configures it; BRD-OQ-20 resolved — Employee edits in Draft only, HR during approval, Super Admin for intervention, business time zone, inclusive fixed 30-day limit, optional re-approval to configured approver, expired date corrected by HR or Super Admin; BRD-OQ-18 resolved — HR-controlled and IT-controlled stages defined for Block/Resume, HR Cancel limited to Pending HR Review / HR Processing / Payroll Processing with other stages requiring Super Admin, Draft excluded from all four actions, cross-role Resume rules, BRD-027 updated; BRD-OQ-17 resolved — Draft not active, mandatory backend + database enforcement, HTTP 409 `ACTIVE_TRANSFER_ALREADY_EXISTS`, no cool-down after Completed, BRD-030 updated; BRD-OQ-19 resolved — portal is the operational source of employee/organisation data with per-field ownership, no HR-system synchronisation this phase, comment 7 addressed; BRD-OQ-16 resolved — employee-data source of truth, missing-data handling and HR-ineligible outcome in BRD-029, comment 7 addressed with BRD-OQ-19; Gate 0 comments 1–6, 8 and 15 addressed — BRD-025 – BRD-031, plus the withdrawal rules in BRD-027 (BRD-OQ-12 resolved) and the Block/Resume/Cancel/Reassign rules in BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4); comments 14 and 16–22 outstanding, several partially covered by BRD-027, BRD-029 and BRD-030)
 
 > This baseline was rebuilt from scratch from the source SOW. A prior working
 > copy of this file (and of `assumptions.md`, `architecture.md`, `dashboard.html`,
@@ -868,14 +868,37 @@ alongside it.
   Every correction is audited.
 
   **Employee editing (BRD-OQ-20(a)).** The Employee's ability to set or change
-  the date ends at submission; editing of other submitted fields remains subject
-  to the open comment 14 rules.
+  the date ends at submission; editing of other submitted fields follows the
+  comment 14 rules in BRD-032.
 
   **Resolved (BRD-OQ-20, 2026-09-30):** modifying roles and stages, business
   time zone, inclusive and fixed 30-day limit, optional re-approval routing to
   the configured stage/approver, and the owner of an expired-date correction are
   all answered above. The approver(s) and stage for the optional re-approval are
   whatever Super Admin configures; none is assumed.
+
+- **BRD-032** — Transfer Request Editing (Gate 0 comment 14, author response
+  2026-10-01). Editing of a transfer request is controlled by workflow status
+  and role, and previously approved information is never silently overwritten.
+
+  | Question (Gate 0 comment 14) | Requirement |
+  |---|---|
+  | Which fields can be edited | The **Employee can edit all transfer request fields while the request is in Draft**. After submission the Employee can edit none. |
+  | Until which stage editing is allowed | Employee editing is allowed **only in Draft**. **Once the Employee submits, the Employee cannot edit the request.** |
+  | Post-submission changes | Any required organisation-related change after submission is made by the **authorised HR user or Super Admin**, according to their permissions and the workflow (BRD-020, BRD-027, BRD-031). Nothing is assumed beyond those permissions. |
+  | Can approved fields be modified | Previously approved information **shall not be silently overwritten**. An authorised role may change it only as a controlled, reasoned and audited change. |
+  | Re-approval | If HR changes **Department/Business Unit, Designation, Location or Reporting Manager**, the configured re-approval rule in **BRD-024** applies. If **Receiving Manager approval is enabled**, the request is routed back to the Receiving Manager for re-approval before continuing through the remaining workflow. |
+  | Audit history | Every change made after submission is recorded in the audit log (BRD-022) with **previous value, new value, changed by, date/time, reason for change, and whether re-approval was triggered**. The **original values remain available in the audit history** and are never permanently replaced without traceability. |
+
+  **Summary.** Employee editing is allowed only in Draft; after submission,
+  changes are controlled by the authorised roles and the applicable
+  re-approval workflow (BRD-024). The Effective Transfer Date keeps its own
+  modification rules (BRD-031); BRD-027 continues to govern Block, Resume,
+  Cancel and Reassign.
+
+  **Enforcement.** The backend/API rejects any Employee attempt to edit a
+  submitted request (BRD-026, BRD-027); frontend read-only display is UX only.
+  A change by HR or Super Admin without a recorded reason is rejected.
 
 ### Role-Based Functional Scope
 - **BRD-010** — Super Admin can create/edit/activate/deactivate Locations;
@@ -1169,6 +1192,16 @@ alongside it.
   Super Admin beyond those stages. Changing only the date does not trigger
   re-approval unless Super Admin enables it, in which case the request returns
   to the configured stage/approver; every change is audited (BRD-031).
+- The Employee can edit all transfer request fields only while the request is
+  in Draft and cannot edit it after submission. After submission, required
+  organisation-related changes are made by the authorised HR user or Super
+  Admin according to their permissions and the workflow. Previously approved
+  information is never silently overwritten; a change to Department/Business
+  Unit, Designation, Location or Reporting Manager triggers the BRD-024
+  re-approval rule (Receiving Manager re-approval when enabled). Every
+  post-submission change is audited with previous value, new value, changed by,
+  date/time, reason and whether re-approval was triggered, and original values
+  remain in the audit history (BRD-032, Gate 0 comment 14).
 - If HR changes a previously approved Department/Business Unit,
   Designation, Location, or Reporting Manager value, and Receiving Manager
   approval is enabled, the request must automatically return to the

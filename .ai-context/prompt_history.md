@@ -192,3 +192,31 @@
 ### [2026-10-01 11:20]
 **User Request:** Answered the follow-up on Gate 0 comment 13: document upload validation failures return HTTP 413 (`FILE_SIZE_EXCEEDED`) and HTTP 415 (`UNSUPPORTED_FILE_TYPE`, `INVALID_FILE_TYPE`), with server-side rejection and no file stored.
 **Agent Action:** Added the validation-failure rule to BRD-021 in `BRD.md`, updated A-06 in `assumptions.md` and the comment 13 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` and `dashboard.html`. Gate 0 stays Changes Requested (13 of 22 addressed); spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 00:59]
+**User Request:** Redesign `dashboard.html` into a modern, professional Spec-Driven Development control center (layout, KPIs, lifecycle, traceability, gates, search, themes, responsive, accessible) without losing existing functionality.
+**Agent Action:** Rewrote `.ai-context/dashboard.html` as a single-file vanilla HTML/CSS/JS app driven by a `DATA` snapshot of BRD.md, the Gate 0 review record, project_context.md and git history. The original Gate 0/1/2 and Active Specs tables are preserved verbatim in `<template id="tpl-records">`. No gate status or review data changed, so `status.md` and `pr_reviews/` needed no sync.
+
+### [2026-10-01 01:09]
+**User Request:** Add a `.agent` folder that documents the functionality, behavior, rules and data flow of `dashboard.html` as a reference for developers and AI agents.
+**Agent Action:** Created `.agent/dashboard/` with `README.md` (contract and change checklist), `behavior-spec.md`, `data-model.md` and `business-rules.md`. Existing `.agent/rules/` and `.agent/workflows/` untouched; no dashboard code changed.
+
+### [2026-10-01 11:40]
+**User Request:** Provided the answer to Gate 0 comment 14 (Transfer Request Editing: Employee edits in Draft only, post-submission changes by authorised HR/Super Admin, BRD-024 re-approval, no silent overwrite, full audit history).
+**Agent Action:** Added BRD-032 and a Business Rules entry to `BRD.md` (BRD-031 cross-reference updated), added A-20 to `assumptions.md`, recorded a comment 14 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (14 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 12:30]
+**User Request:** Remove the Needs Attention, My Actions, Requirement Traceability, Specification Health, Risks & Blockers, Change Impact Analysis, Architecture Overview, API Overview, Decision Log and Recent Activity sections and all related code, data, navigation and documentation.
+**Agent Action:** Removed the ten panels and their dependent code, data, CSS, navigation items, drawers, search entries, notification bell and "View as" switcher from `dashboard.html`; reorganised the dashboard into hero, KPIs, lifecycle, gates + open questions, testing; fixed a stale-selector console error in `rerender`/`renderAllPanels`; updated `.agent/dashboard/` (README, behavior-spec, data-model, business-rules); verified all routes in headless Chrome with no errors.
+
+### [2026-10-01 13:00]
+**User Request:** Remove the Data Model and Reports sections and all related functionality from `dashboard.html`.
+**Agent Action:** Removed the Data Model and Reports panels, views, navigation items (including the empty Reporting group), the `entities` mock data, the JSON export handler/button and the unused db/chart/download icons from `dashboard.html`; command-palette page search derives from the nav, so those entries are gone too.
+
+### [2026-10-01 13:10]
+**User Request:** Confirm whether the `.agent/dashboard/` documentation was updated for the Data Model and Reports removal.
+**Agent Action:** Removed the Data Model and Reports references (navigation table, view descriptions, JSON export, `entities[]` schema row) from `.agent/dashboard/behavior-spec.md` and `.agent/dashboard/data-model.md`.
+
+### [2026-10-01 13:30]
+**User Request:** Remove the Settings section and all Settings-related functionality from `dashboard.html` and the `.agent` documentation.
+**Agent Action:** Removed the Settings panel, view, "System" nav group, profile-menu Settings link, simulated-error and reset-preferences handlers (`forceError`, `toggle-error`, `reset-prefs`) and the unused cog/refresh icons from `dashboard.html`; kept the header theme menu, sidebar collapse and panel Retry. Updated `.agent/dashboard/behavior-spec.md` and `business-rules.md`; verified all routes load in headless Chrome with no errors (`#/settings` falls back to the dashboard).

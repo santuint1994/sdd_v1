@@ -1,40 +1,495 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme-pref="system">
 <head>
 <meta charset="UTF-8" />
-<title>Gate Review Dashboard — sdd_v1</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>SDD Control Center — sdd_v1</title>
+<script>
+  (function () {
+    try {
+      var p = localStorage.getItem('sdd.theme') || 'system';
+      var dark = p === 'dark' || (p === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    } catch (e) { /* storage unavailable: CSS defaults apply */ }
+  })();
+</script>
+<!--
+  SDD Control Center — single-file dashboard (HTML + CSS + vanilla JS, no dependencies).
+
+  SYNC POINTS (keep in step with status.md / pr_reviews / prompt_history.md):
+    1. <template id="tpl-records"> — the Gate 0 / Gate 1 / Gate 2 / Active Specs tables.
+       This is the authoritative review record and is machine-read by the PR-gate workflows.
+       Edit the <tbody> rows in place exactly as before.
+    2. const DATA (in the <script> at the end) — structured snapshot that drives every KPI,
+       lifecycle stage and search result. Update gate0 counts, comments[], requirements[],
+       openQuestions[], specs[] and tests[]; all metrics are derived, never typed.
+-->
 <style>
-  :root {
-    --bg: #0f1117; --panel: #171a23; --border: #2a2e3a; --text: #e6e8ee;
-    --muted: #9aa0ad; --accent: #5b8cff; --ok: #33c17d; --warn: #f2b84b; --bad: #ef5b5b;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); }
-  header { padding: 20px 28px; border-bottom: 1px solid var(--border); }
-  header h1 { margin: 0; font-size: 20px; }
-  header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-  main { padding: 24px 28px; display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
-  .card.wide { grid-column: 1 / -1; }
-  .card h2 { margin: 0 0 12px; font-size: 15px; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
-  th { color: var(--muted); font-weight: 500; }
-  .badge { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-  .badge.ok { background: rgba(51,193,125,.15); color: var(--ok); }
-  .badge.warn { background: rgba(242,184,75,.15); color: var(--warn); }
-  .badge.bad { background: rgba(239,91,91,.15); color: var(--bad); }
-  .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+/* ───────── Design tokens ───────── */
+:root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+  --sidebar-w: 248px; --sidebar-w-collapsed: 64px; --header-h: 56px;
+  --ease: cubic-bezier(.2,.7,.2,1);
+
+  --background: #f5f6f8;
+  --surface: #ffffff;
+  --surface-secondary: #f0f2f5;
+  --surface-hover: #eaedf2;
+  --border: #e1e5eb;
+  --border-strong: #cdd3dc;
+  --text-primary: #12151c;
+  --text-secondary: #4f5766;
+  --text-tertiary: #646c7c;
+  --primary: #3552d6;
+  --primary-soft: #e8ecff;
+  --primary-contrast: #ffffff;
+  --success: #0d7a4d;  --success-soft: #e2f4ec;
+  --warning: #8a5600;  --warning-soft: #fcf0d6;
+  --danger:  #b3262d;  --danger-soft:  #fde9e9;
+  --info:    #1a62a6;  --info-soft:    #e2eff9;
+  --neutral: #4f5766;  --neutral-soft: #eceff3;
+  --shadow-sm: 0 1px 2px rgba(16,24,40,.05);
+  --shadow-md: 0 8px 24px rgba(16,24,40,.10), 0 2px 6px rgba(16,24,40,.06);
+  --overlay: rgba(12,16,24,.42);
+  --skeleton-a: #eceff3; --skeleton-b: #f6f8fa;
+}
+:root[data-theme="dark"] {
+  --background: #0c0e13;
+  --surface: #14171f;
+  --surface-secondary: #1a1e28;
+  --surface-hover: #212634;
+  --border: #272c39;
+  --border-strong: #363d4e;
+  --text-primary: #e8eaf0;
+  --text-secondary: #a6adbc;
+  --text-tertiary: #8b93a4;
+  --primary: #8aa0ff;
+  --primary-soft: rgba(138,160,255,.14);
+  --primary-contrast: #0c0e13;
+  --success: #4ccb8f;  --success-soft: rgba(76,203,143,.13);
+  --warning: #e9b554;  --warning-soft: rgba(233,181,84,.13);
+  --danger:  #f58489;  --danger-soft:  rgba(245,132,137,.13);
+  --info:    #62b3f2;  --info-soft:    rgba(98,179,242,.13);
+  --neutral: #a6adbc;  --neutral-soft: rgba(166,173,188,.12);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-md: 0 12px 32px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.4);
+  --overlay: rgba(0,0,0,.6);
+  --skeleton-a: #1a1e28; --skeleton-b: #222836;
+}
+
+/* ───────── Base ───────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; font: 400 14px/1.5 var(--font-sans); color: var(--text-primary); background: var(--background); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, p { margin: 0; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: var(--primary); }
+code { font-family: var(--font-mono); font-size: .92em; }
+code { background: var(--surface-secondary); padding: 1px 5px; border-radius: 4px; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link { position: absolute; left: 8px; top: -60px; z-index: 100; background: var(--primary); color: var(--primary-contrast); padding: 8px 12px; border-radius: var(--radius-sm); }
+.skip-link:focus { top: 8px; }
+.icon { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.icon.lg { width: 20px; height: 20px; }
+.muted { color: var(--text-secondary); }
+.faint { color: var(--text-tertiary); }
+.nowrap { white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ───────── App shell ───────── */
+.app { display: grid; grid-template-columns: var(--sidebar-w) minmax(0,1fr); min-height: 100vh; transition: grid-template-columns .18s var(--ease); }
+.app.collapsed { grid-template-columns: var(--sidebar-w-collapsed) minmax(0,1fr); }
+.sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; overflow-x: hidden; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 40; }
+.brand { display: flex; align-items: center; gap: 10px; height: var(--header-h); padding: 0 16px; border-bottom: 1px solid var(--border); flex: none; }
+.brand-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--primary); color: var(--primary-contrast); display: grid; place-items: center; flex: none; }
+.brand-text { font-weight: 650; letter-spacing: -.01em; white-space: nowrap; }
+.brand-text small { display: block; font-weight: 400; font-size: 11px; color: var(--text-tertiary); letter-spacing: 0; }
+.nav { padding: 10px 10px 16px; flex: 1; }
+.nav-group + .nav-group { margin-top: 14px; }
+.nav-label { padding: 6px 10px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-tertiary); white-space: nowrap; }
+.nav-link { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 34px; padding: 6px 10px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-weight: 500; white-space: nowrap; position: relative; }
+.nav-link:hover { background: var(--surface-secondary); color: var(--text-primary); }
+.nav-link[aria-current="page"] { background: var(--primary-soft); color: var(--primary); }
+.nav-link .count { margin-left: auto; font-size: 11px; font-weight: 600; min-width: 20px; text-align: center; padding: 1px 6px; border-radius: 999px; background: var(--surface-secondary); color: var(--text-secondary); }
+.nav-link .count.alert { background: var(--danger-soft); color: var(--danger); }
+.nav-link .count.warn { background: var(--warning-soft); color: var(--warning); }
+@media (min-width: 901px) {
+.collapsed .nav-label, .collapsed .brand-text, .collapsed .nav-link .txt { display: none; }
+.collapsed .nav-link { justify-content: center; padding: 6px; }
+.collapsed .nav-link .count { position: absolute; top: 1px; right: 2px; min-width: 16px; font-size: 10px; padding: 0 4px; margin: 0; }
+.collapsed .brand { justify-content: center; padding: 0; }
+.collapsed .nav-group + .nav-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+}
+.sidebar-foot { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-tertiary); }
+@media (min-width: 901px) { .collapsed .sidebar-foot { display: none; } }
+
+.main-col { min-width: 0; display: flex; flex-direction: column; }
+.topbar { position: sticky; top: 0; z-index: 30; height: var(--header-h); display: flex; align-items: center; gap: 8px; padding: 0 20px; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: saturate(1.4) blur(8px); border-bottom: 1px solid var(--border); }
+.topbar .spacer { flex: 1; }
+.icon-btn { width: 34px; height: 34px; display: grid; place-items: center; border-radius: var(--radius-sm); color: var(--text-secondary); position: relative; }
+.icon-btn:hover, .icon-btn[aria-expanded="true"] { background: var(--surface-secondary); color: var(--text-primary); }
+.pill-btn { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-weight: 500; }
+.pill-btn:hover, .pill-btn[aria-expanded="true"] { background: var(--surface-secondary); }
+.env-tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--info-soft); color: var(--info); }
+.search-btn { display: flex; align-items: center; gap: 8px; width: min(420px, 100%); height: 34px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-secondary); color: var(--text-tertiary); text-align: left; }
+.search-btn:hover { border-color: var(--border-strong); }
+.search-btn .grow { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+kbd { font: 600 11px var(--font-mono); padding: 1px 6px; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 5px; background: var(--surface); color: var(--text-secondary); }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; }
+
+.menu-wrap { position: relative; }
+.menu { position: absolute; right: 0; top: calc(100% + 6px); min-width: 230px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); padding: 6px; z-index: 60; }
+.menu.left { left: 0; right: auto; }
+.menu-title { padding: 8px 10px 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); }
+.menu-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); text-align: left; }
+.menu-item:hover, .menu-item:focus-visible { background: var(--surface-secondary); }
+.menu-item[aria-checked="true"], .menu-item[aria-current="true"] { color: var(--primary); font-weight: 600; }
+.menu-item .tick { margin-left: auto; opacity: 0; }
+.menu-item[aria-checked="true"] .tick, .menu-item[aria-current="true"] .tick { opacity: 1; }
+.menu-sep { height: 1px; background: var(--border); margin: 6px 0; }
+
+/* ───────── Page ───────── */
+.page { padding: 24px; max-width: 1560px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.page-head h1 { font-size: 22px; letter-spacing: -.02em; }
+.crumbs { font-size: 12px; color: var(--text-tertiary); margin-bottom: 2px; }
+.grid { display: grid; gap: 16px; }
+.grid.two-one { grid-template-columns: minmax(0,1.7fr) minmax(0,1fr); }
+.grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.grid.one-two { grid-template-columns: minmax(0,1fr) minmax(0,1.6fr); }
+@media (max-width: 1100px) { .grid.two-one, .grid.two, .grid.one-two { grid-template-columns: minmax(0,1fr); } }
+@media (max-width: 760px) { .page { padding: 16px; } }
+
+/* ───────── Panels ───────── */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); min-width: 0; display: flex; flex-direction: column; }
+.panel.emph { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+.panel-head { display: flex; align-items: center; gap: 8px; padding: 14px 16px 10px; }
+.panel-head h2 { font-size: 14px; font-weight: 650; letter-spacing: -.005em; }
+.panel.emph .panel-head h2 { font-size: 15px; }
+.panel-head .sub { font-size: 12px; color: var(--text-tertiary); }
+.panel-head .tools { margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.panel-body { padding: 4px 16px 16px; min-width: 0; flex: 1; }
+.panel-body.flush { padding: 0 0 4px; }
+.panel-foot { padding: 10px 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.link-btn { color: var(--primary); font-weight: 550; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
+.link-btn:hover { text-decoration: underline; }
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--surface); font-weight: 550; font-size: 13px; }
+.btn:hover { background: var(--surface-secondary); }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-contrast); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 26px; padding: 0 9px; font-size: 12px; }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.chip { height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 550; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; }
+.chip:hover { background: var(--surface-secondary); }
+.chip[aria-pressed="true"], .chip[aria-checked="true"] { background: var(--primary-soft); border-color: transparent; color: var(--primary); }
+.chip .n { font-variant-numeric: tabular-nums; opacity: .8; }
+input.field { height: 30px; padding: 0 8px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-primary); font: inherit; font-size: 13px; }
+input.field { min-width: 0; width: 180px; }
+
+/* ───────── Badges ───────── */
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 6px; border-radius: 999px; font-size: 11.5px; font-weight: 600; line-height: 1.5; white-space: nowrap; background: var(--neutral-soft); color: var(--neutral); }
+.badge .icon { width: 12px; height: 12px; stroke-width: 2.2; }
+.badge.success, .badge.ok { background: var(--success-soft); color: var(--success); }
+.badge.warning, .badge.warn { background: var(--warning-soft); color: var(--warning); }
+.badge.danger, .badge.bad { background: var(--danger-soft); color: var(--danger); }
+.badge.info { background: var(--info-soft); color: var(--info); }
+.badge.primary { background: var(--primary-soft); color: var(--primary); }
+.badge.neutral { background: var(--neutral-soft); color: var(--neutral); }
+
+/* ───────── Info tooltip ───────── */
+.info-tip { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; color: var(--text-tertiary); vertical-align: middle; }
+.info-tip:hover { color: var(--text-primary); background: var(--surface-secondary); }
+.info-tip .icon { width: 14px; height: 14px; }
+.tooltip { position: fixed; z-index: 120; max-width: 280px; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--text-primary); color: var(--surface); font-size: 12px; line-height: 1.45; box-shadow: var(--shadow-md); pointer-events: none; }
+
+/* ───────── Hero ───────── */
+.hero { padding: 20px 22px; display: grid; gap: 18px; }
+.hero-top { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.hero h1 { font-size: 24px; letter-spacing: -.025em; line-height: 1.2; }
+.hero-status { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; color: var(--text-secondary); }
+.hero-progress { min-width: 220px; text-align: right; }
+.hero-progress .big { font-size: 30px; font-weight: 700; letter-spacing: -.03em; line-height: 1; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.meta-item dt { font-size: 11.5px; color: var(--text-tertiary); font-weight: 550; }
+.meta-item dd { margin: 2px 0 0; font-weight: 600; }
+.meta-item dd small { display: block; font-weight: 400; color: var(--text-secondary); font-size: 12px; }
+.verdict { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius-md); background: var(--danger-soft); color: var(--text-primary); font-size: 13px; }
+.verdict.ok { background: var(--success-soft); }
+.verdict .icon { margin-top: 2px; color: var(--danger); }
+.verdict.ok .icon { color: var(--success); }
+
+/* ───────── Progress ───────── */
+.bar { height: 6px; background: var(--surface-secondary); border-radius: 999px; overflow: hidden; }
+.bar > span { display: block; height: 100%; border-radius: inherit; background: var(--primary); transition: width .4s var(--ease); }
+.bar.success > span { background: var(--success); } .bar.warning > span { background: var(--warning); } .bar.danger > span { background: var(--danger); } .bar.info > span { background: var(--info); }
+.bar.lg { height: 8px; }
+
+/* ───────── KPI cards ───────── */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; }
+.kpi { text-align: left; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 6px; min-width: 0; transition: border-color .15s, transform .15s; }
+.kpi { position: relative; }
+.kpi.linked:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.kpi-hit { font-weight: 600; color: inherit; text-align: left; }
+.kpi-hit::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius-md); }
+.kpi-hit:focus-visible { outline: none; }
+.kpi-hit:focus-visible::after { outline: 2px solid var(--primary); outline-offset: 2px; }
+.kpi .info-tip { position: relative; z-index: 2; }
+.kpi-label { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.kpi-value { font-size: 28px; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; }
+.kpi-value small { font-size: 14px; font-weight: 550; color: var(--text-tertiary); letter-spacing: 0; }
+.kpi-desc { font-size: 12px; color: var(--text-secondary); min-height: 18px; }
+.kpi-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
+.trend { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.trend.up { color: var(--success); } .trend.down { color: var(--danger); }
+
+/* ───────── Lifecycle ───────── */
+.stepper { list-style: none; margin: 0; padding: 4px 16px 16px; display: grid; grid-template-columns: repeat(8, minmax(0,1fr)); gap: 0; }
+.step { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 0 4px; }
+.step::before { content: ""; position: absolute; top: 17px; left: -50%; width: 100%; height: 2px; background: var(--border-strong); z-index: 0; }
+.step:first-child::before { display: none; }
+.step.done::before, .step.active::before { background: var(--success); }
+.step-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; padding: 2px 2px 6px; border-radius: var(--radius-md); z-index: 1; }
+.step-btn:hover { background: var(--surface-secondary); }
+.node { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--border-strong); color: var(--text-tertiary); }
+.step.done .node { background: var(--success); border-color: var(--success); color: var(--surface); }
+.step.active .node { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); background: var(--surface); }
+.step.blocked .node { border-style: dashed; border-color: var(--danger); color: var(--danger); }
+.step.failed .node { background: var(--danger); border-color: var(--danger); color: var(--surface); }
+.step-title { font-size: 12.5px; font-weight: 600; line-height: 1.25; }
+.step-state { font-size: 11px; font-weight: 600; color: var(--text-tertiary); }
+.step.active .step-state { color: var(--primary); } .step.done .step-state { color: var(--success); } .step.blocked .step-state, .step.failed .step-state { color: var(--danger); }
+@media (max-width: 980px) {
+  .stepper { grid-template-columns: minmax(0,1fr); gap: 2px; }
+  .step::before { display: none; }
+  .step-btn { flex-direction: row; text-align: left; gap: 12px; padding: 8px; }
+  .step-text { display: flex; flex-direction: column; }
+}
+@media (min-width: 981px) { .step-text { display: contents; } }
+
+/* ───────── Lists / rows ───────── */
+.list { list-style: none; margin: 0; padding: 0; }
+.row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-top: 1px solid var(--border); width: 100%; text-align: left; }
+.list > li:first-child > .row, .list > .row:first-child { border-top: 0; }
+button.row:hover { background: var(--surface-secondary); }
+.row .grow { flex: 1; min-width: 0; }
+.id { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+
+/* ───────── Tables ───────── */
+.table-wrap { overflow-x: auto; max-width: 100%; }
+table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.data th, table.data td { text-align: left; padding: 8px 12px; border-top: 1px solid var(--border); vertical-align: middle; }
+table.data thead th { border-top: 0; border-bottom: 1px solid var(--border); font-size: 11.5px; font-weight: 600; color: var(--text-tertiary); background: var(--surface-secondary); white-space: nowrap; position: sticky; top: 0; }
+table.data tbody tr:first-child td { border-top: 0; }
+table.data tbody tr.clickable { cursor: pointer; }
+table.data tbody tr.clickable:hover { background: var(--surface-secondary); }
+table.data td.r, table.data th.r { text-align: right; }
+
+/* ───────── Stats ───────── */
+.stat-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+.stat { padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface-secondary); }
+.stat b { display: block; font-size: 20px; letter-spacing: -.02em; }
+.stat span { font-size: 12px; color: var(--text-secondary); }
+
+/* ───────── Gate cards ───────── */
+.gate-cards { display: grid; gap: 10px; padding: 4px 16px 16px; }
+.gate-card { text-align: left; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; display: grid; gap: 8px; background: var(--surface); }
+button.gate-card:hover { border-color: var(--border-strong); background: var(--surface-secondary); }
+.gate-card .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.gate-card .name { font-weight: 650; }
+.gate-card .sub { font-size: 12px; color: var(--text-secondary); }
+.gate-card .meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); gap: 8px; flex-wrap: wrap; }
+.gate-card.dim { opacity: .8; }
+
+/* ───────── States ───────── */
+.state { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 28px 20px; color: var(--text-secondary); }
+.state .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-secondary); color: var(--text-tertiary); }
+.state.error .ic { background: var(--danger-soft); color: var(--danger); }
+.state b { color: var(--text-primary); font-weight: 600; }
+.state p { max-width: 380px; font-size: 13px; }
+.skel { display: grid; gap: 10px; padding: 8px 16px 16px; }
+.skel i { display: block; height: 14px; border-radius: 6px; background: linear-gradient(90deg, var(--skeleton-a), var(--skeleton-b), var(--skeleton-a)); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+.skel i:nth-child(3n) { width: 70%; } .skel i:nth-child(3n+1) { width: 90%; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ───────── Overlays ───────── */
+.scrim { position: fixed; inset: 0; background: var(--overlay); z-index: 70; animation: fade .12s linear; }
+@keyframes fade { from { opacity: 0; } }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); background: var(--surface); border-left: 1px solid var(--border); box-shadow: var(--shadow-md); z-index: 80; display: flex; flex-direction: column; animation: slide .18s var(--ease); }
+@keyframes slide { from { transform: translateX(24px); opacity: 0; } }
+.drawer-head { display: flex; gap: 12px; align-items: flex-start; padding: 16px 18px; border-bottom: 1px solid var(--border); }
+.drawer-head h2 { font-size: 16px; line-height: 1.3; }
+.drawer-body { padding: 16px 18px 28px; overflow-y: auto; flex: 1; display: grid; gap: 18px; align-content: start; }
+.drawer-body h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); margin-bottom: 8px; }
+.kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 12px; font-size: 13px; }
+.kv dt { color: var(--text-tertiary); } .kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checklist li { display: flex; gap: 8px; align-items: flex-start; }
+.checklist .icon { margin-top: 2px; }
+.checklist .yes .icon { color: var(--success); } .checklist .no .icon { color: var(--text-tertiary); }
+.palette { position: fixed; z-index: 90; top: 12vh; left: 50%; transform: translateX(-50%); width: min(640px, calc(100vw - 24px)); max-height: 72vh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; }
+.palette-input { display: flex; align-items: center; gap: 10px; padding: 0 14px; border-bottom: 1px solid var(--border); color: var(--text-tertiary); }
+.palette-input input { flex: 1; height: 50px; border: 0; background: none; outline: 0; font: inherit; font-size: 15px; color: var(--text-primary); min-width: 0; }
+.palette-scopes { display: flex; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.palette-list { overflow-y: auto; padding: 6px; flex: 1; }
+.palette-group { padding: 8px 10px 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); }
+.result { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 8px 10px; border-radius: var(--radius-sm); }
+.result[aria-selected="true"], .result:hover { background: var(--primary-soft); }
+.result .grow { flex: 1; min-width: 0; }
+.result .t { font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.result mark { background: var(--warning-soft); color: inherit; border-radius: 3px; }
+.palette-foot { display: flex; gap: 14px; padding: 8px 14px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--text-tertiary); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 130; background: var(--text-primary); color: var(--surface); padding: 9px 14px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); font-size: 13px; }
+
+/* ───────── Existing gate records (preserved markup) ───────── */
+.records { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.records .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; min-width: 0; overflow-x: auto; }
+.records .card h2 { font-size: 14px; margin-bottom: 10px; }
+.records table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.records th, .records td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.records th { color: var(--text-tertiary); font-weight: 600; font-size: 11.5px; white-space: nowrap; }
+.records td { min-width: 120px; }
+.records .empty { color: var(--text-secondary); font-size: 13px; padding: 10px 0 2px; }
+.records-intro { color: var(--text-secondary); font-size: 13px; display: grid; gap: 4px; max-width: 980px; }
+.records .card:first-child { grid-column: 1 / -1; }
+.panel-body.flush .records-intro { padding: 0 16px 12px; }
+.panel-body.flush .records { padding: 0 16px 16px; }
+.records .card:first-child td:nth-child(3) { min-width: 360px; font-size: 12.5px; line-height: 1.55; }
+
+/* ───────── Responsive shell ───────── */
+.only-mobile { display: none; }
+@media (max-width: 900px) {
+  .app, .app.collapsed { grid-template-columns: minmax(0,1fr); }
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 272px; transform: translateX(-102%); transition: transform .2s var(--ease); box-shadow: var(--shadow-md); }
+  .app.nav-open .sidebar { transform: none; }
+  .only-mobile { display: grid; } .only-desktop { display: none; }
+  .topbar { padding: 0 12px; }
+  .hide-sm { display: none !important; }
+  .hero-progress { text-align: left; }
+}
+@media (max-width: 900px) { .app.nav-open .main-col::before { content: ""; position: fixed; inset: 0; background: var(--overlay); z-index: 35; } }
+@media (max-width: 560px) { .env-tag, .proj-name { display: none; } .search-btn kbd { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-<header>
-  <h1>Gate Review Dashboard — sdd_v1</h1>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<!-- SVG icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5M3 17.5l9 5 9-5" opacity=".0"/><path d="M3 12.5l9 5 9-5"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3M7.5 15h9"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v4.5M12 18h.01"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 21h8M12 16v5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></symbol>
+    <symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="currentColor"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13l3-8h12l3 8v6H3zM3 13h5l1 3h6l1-3h5"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+    <symbol id="i-git" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="9" r="2.5"/><path d="M6 8.5v7M18 11.5c0 4-6 2-11 5"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar" aria-label="Primary">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg class="icon lg"><use href="#i-target"/></svg></span>
+      <span class="brand-text">SDD Control Center<small>Spec-Driven Development</small></span>
+    </div>
+    <nav class="nav" id="nav" aria-label="Sections"></nav>
+    <div class="sidebar-foot" id="sidebar-foot"></div>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar" role="banner">
+      <button class="icon-btn only-mobile" data-action="nav-toggle" aria-label="Open navigation" aria-controls="sidebar"><svg class="icon lg"><use href="#i-menu"/></svg></button>
+      <button class="icon-btn only-desktop" data-action="sidebar-collapse" id="collapse-btn" aria-label="Collapse sidebar" aria-pressed="false"><svg class="icon lg"><use href="#i-panel"/></svg></button>
+
+      <div class="menu-wrap">
+        <button class="pill-btn" data-menu="project" aria-haspopup="menu" aria-expanded="false" id="proj-btn">
+          <span class="proj-name"><strong>Employee Transfer Platform</strong> <span class="faint">/ sdd_v1</span></span>
+          <span class="env-tag" id="env-tag">Development</span>
+          <svg class="icon"><use href="#i-chev"/></svg>
+        </button>
+        <div class="menu left" role="menu" id="menu-project" hidden aria-label="Project">
+          <div class="menu-title">Project</div>
+          <button class="menu-item" role="menuitem" aria-current="true"><svg class="icon"><use href="#i-folder"/></svg><span>Internal Transfer Digital Journey<br><small class="faint">sdd_v1 · Development</small></span><svg class="icon tick"><use href="#i-check"/></svg></button>
+          <div class="menu-sep"></div>
+          <div class="menu-title">Environment</div>
+          <div class="menu-item faint" role="menuitem" aria-disabled="true">Local setup — no other environment configured</div>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <button class="search-btn hide-sm" data-action="search-open" aria-haspopup="dialog" aria-label="Open global search">
+        <svg class="icon"><use href="#i-search"/></svg>
+        <span class="grow">Search requirements, specs, tests, questions, reviews…</span>
+        <kbd>Ctrl K</kbd>
+      </button>
+      <button class="icon-btn only-mobile" data-action="search-open" aria-label="Search"><svg class="icon lg"><use href="#i-search"/></svg></button>
+      <div class="spacer only-desktop" style="flex:0 0 4px"></div>
+
+      <button class="icon-btn hide-sm" data-action="help" aria-label="Help: how this dashboard works"><svg class="icon lg"><use href="#i-help"/></svg></button>
+      <div class="menu-wrap">
+        <button class="icon-btn" data-menu="theme" aria-haspopup="menu" aria-expanded="false" aria-label="Theme" id="theme-btn"><svg class="icon lg" id="theme-icon"><use href="#i-monitor"/></svg></button>
+        <div class="menu" role="menu" id="menu-theme" hidden aria-label="Theme">
+          <div class="menu-title">Appearance</div>
+          <button class="menu-item" role="menuitemradio" data-theme-set="light" aria-checked="false"><svg class="icon"><use href="#i-sun"/></svg>Light<svg class="icon tick"><use href="#i-check"/></svg></button>
+          <button class="menu-item" role="menuitemradio" data-theme-set="dark" aria-checked="false"><svg class="icon"><use href="#i-moon"/></svg>Dark<svg class="icon tick"><use href="#i-check"/></svg></button>
+          <button class="menu-item" role="menuitemradio" data-theme-set="system" aria-checked="false"><svg class="icon"><use href="#i-monitor"/></svg>System<svg class="icon tick"><use href="#i-check"/></svg></button>
+        </div>
+      </div>
+      <div class="menu-wrap">
+        <button class="pill-btn" data-menu="profile" aria-haspopup="menu" aria-expanded="false" id="profile-btn" style="border:0;padding:0 4px"><span class="avatar" id="avatar" aria-hidden="true">SP</span><span class="sr-only" id="profile-label">Profile menu</span></button>
+        <div class="menu" role="menu" id="menu-profile" hidden aria-label="Profile"></div>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <noscript><div class="page"><p>This dashboard needs JavaScript. The gate review records are still readable in the page source (<code>&lt;template id="tpl-records"&gt;</code>).</p></div></noscript>
+      <div class="page" id="view" aria-live="polite"></div>
+    </main>
+  </div>
+</div>
+
+<div id="overlay-root"></div>
+<div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+<div id="toast-root" role="status" aria-live="polite"></div>
+
+<!-- ═══════════════ PRESERVED: existing Gate review records (authoritative; edit rows in place) ═══════════════ -->
+<template id="tpl-records">
+<div class="records-intro">
   <p>Single source of truth for Gate 0 / Gate 1 / Gate 2 review status, synchronized with BRD.md, specs, PR review records, status.md, and prompt_history.md.</p>
   <p>Flow: BRD Preparation → Gate 0 (BRD Review — Project Manager / Business Analyst) → Gate 1 (Spec Peer Review) → Gate 2 (Code Review) → Development / Implementation. Gate 1 cannot start until Gate 0 is approved.</p>
-</header>
-<main>
+</div>
+<div class="records">
   <section class="card">
     <h2>Gate 0 — BRD Reviews</h2>
     <table>
@@ -43,7 +498,7 @@
         <tr>
           <td>BRD.md — Internal Transfer Digital Journey</td>
           <td>Shamik Bhattacharya (shamik.bhattacharya@intglobal.com)</td>
-          <td><span class="badge bad">Changes Requested</span> — 22 comments; 13 of 22 addressed by author (comment 13, document upload/access secured at API/server level, PDF/image only, 5 MB, MIME/extension validation, authenticated scoped access, no public URLs, HTTP 413/415 upload validation errors; comment 12, no external Payroll/HR integration this phase, future integrations need an approved contract before implementation, NFR-006 retry/idempotency rules; comment 11, IT Final Approval mandatory final gate for every transfer; comment 10, Payroll completion manual by HR, no API/callback, blocks IT Final Approval; comment 9, BRD-024 confirmed — re-approval mandatory, no HR bypass; comment 1, BRD-025; comment 2, BRD-026; comment 3, BRD-027; comment 4, BRD-028; comment 5, BRD-029; comment 6, BRD-030; comment 8, BRD-031 Effective Transfer Date; comment 15, BRD-027 withdrawal rules), 9 outstanding; BRD-OQ-20 resolved (Employee edits date in Draft only, HR during approval, Super Admin for intervention; business time zone; inclusive fixed 30-day limit; optional re-approval to configured approver; expired date corrected by HR or Super Admin); BRD-OQ-12 and BRD-OQ-13 resolved (Block/Resume/Cancel/Reassign rules in BRD-027; comment 18 partly covered), BRD-OQ-14 resolved (HR Processing → Payroll Processing sequential, manual Payroll completion, 403 INVALID_WORKFLOW_TRANSITION), BRD-OQ-15 resolved (resume revalidation, reservations never auto-released, HR/Super Admin manual release, Available = Open with capacity &gt; 0), BRD-OQ-16 resolved (missing mandatory data blocks submission, HR rejects ineligible employee with reason or requests clarification for correctable data), BRD-OQ-19 resolved (portal is the operational employee-data source with per-field ownership, no HR-system synchronisation this phase; comment 7 addressed), open questions BRD-OQ-17 resolved (Draft not active, mandatory backend + database enforcement, HTTP 409 ACTIVE_TRANSFER_ALREADY_EXISTS, no cool-down); BRD-OQ-18 resolved (HR-controlled stages Pending HR Review / HR Processing / Payroll Processing and IT-controlled stages Pending IT Action / Pending IT Final Approval, HR Cancel limited to the three HR stages, Draft excluded, no cross-role Resume; comment 18 further covered; HR may cancel a Blocked request blocked in an HR-controlled stage, not an IT-blocked one, Super Admin any Blocked request); see <code>pr_reviews/BRD-20260930-144648.md</code></td>
+          <td><span class="badge bad">Changes Requested</span> — 22 comments; 14 of 22 addressed by author (comment 14, transfer request editing in BRD-032 — Employee edits in Draft only, post-submission changes by authorised HR/Super Admin with BRD-024 re-approval, no silent overwrite, full audit; comment 13, document upload/access secured at API/server level, PDF/image only, 5 MB, MIME/extension validation, authenticated scoped access, no public URLs, HTTP 413/415 upload validation errors; comment 12, no external Payroll/HR integration this phase, future integrations need an approved contract before implementation, NFR-006 retry/idempotency rules; comment 11, IT Final Approval mandatory final gate for every transfer; comment 10, Payroll completion manual by HR, no API/callback, blocks IT Final Approval; comment 9, BRD-024 confirmed — re-approval mandatory, no HR bypass; comment 1, BRD-025; comment 2, BRD-026; comment 3, BRD-027; comment 4, BRD-028; comment 5, BRD-029; comment 6, BRD-030; comment 8, BRD-031 Effective Transfer Date; comment 15, BRD-027 withdrawal rules), 8 outstanding; BRD-OQ-20 resolved (Employee edits date in Draft only, HR during approval, Super Admin for intervention; business time zone; inclusive fixed 30-day limit; optional re-approval to configured approver; expired date corrected by HR or Super Admin); BRD-OQ-12 and BRD-OQ-13 resolved (Block/Resume/Cancel/Reassign rules in BRD-027; comment 18 partly covered), BRD-OQ-14 resolved (HR Processing → Payroll Processing sequential, manual Payroll completion, 403 INVALID_WORKFLOW_TRANSITION), BRD-OQ-15 resolved (resume revalidation, reservations never auto-released, HR/Super Admin manual release, Available = Open with capacity &gt; 0), BRD-OQ-16 resolved (missing mandatory data blocks submission, HR rejects ineligible employee with reason or requests clarification for correctable data), BRD-OQ-19 resolved (portal is the operational employee-data source with per-field ownership, no HR-system synchronisation this phase; comment 7 addressed), open questions BRD-OQ-17 resolved (Draft not active, mandatory backend + database enforcement, HTTP 409 ACTIVE_TRANSFER_ALREADY_EXISTS, no cool-down); BRD-OQ-18 resolved (HR-controlled stages Pending HR Review / HR Processing / Payroll Processing and IT-controlled stages Pending IT Action / Pending IT Final Approval, HR Cancel limited to the three HR stages, Draft excluded, no cross-role Resume; comment 18 further covered; HR may cancel a Blocked request blocked in an HR-controlled stage, not an IT-blocked one, Super Admin any Blocked request); see <code>pr_reviews/BRD-20260930-144648.md</code></td>
           <td>2026-09-30</td>
         </tr>
       </tbody>
@@ -73,6 +528,969 @@
     </table>
     <div class="empty">No specs created yet.</div>
   </section>
-</main>
+</div>
+</template>
+
+<script>
+(() => {
+'use strict';
+
+/* ════════════════════════════════════════════════════════════════════
+   1. DATA — structured snapshot of .ai-context (single place to update)
+   Every KPI, flag, chart and search result below is DERIVED from this.
+   ════════════════════════════════════════════════════════════════════ */
+const DATA = {
+  project: { name: 'Internal Transfer Digital Journey', code: 'sdd_v1', env: 'Development', displayName: 'Employee Transfer Platform',
+             lastUpdated: '2026-10-01', lastUpdatedSource: 'BRD.md', phase: 'BRD review & remediation' },
+
+  roster: [
+    { id: 'santu',  name: 'Santu Pradhan',       email: 'santu.pradhan@intglobal.com',
+      roles: ['Spec Author', 'Gate 2 Reviewer (Technical Lead / Architect)'] },
+    { id: 'shamik', name: 'Shamik Bhattacharya', email: 'shamik.bhattacharya@intglobal.com',
+      roles: ['Gate 0 Reviewer (PM / BA)', 'Gate 1 Reviewer (PM / Product Owner)'] }
+  ],
+
+  // Gate 0 — BRD review (.ai-context/pr_reviews/BRD-20260930-144648.md)
+  gate0: {
+    status: 'changes', reviewer: 'shamik', date: '2026-09-30', record: 'pr_reviews/BRD-20260930-144648.md',
+    comments: [
+      { n: 1,  title: 'Authentication & Session Management', status: 'addressed', resp: '2026-09-30', inc: ['BRD-006','BRD-007','BRD-025','NFR-001','NFR-003','BRD-OQ-02','A-01','A-02','A-12'],
+        summary: '5 failed attempts → 30-minute lock; 30-minute idle timeout; temporary password valid until first login; hashes only; MFA/SSO out of scope this phase.' },
+      { n: 2,  title: 'Role & API-Level Authorization', status: 'addressed', resp: '2026-09-30', inc: ['BRD-026','NFR-002','A-13'],
+        summary: 'Backend is authoritative; every API validates User → Role → Scope → Resource → Action; 401 for unauthenticated, 403 for unauthorised.' },
+      { n: 3,  title: 'Workflow State Management', status: 'addressed', resp: '2026-09-30', inc: ['BRD-027','BRD-014','BRD-019','BRD-OQ-12','BRD-OQ-13','BRD-OQ-14','A-14'],
+        summary: 'Controlled transition matrix with reason, editability, notification and vacancy impact; invalid transitions rejected by the backend.' },
+      { n: 4,  title: 'Vacancy Reservation & Capacity', status: 'addressed', resp: '2026-09-30', inc: ['BRD-028','BRD-017','BRD-027','BRD-OQ-06','BRD-OQ-13','BRD-OQ-15','A-15'],
+        summary: 'Reserve only at HR validation under transaction control; release on Rejected/Withdrawn/Cancelled; never negative or over-allocated.' },
+      { n: 5,  title: 'Employee Eligibility', status: 'addressed', resp: '2026-09-30', inc: ['BRD-029','BRD-013','BRD-OQ-16','A-16'],
+        summary: 'Active employee + no other active transfer + valid organisation data + Available vacancy + HR validation = Eligible. No tenure rule this phase.' },
+      { n: 6,  title: 'Multiple Active Transfer Requests', status: 'addressed', resp: '2026-09-30', inc: ['BRD-030','BRD-029','BRD-027','BRD-OQ-16','BRD-OQ-17','A-17'],
+        summary: 'One active request per employee, enforced in backend and database; duplicate submission returns HTTP 409 ACTIVE_TRANSFER_ALREADY_EXISTS.' },
+      { n: 7,  title: 'Employee Data Source of Truth', status: 'partial', resp: '2026-09-30', inc: ['BRD-029','BRD-020','BRD-024','BRD-OQ-19','A-18'],
+        summary: 'Portal is the operational source with per-field ownership; no HR-system synchronisation this phase.',
+        flag: 'The author response (BRD-OQ-19) is marked addressed, but the official count of 14/22 does not include comment 7. Confirm the count with the reviewer.' },
+      { n: 8,  title: 'Effective Transfer Date', status: 'addressed', resp: '2026-09-30', inc: ['BRD-031','BRD-OQ-20','A-19'],
+        summary: 'Current date to +30 calendar days inclusive; no past dates; Employee edits in Draft only; HR during approval; Super Admin for intervention.' },
+      { n: 9,  title: 'HR Organisation Metadata Changes', status: 'addressed', resp: '2026-09-30', inc: ['BRD-024','A-11'],
+        summary: 'BRD-024 confirmed: re-approval is mandatory and HR cannot bypass it.' },
+      { n: 10, title: 'Payroll Task Completion', status: 'addressed', resp: '2026-10-01', inc: ['BRD-027','BRD-014','BRD-022'],
+        summary: 'Payroll completion is manual by HR in the portal; no Payroll API/callback; blocks IT Final Approval until complete.' },
+      { n: 11, title: 'IT Final Approval', status: 'addressed', resp: '2026-10-01', inc: ['BRD-027','BRD-014','BRD-018','BRD-019','BRD-022'],
+        summary: 'IT Final Approval is mandatory for every transfer and the only completion gate.' },
+      { n: 12, title: 'Integration Requirements', status: 'addressed', resp: '2026-10-01', inc: ['NFR-006'],
+        summary: 'No external Payroll/HR integration this phase; any future integration needs an approved contract first.' },
+      { n: 13, title: 'Document Upload & Access', status: 'addressed', resp: '2026-10-01', inc: ['BRD-021','BRD-OQ-08','A-06'],
+        summary: 'PDF/image only, 5 MB, MIME + extension validation, authenticated scoped access, HTTP 413/415 validation errors.' },
+      { n: 14, title: 'Transfer Request Editing', status: 'addressed', resp: '2026-10-01', inc: ['BRD-032','BRD-024','BRD-022','A-20'],
+        summary: 'Employee edits in Draft only; after submission HR/Super Admin change with BRD-024 re-approval; no silent overwrite; full audit, original values kept.' },
+      { n: 15, title: 'Withdrawal', status: 'addressed', resp: '2026-09-30', inc: ['BRD-027','BRD-OQ-12'],
+        summary: 'Employee may withdraw until HR approval; reason mandatory; Withdrawn is final; reapplying creates a new request.' },
+      { n: 16, title: 'Rejection & Resubmission', status: 'partial', resp: null, inc: ['BRD-027','BRD-030'], summary: 'Partly covered by BRD-027 and BRD-030.' },
+      { n: 17, title: 'Clarification', status: 'partial', resp: null, inc: ['BRD-027'], summary: 'Partly covered by BRD-027.' },
+      { n: 18, title: 'Administrative Reassignment', status: 'partial', resp: '2026-09-30', inc: ['BRD-027','BRD-019','BRD-028','BRD-OQ-13','BRD-OQ-18'],
+        summary: 'Block/Resume/Cancel/Reassign rules defined; previous-assignee visibility not yet stated.' },
+      { n: 19, title: 'Notifications', status: 'open', resp: null, inc: [], summary: 'Not yet addressed.' },
+      { n: 20, title: 'Audit Logging', status: 'open', resp: null, inc: [], summary: 'Not yet addressed.' },
+      { n: 21, title: 'Performance & Availability', status: 'open', resp: null, inc: ['NFR-009'],
+        summary: 'Not yet addressed. NFR-009 currently defers all targets to infrastructure planning.' },
+      { n: 22, title: 'Mandatory Negative Acceptance Scenarios', status: 'open', resp: null, inc: [], summary: 'Not yet addressed.' }
+    ],
+    // Gate 0 review criteria and the comments attached to each
+    criteria: [
+      { n: 1,  name: 'Business Requirements Clarity',      passed: true,  comments: [] },
+      { n: 2,  name: 'Functional Requirements',            passed: false, comments: [3,4,5,6,7,8,14,15,16,17,18] },
+      { n: 3,  name: 'Non-Functional Requirements',        passed: false, comments: [1,2,20,21] },
+      { n: 4,  name: 'Business Rules',                     passed: false, comments: [4,5,6,8,10,15,16] },
+      { n: 5,  name: 'Workflows',                          passed: false, comments: [3,9,14,15,16,17] },
+      { n: 6,  name: 'User Roles & Permissions',           passed: false, comments: [2,18] },
+      { n: 7,  name: 'Assumptions',                        passed: false, comments: [5,7] },
+      { n: 8,  name: 'Dependencies',                       passed: false, comments: [12] },
+      { n: 9,  name: 'Constraints & Out of Scope',         passed: true,  comments: [] },
+      { n: 10, name: 'Open Questions Resolved / Documented', passed: false, comments: [21] },
+      { n: 11, name: 'Stakeholder Requirements Captured',  passed: true,  comments: [] },
+      { n: 12, name: 'Consistency',                        passed: false, comments: [10,11] }
+    ]
+  },
+
+  gate1: { reviewer: 'shamik' },
+  gate2: { reviewer: 'santu' },
+
+  // Requirements (BRD.md). `trace` holds linked spec / implementation / test IDs; empty = not yet linked.
+  // [id, title, area, comment numbers that changed it]
+  requirements: [
+    ['BRD-001','Individual authenticated accounts','Identity & Security',[]],
+    ['BRD-002','Modern, responsive, role-aware Admin Panel','Platform & Admin',[]],
+    ['BRD-003','Admin modules (Users, Locations, Departments, Designations, Vacancies, Transfers, Documents, Audit Logs)','Platform & Admin',[]],
+    ['BRD-004','User provisioning with role-prefixed User IDs','Identity & Security',[]],
+    ['BRD-005','Initial credential delivery via company email','Identity & Security',[]],
+    ['BRD-006','Temporary password and first-login change','Identity & Security',[1]],
+    ['BRD-007','Account lifecycle statuses','Identity & Security',[1]],
+    ['BRD-008','Account lifecycle audit events','Identity & Security',[]],
+    ['BRD-009','Account creation flow','Identity & Security',[]],
+    ['BRD-010','Super Admin master data (Locations, Departments, Designations, Vacancies)','Platform & Admin',[]],
+    ['BRD-011','Employee self-service and transfer initiation','Transfer Workflow',[]],
+    ['BRD-012','Reporting / Receiving Manager review','Transfer Workflow',[]],
+    ['BRD-013','HR review and eligibility validation','Transfer Workflow',[5]],
+    ['BRD-014','IT tasks and Final Approval','Transfer Workflow',[3,10,11]],
+    ['BRD-016','Organisational relationships and routing','Platform & Admin',[]],
+    ['BRD-017','Vacancy model and fields','Vacancy',[4]],
+    ['BRD-018','End-to-end transfer workflow','Transfer Workflow',[11]],
+    ['BRD-019','Status and exception model','Transfer Workflow',[3,11]],
+    ['BRD-020','HR organisation metadata updates','Transfer Workflow',[7]],
+    ['BRD-021','Document upload and access','Documents, Audit & Notifications',[13]],
+    ['BRD-022','Audit logging of material actions','Documents, Audit & Notifications',[10,11]],
+    ['BRD-023','Notifications','Documents, Audit & Notifications',[]],
+    ['BRD-024','Organisation-metadata change re-approval','Transfer Workflow',[7,9]],
+    ['BRD-025','Authentication & session security policy','Identity & Security',[1],'new'],
+    ['BRD-026','Role & API-level authorization','Identity & Security',[2],'new'],
+    ['BRD-027','Workflow state management','Transfer Workflow',[3,4,6,10,11,15,16,17,18],'new'],
+    ['BRD-028','Vacancy reservation & capacity','Vacancy',[4,18],'new'],
+    ['BRD-029','Employee eligibility','Transfer Workflow',[5,6,7],'new'],
+    ['BRD-030','One active transfer request per employee','Transfer Workflow',[6,16],'new'],
+    ['BRD-031','Effective transfer date validation','Transfer Workflow',[8],'new'],
+    ['BRD-032','Transfer request editing','Transfer Workflow',[14],'new'],
+    ['NFR-001','Authentication','Identity & Security',[1]],
+    ['NFR-002','Authorisation','Identity & Security',[2]],
+    ['NFR-003','Credential security','Identity & Security',[1]],
+    ['NFR-004','Transport & data protection','Identity & Security',[]],
+    ['NFR-005','Auditability','Documents, Audit & Notifications',[]],
+    ['NFR-006','Reliability (integration failures, retries)','Quality & Reliability',[12]],
+    ['NFR-007','Privacy','Identity & Security',[]],
+    ['NFR-008','Accessibility / usability','Quality & Reliability',[]],
+    ['NFR-009','Performance / availability / backup / monitoring (deferred)','Quality & Reliability',[21]]
+  ].map(([id, title, area, comments, flag]) => ({
+    id, title, area, comments, type: id.startsWith('NFR') ? 'NFR' : 'BRD', isNew: flag === 'new',
+    trace: { spec: [], impl: [], test: [] }
+  })),
+
+  openQuestions: [
+    ['BRD-OQ-01','Authentication model','resolved'],['BRD-OQ-02','Account, password and lockout policy','resolved'],
+    ['BRD-OQ-03','Initial credential delivery','resolved'],['BRD-OQ-04','Receiving Manager approval default','resolved'],
+    ['BRD-OQ-05','Point of vacancy reservation','resolved'],['BRD-OQ-06','Concurrency and vacancy closure rules','resolved'],
+    ['BRD-OQ-07','Organisation metadata and source','resolved'],['BRD-OQ-08','Document policy (types, size, storage)','resolved'],
+    ['BRD-OQ-09','Performance, availability, backup targets','deferred'],['BRD-OQ-10','Reviewer sequence and withdrawal/escalation rules','resolved'],
+    ['BRD-OQ-11','Transfers with no IT task','resolved'],['BRD-OQ-12','Withdrawal cut-off and reopening','resolved'],
+    ['BRD-OQ-13','Block / Resume / Cancel / Reassign rules','resolved'],['BRD-OQ-14','HR / Payroll routing and invalid transitions','resolved'],
+    ['BRD-OQ-15','Vacancy edge cases on resume','resolved'],['BRD-OQ-16','Eligibility gaps','resolved'],
+    ['BRD-OQ-17','Active-request gaps (Draft, DB enforcement, HTTP code)','resolved'],['BRD-OQ-18','HR/IT controlled stages and cancel rules','resolved'],
+    ['BRD-OQ-19','Employee data source of truth','resolved'],['BRD-OQ-20','Effective transfer date residuals','resolved']
+  ].map(([id, title, status]) => ({ id, title, status })),
+
+  specs: [],          // { id, title, status, gate1, developer, reqs:[] }
+  tests: [],          // { id, title, req, status: passed|failed|blocked|notrun }
+  tasks: []
+};
+
+/* ════════════════════════════════════════════════════════════════════
+   2. Helpers
+   ════════════════════════════════════════════════════════════════════ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } }
+};
+const pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
+const ic = (n, c = '') => `<svg class="icon ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const person = id => DATA.roster.find(p => p.id === id);
+const currentUser = () => person('santu');
+const initials = name => name.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const plural = (n, w, p) => `${n} ${n === 1 ? w : (p || w + 's')}`;
+const fmtDate = s => (s ? s : '—');
+
+const STATUS = {
+  approved:   { k: 'success', i: 'check',  l: 'Approved' },
+  completed:  { k: 'success', i: 'check',  l: 'Completed' },
+  active:     { k: 'primary', i: 'dot',    l: 'Active' },
+  inreview:   { k: 'primary', i: 'dot',    l: 'In review' },
+  changes:    { k: 'warning', i: 'edit',   l: 'Changes requested' },
+  pending:    { k: 'neutral', i: 'circle', l: 'Pending' },
+  notstarted: { k: 'neutral', i: 'circle', l: 'Not started' },
+  blocked:    { k: 'danger',  i: 'lock',   l: 'Blocked' },
+  failed:     { k: 'danger',  i: 'x',      l: 'Failed' },
+  rejected:   { k: 'danger',  i: 'x',      l: 'Rejected' },
+  open:       { k: 'warning', i: 'circle', l: 'Open' },
+  resolved:   { k: 'success', i: 'check',  l: 'Resolved' },
+  deferred:   { k: 'info',    i: 'clock',  l: 'Deferred' },
+  addressed:  { k: 'success', i: 'check',  l: 'Addressed' },
+  partial:    { k: 'warning', i: 'dot',    l: 'Partly addressed' },
+  passed:     { k: 'success', i: 'check',  l: 'Passed' },
+  nospec:     { k: 'warning', i: 'alert',  l: 'No spec' }
+};
+const badge = (key, label) => {
+  const s = STATUS[key] || { k: 'neutral', i: 'circle', l: key };
+  return `<span class="badge ${s.k}">${ic(s.i)}${esc(label || s.l)}</span>`;
+};
+
+const TIPS = {
+  gate: 'A gate is a formal review checkpoint. Gate 0 reviews the BRD, Gate 1 reviews each feature spec, Gate 2 reviews code. Work for a later gate cannot start until the earlier gate is approved.',
+  reqCoverage: 'Specification coverage is the share of requirements that have an approved specification covering them.',
+  progress: 'Overall progress = completed lifecycle stages plus the resolved share of the active stage (for Gate 0, addressed comments ÷ total comments), divided by the number of stages.',
+  lifecycle: 'The governed Spec-Driven Development flow. Select a stage for its exit criteria and what is blocking it.',
+  testCoverage: 'Test coverage here is the share of requirements with at least one linked test case, not line coverage of code.',
+  confirmation: 'After an author addresses a review comment, the reviewer still has to confirm it. Addressed is not the same as approved.'
+};
+const tip = key => `<button type="button" class="info-tip" data-tip="${key}" aria-label="About this metric">${ic('info')}</button>`;
+
+/* ════════════════════════════════════════════════════════════════════
+   3. Derived intelligence (nothing below is hard-coded)
+   ════════════════════════════════════════════════════════════════════ */
+function derive() {
+  const g0 = DATA.gate0;
+  const cm = g0.comments;
+  const byStatus = s => cm.filter(c => c.status === s).length;
+  const addressed = byStatus('addressed'), partial = byStatus('partial'), openC = byStatus('open');
+  const outstanding = cm.length - addressed;
+  const awaitingConfirm = addressed;        // every addressed response awaits reviewer confirmation (per review record)
+  const g0ok = g0.status === 'approved';
+
+  const reqs = DATA.requirements;
+  const has = (r, k) => r.trace[k].length > 0;
+  const cov = k => reqs.filter(r => has(r, k)).length;
+  const noSpec = reqs.filter(r => !has(r, 'spec'));
+  const noTest = reqs.filter(r => !has(r, 'test'));
+
+  const oq = { open: 0, deferred: 0, resolved: 0 };
+  DATA.openQuestions.forEach(q => { oq[q.status]++; });
+
+  const tests = DATA.tests;
+  const tCount = s => tests.filter(t => t.status === s).length;
+
+  // Lifecycle status derived from gate / artefact state
+  const specs = DATA.specs;
+  const specsApproved = specs.filter(s => s.gate1 === 'approved').length;
+  const stageStatus = {
+    requirements: 'completed',
+    gate0: g0ok ? 'completed' : g0.status === 'rejected' ? 'failed' : 'active',
+    spec: !g0ok ? 'blocked' : specs.length ? (specs.every(s => s.status === 'approved' || s.status === 'inreview') ? 'completed' : 'active') : 'pending',
+    gate1: !g0ok ? 'blocked' : !specs.length ? 'pending' : specsApproved === specs.length ? 'completed' : 'active',
+    plan: specsApproved ? 'active' : 'pending',
+    impl: cov('impl') === reqs.length ? 'completed' : cov('impl') ? 'active' : 'pending',
+    gate2: 'pending',
+    release: 'pending'
+  };
+  const stageOrder = ['requirements','gate0','spec','gate1','plan','impl','gate2','release'];
+  const doneStages = stageOrder.filter(s => stageStatus[s] === 'completed').length;
+  const activeFraction = stageStatus.gate0 === 'active' ? addressed / cm.length : 0;
+  const progress = Math.round(((doneStages + activeFraction) / stageOrder.length) * 100);
+  const currentStage = stageOrder.find(s => stageStatus[s] === 'active') || stageOrder.find(s => stageStatus[s] !== 'completed');
+
+  const specCoverage = pct(reqs.filter(r => has(r, 'spec')).length, reqs.length);
+  const testCoverage = pct(reqs.filter(r => has(r, 'test')).length, reqs.length);
+  const implCoverage = pct(cov('impl'), reqs.length);
+
+  const health = !g0ok ? { k: 'danger', l: 'Blocked', i: 'lock' }
+    : outstanding ? { k: 'warning', l: 'At risk', i: 'alert' } : { k: 'success', l: 'On track', i: 'check' };
+
+  return { addressed, partial, openC, outstanding, awaitingConfirm, g0ok, total: cm.length, reqs, cov, noSpec, noTest, oq,
+    tCount, tests, specs, stageStatus, stageOrder, progress, currentStage,
+    specCoverage, testCoverage, implCoverage, health,
+    reqTotal: reqs.length, brdCount: reqs.filter(r => r.type === 'BRD').length, nfrCount: reqs.filter(r => r.type === 'NFR').length,
+    newCount: reqs.filter(r => r.isNew).length };
+}
+let D = derive();
+
+/* ════════════════════════════════════════════════════════════════════
+   4. UI state & preferences
+   ════════════════════════════════════════════════════════════════════ */
+const ui = {
+  panel: {},                               // per-panel filter / sort state
+  drawer: [],                              // stack of {type,id}
+  palette: { q: '', scope: 'all', idx: 0 }
+};
+const ps = (id, def) => (ui.panel[id] = ui.panel[id] || def);
+
+/* ═══════ Theme ═══════ */
+const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function applyTheme(pref) {
+  const resolved = pref === 'system' ? (mq && mq.matches ? 'dark' : 'light') : pref;
+  document.documentElement.dataset.theme = resolved;
+  document.documentElement.dataset.themePref = pref;
+  const icon = { light: 'sun', dark: 'moon', system: 'monitor' }[pref];
+  $('#theme-icon').innerHTML = `<use href="#i-${icon}"/>`;
+  $$('[data-theme-set]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.themeSet === pref)));
+}
+function setTheme(pref) { store.set('sdd.theme', pref); applyTheme(pref); }
+const themePref = () => { const t = store.get('sdd.theme', 'system'); return ['light', 'dark', 'system'].includes(t) ? t : 'system'; };
+if (mq) mq.addEventListener('change', () => { if (themePref() === 'system') applyTheme('system'); });
+
+/* ════════════════════════════════════════════════════════════════════
+   5. Navigation
+   ════════════════════════════════════════════════════════════════════ */
+const NAV = [
+  { g: 'Overview', items: [{ id: 'dashboard', label: 'Dashboard', icon: 'home' }] },
+  { g: 'Specification', items: [
+    { id: 'specifications', label: 'Specifications', icon: 'file', count: () => DATA.specs.length ? { n: DATA.specs.length } : null },
+    { id: 'questions', label: 'Open Questions', icon: 'help', count: () => D.oq.open ? { n: D.oq.open, c: 'warn' } : null } ] },
+  { g: 'Engineering', items: [
+    { id: 'implementation', label: 'Implementation', icon: 'code' },
+    { id: 'testing', label: 'Testing', icon: 'flask' } ] },
+  { g: 'Governance', items: [
+    { id: 'reviews', label: 'Reviews & Gates', icon: 'shield', count: () => D.outstanding ? { n: D.outstanding, c: 'warn' } : null } ] }
+];
+const NAV_FLAT = NAV.flatMap(g => g.items.map(i => ({ ...i, group: g.g })));
+
+function renderNav(active) {
+  $('#nav').innerHTML = NAV.map(g => `
+    <div class="nav-group" role="group" aria-label="${esc(g.g)}">
+      <div class="nav-label">${esc(g.g)}</div>
+      ${g.items.map(i => {
+        const c = i.count ? i.count() : null;
+        return `<a class="nav-link" href="#/${i.id}" data-route="${i.id}" ${i.id === active ? 'aria-current="page"' : ''} title="${esc(i.label)}">
+          ${ic(i.icon, 'lg')}<span class="txt">${esc(i.label)}</span>
+          ${c ? `<span class="count ${c.c || ''}" aria-label="${c.n} items">${c.n}</span>` : ''}</a>`;
+      }).join('')}
+    </div>`).join('');
+  $('#sidebar-foot').innerHTML = `Data as of ${esc(DATA.project.lastUpdated)}<br>Source: .ai-context`;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   6. Shared render pieces
+   ════════════════════════════════════════════════════════════════════ */
+const stateEmpty = (title, text, icon = 'inbox', extra = '') => `<div class="state"><span class="ic">${ic(icon, 'lg')}</span><b>${esc(title)}</b><p>${esc(text)}</p>${extra}</div>`;
+const stateError = (text, panelId) => `<div class="state error" role="alert"><span class="ic">${ic('alert', 'lg')}</span><b>${esc(text)}</b><p>Something went wrong while rendering this section.</p><button class="btn" data-action="retry" data-panel="${esc(panelId)}">${ic('refresh')}Retry</button></div>`;
+const skeleton = (rows = 5) => `<div class="skel" aria-hidden="true">${'<i></i>'.repeat(rows)}</div><span class="sr-only">Loading…</span>`;
+const bar = (p, kind = '', lg = false) => `<div class="bar ${kind} ${lg ? 'lg' : ''}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${p}"><span style="width:${p}%"></span></div>`;
+const chips = (panel, key, opts, current) => `<div class="chips" role="group" aria-label="Filter">${opts.map(o =>
+  `<button class="chip" data-action="filter" data-panel="${panel}" data-key="${key}" data-val="${esc(o.v)}" data-fk="${panel}:${key}:${esc(o.v)}" aria-pressed="${current === o.v}">${esc(o.l)}${o.n != null ? ` <span class="n">${o.n}</span>` : ''}</button>`).join('')}</div>`;
+
+/* ════════════════════════════════════════════════════════════════════
+   7. Panels  —  each returns { body } (and optional head flags)
+   ════════════════════════════════════════════════════════════════════ */
+const PANELS = {};
+
+PANELS.hero = {
+  bare: true, err: 'Unable to load project overview.',
+  render() {
+    const p = DATA.project, d = D, g0 = DATA.gate0;
+    const stageTitle = STAGES.find(s => s.id === d.currentStage).title;
+    const reviewer = person(g0.reviewer);
+    return `<div class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="crumbs">${esc(p.displayName)} / ${esc(p.env)}</div>
+          <h1>${esc(p.name)}</h1>
+          <div class="hero-status">
+            ${badge(d.stageStatus[d.currentStage] === 'active' && !d.g0ok ? 'changes' : d.stageStatus[d.currentStage], `${stageTitle}${!d.g0ok ? ' — Changes requested' : ''}`)}
+            <span class="badge ${d.health.k}">${ic(d.health.i)}Health: ${esc(d.health.l)}</span>
+            <span class="faint">${esc(p.code)}</span>
+          </div>
+        </div>
+        <div class="hero-progress">
+          <div class="faint" style="font-size:12px;font-weight:600">Overall progress ${tip('progress')}</div>
+          <div class="big num">${d.progress}%</div>
+          <div style="margin-top:8px">${bar(d.progress, '', true)}</div>
+        </div>
+      </div>
+      <div class="verdict ${d.g0ok ? 'ok' : ''}" role="status">${ic(d.g0ok ? 'check' : 'lock', 'lg')}<div>
+        <strong>${d.g0ok ? 'Ready for Gate 1.' : 'Not ready for the next gate.'}</strong>
+        ${d.g0ok ? 'Gate 0 is approved; specs can now be drafted.' : ` Gate 0 has ${plural(d.outstanding, 'unresolved comment')} (${d.addressed} of ${d.total} addressed, none yet confirmed by the reviewer). Nothing after Gate 0 can start.`}
+      </div></div>
+      <dl class="meta-grid">
+        <div class="meta-item"><dt>Spec Author</dt><dd>${esc(person('santu').name)}<small>Also Gate 2 reviewer</small></dd></div>
+        <div class="meta-item"><dt>Current gate</dt><dd>Gate 0 — BRD Review<small>Reviewer: ${esc(reviewer.name)}</small></dd></div>
+        <div class="meta-item"><dt>Current phase</dt><dd>${esc(p.phase)}<small>${d.currentStage ? esc(stageTitle) : ''}</small></dd></div>
+        <div class="meta-item"><dt>Last updated</dt><dd>${esc(p.lastUpdated)}<small>from ${esc(p.lastUpdatedSource)}</small></dd></div>
+        <div class="meta-item"><dt>Next review</dt><dd>${d.g0ok ? 'Gate 1' : 'Gate 0 re-submission'}<small>Date not scheduled</small></dd></div>
+      </dl></div>`;
+  }
+};
+
+PANELS.kpis = {
+  bare: true, err: 'Unable to load project metrics.',
+  render() {
+    const d = D;
+    const k = (o) => {
+      return `<div class="kpi ${o.route ? 'linked' : ''}">
+        <div class="kpi-label">${o.route ? `<button class="kpi-hit" data-action="route" data-route="${o.route}">${esc(o.label)}</button>` : esc(o.label)}${o.tip ? tip(o.tip) : ''}</div>
+        <div class="kpi-value num">${o.value}${o.unit ? ` <small>${o.unit}</small>` : ''}</div>
+        <div class="kpi-desc">${o.desc}</div>
+        ${o.bar != null ? bar(o.bar, o.barKind || '') : ''}
+        <div class="kpi-foot">${o.badge || ''}<span class="trend ${o.trendKind || ''}">${o.trend || ''}</span></div>
+      </div>`;
+    };
+    return `<div class="kpis">
+      ${k({ label: 'Specification Coverage', tip: 'reqCoverage', value: d.specCoverage + '%', desc: `${d.reqs.length - d.noSpec.length} of ${d.reqTotal} requirements specified`, bar: d.specCoverage, route: 'specifications', badge: d.g0ok ? badge('pending') : badge('blocked', 'Awaiting Gate 0') })}
+      ${k({ label: 'Requirements', value: d.reqTotal, desc: `${d.brdCount} functional · ${d.nfrCount} non-functional`, trend: `+${d.newCount} added in Gate 0`, trendKind: 'up', badge: badge('info', 'Baseline') })}
+      ${k({ label: 'Open Questions', value: d.oq.open, desc: `${d.oq.resolved} resolved · ${d.oq.deferred} deferred`, route: 'questions', badge: d.oq.open ? badge('open') : badge('resolved', 'All answered') })}
+      ${k({ label: 'Pending Reviews', tip: 'gate', value: d.outstanding, unit: 'comments', desc: `${d.addressed} of ${d.total} Gate 0 comments addressed`, bar: pct(d.addressed, d.total), barKind: 'warning', route: 'reviews', badge: badge(d.g0ok ? 'approved' : 'changes') })}
+      ${k({ label: 'Test Coverage', tip: 'testCoverage', value: d.tests.length ? d.testCoverage + '%' : '—', desc: d.tests.length ? `${d.reqs.length - d.noTest.length} of ${d.reqTotal} requirements tested` : 'No test cases yet', bar: d.tests.length ? d.testCoverage : null, route: 'testing', badge: badge('pending', d.tests.length ? 'In progress' : 'Not started') })}
+    </div>`;
+  }
+};
+
+/* Lifecycle */
+const STAGES = [
+  { id: 'requirements', title: 'Requirements', long: 'BRD preparation', owner: 'Spec Author', icon: 'list',
+    summary: 'The BRD is ingested from the SOW and kept as the requirement baseline.',
+    exit: () => [['BRD ingested from the source SOW', true], ['All open questions BRD-OQ-01…20 answered', D.oq.open === 0], ['Assumptions recorded in assumptions.md', true]] },
+  { id: 'gate0', title: 'Gate 0 · BRD Review', long: 'BRD review by PM / BA', owner: 'Gate 0 reviewer', icon: 'shield',
+    summary: 'The Project Manager / Business Analyst reviews the BRD for completeness, scope and business rules.',
+    exit: () => [[`All ${D.total} review comments addressed (${D.addressed}/${D.total})`, D.outstanding === 0], ['Reviewer confirms the author responses', D.g0ok], ['BRD status set to Approved and recorded in pr_reviews/BRD-<timestamp>.md', D.g0ok]] },
+  { id: 'spec', title: 'Specification', long: 'Feature specs drafted', owner: 'Spec Author', icon: 'file',
+    summary: 'Feature specs (.spec.md) are written from the approved BRD. Drafting is prohibited until Gate 0 is approved.',
+    exit: () => [['Gate 0 approved', D.g0ok], [`Specs drafted (${DATA.specs.length})`, DATA.specs.length > 0], ['Every requirement linked to a spec', D.noSpec.length === 0]] },
+  { id: 'gate1', title: 'Gate 1 · Spec Review', long: 'Spec peer review', owner: 'Gate 1 reviewer', icon: 'shield',
+    summary: 'The Project Manager / Product Owner reviews each spec for alignment, API contracts and acceptance criteria.',
+    exit: () => [['At least one spec drafted', DATA.specs.length > 0], ['Every spec approved at Gate 1', DATA.specs.length > 0 && D.specs.every(s => s.gate1 === 'approved')]] },
+  { id: 'plan', title: 'Architecture & Plan', long: 'Plan and tasks', owner: 'Tech Lead', icon: 'layers',
+    summary: 'Approved specs become implementation plans, tasks and test cases.',
+    exit: () => [['Plans (.plan.md) written', DATA.specs.some(s => s.plan)], ['Tasks (.tasks.md) generated', DATA.tasks.length > 0], ['Test cases (.test_cases.md) drafted', DATA.tests.length > 0]] },
+  { id: 'impl', title: 'Implementation', long: 'TDD: red → green', owner: 'Developers', icon: 'code',
+    summary: 'Tests are written first (RED), then code makes them pass (GREEN).',
+    exit: () => [['Tests written first', D.tests.length > 0], [`Requirements implemented (${D.cov('impl')}/${D.reqTotal})`, D.cov('impl') === D.reqTotal]] },
+  { id: 'gate2', title: 'Gate 2 · Validation', long: 'Code review and verification', owner: 'Gate 2 reviewer', icon: 'shield',
+    summary: 'The Technical Lead / Architect reviews code and test results for release readiness.',
+    exit: () => [['All tests passing', D.tests.length > 0 && D.tCount('passed') === D.tests.length], ['Code review approved', false]] },
+  { id: 'release', title: 'Release', long: 'Release readiness', owner: 'Tech Lead', icon: 'bolt',
+    summary: 'Specs are released with notes once Gate 2 is approved.',
+    exit: () => [['Gate 2 approved', false], ['Release notes generated', false]] }
+];
+const STAGE_UI = {
+  completed: { icon: 'check', label: 'Completed' }, active: { icon: 'dot', label: 'Active' }, pending: { icon: 'circle', label: 'Pending' },
+  blocked: { icon: 'lock', label: 'Blocked' }, failed: { icon: 'x', label: 'Failed' }
+};
+
+PANELS.lifecycle = {
+  title: 'Spec-Driven Lifecycle', tip: 'lifecycle', emph: true, err: 'Unable to load lifecycle data.',
+  sub: () => `Stage ${D.stageOrder.indexOf(D.currentStage) + 1} of ${STAGES.length}`,
+  render() {
+    return `<ol class="stepper">${STAGES.map(s => {
+      const st = D.stageStatus[s.id], u = STAGE_UI[st];
+      return `<li class="step ${st === 'completed' ? 'done' : st}">
+        <button class="step-btn" data-action="open" data-type="stage" data-id="${s.id}" ${st === 'active' ? 'aria-current="step"' : ''} aria-label="${esc(s.title)}: ${u.label}. Open details">
+          <span class="node">${ic(u.icon)}</span>
+          <span class="step-text"><span class="step-title">${esc(s.title)}</span><span class="step-state">${u.label}${s.id === 'gate0' && st === 'active' ? ' · changes requested' : ''}</span></span>
+        </button></li>`;
+    }).join('')}</ol>`;
+  }
+};
+
+/* Gates */
+function gateModel() {
+  const g0 = DATA.gate0;
+  return [
+    { id: 'gate0', name: 'Gate 0', sub: 'BRD Review', status: D.g0ok ? 'approved' : g0.status, resolved: D.addressed, total: D.total, reviewer: person(g0.reviewer), date: g0.date,
+      note: `${D.addressed} / ${D.total} resolved` },
+    { id: 'gate1', name: 'Gate 1', sub: 'Spec Peer Review', status: !D.g0ok ? 'blocked' : DATA.specs.length ? 'inreview' : 'pending', reviewer: person(DATA.gate1.reviewer), resolved: 0, total: 0,
+      note: !D.g0ok ? 'Awaiting Gate 0 approval' : `${DATA.specs.length} specs` },
+    { id: 'gate2', name: 'Gate 2', sub: 'Code Review', status: 'notstarted', reviewer: person(DATA.gate2.reviewer), resolved: 0, total: 0, note: 'Not started' }
+  ];
+}
+PANELS.gates = {
+  title: 'Gate & Review Status', tip: 'gate', err: 'Unable to load gate status.', more: ['reviews', 'Open review records'],
+  render() {
+    return `<div class="gate-cards">${gateModel().map(g => {
+      const p = g.total ? pct(g.resolved, g.total) : 0;
+      return `<button class="gate-card ${g.status === 'notstarted' || g.status === 'blocked' ? 'dim' : ''}" data-action="open" data-type="gate" data-id="${g.id}">
+        <div class="top"><div><div class="name">${g.name}</div><div class="sub">${g.sub}</div></div>${badge(g.status)}</div>
+        ${g.total ? `${bar(p, 'warning')}<div class="meta"><span class="num">${g.note} · ${p}%</span></div>` : `<div class="meta"><span>${esc(g.note)}</span></div>`}
+        <div class="meta"><span>Reviewer: ${esc(g.reviewer.name)}</span><span>${g.date ? 'Reviewed ' + esc(g.date) : 'No review yet'}</span></div></button>`;
+    }).join('')}</div>`;
+  }
+};
+
+/* Testing */
+PANELS.testing = {
+  title: 'Testing Overview', tip: 'testCoverage', err: 'Unable to load test data.', more: ['testing', 'Testing details'],
+  render(ctx) {
+    const d = D, t = d.tCount;
+    const stats = `<div class="stat-split" style="padding:0 16px 12px">
+      <div class="stat"><b class="num">${t('passed')}</b><span>Passed</span></div><div class="stat"><b class="num">${t('failed')}</b><span>Failed</span></div>
+      <div class="stat"><b class="num">${t('blocked')}</b><span>Blocked</span></div><div class="stat"><b class="num">${t('notrun')}</b><span>Not executed</span></div></div>`;
+    const head = `<div style="padding:0 16px 10px"><div class="faint" style="font-size:12px;font-weight:600">Test coverage</div>
+      <div class="kpi-value num">${d.tests.length ? d.testCoverage + '%' : '—'}</div></div>`;
+    const gap = `<div style="padding:0 16px 14px" class="muted">Requirements without test coverage: <strong class="num">${d.noTest.length}</strong> of ${d.reqTotal}</div>`;
+    if (!d.tests.length) {
+      return head + stats + gap + stateEmpty('No test cases yet', 'Test cases (.test_cases.md) are drafted after a spec passes Gate 1, then written first in the TDD red phase.', 'flask');
+    }
+    let list = '';
+    if (ctx.full) list = `<div class="table-wrap" tabindex="0" role="region" aria-label="Tests"><table class="data"><thead><tr><th scope="col">Test</th><th scope="col">Title</th><th scope="col">Requirement</th><th scope="col">Status</th></tr></thead><tbody>${d.tests.map(x =>
+      `<tr><td><span class="id">${esc(x.id)}</span></td><td>${esc(x.title)}</td><td>${esc(x.req || '—')}</td><td>${badge(x.status === 'notrun' ? 'pending' : x.status, x.status === 'notrun' ? 'Not executed' : undefined)}</td></tr>`).join('')}</tbody></table></div>`;
+    return head + stats + gap + list;
+  }
+};
+
+/* Implementation */
+PANELS.implementation = {
+  title: 'Implementation Progress', err: 'Unable to load implementation data.',
+  render() {
+    const d = D;
+    return `<div class="stat-split" style="padding:0 16px 12px">
+      <div class="stat"><b class="num">${d.implCoverage}%</b><span>Requirements implemented</span></div>
+      <div class="stat"><b class="num">${DATA.tasks.length}</b><span>Tasks</span></div></div>
+      ${stateEmpty('Implementation has not started', 'Code is written after a spec passes Gate 1 (TDD: tests first). Only the project scaffold exists today.', 'code')}`;
+  }
+};
+
+/* Specifications registry */
+PANELS.specs = {
+  title: 'Specifications', err: 'Unable to load specification data.',
+  render() {
+    const s = DATA.specs;
+    if (!s.length) return stateEmpty('No specifications yet', D.g0ok ? 'Gate 0 is approved. Draft the first feature spec.' : 'Spec drafting is blocked until Gate 0 (BRD review) is approved. Once approved, each feature spec appears here with its Gate 1 status.', 'file',
+      D.g0ok ? '' : `<button class="btn" data-action="open" data-type="gate" data-id="gate0">${ic('shield')}View Gate 0 status</button>`);
+    return `<div class="table-wrap" tabindex="0" role="region" aria-label="Specifications"><table class="data"><thead><tr><th scope="col">Spec</th><th scope="col">Title</th><th scope="col">Status</th><th scope="col">Gate 1</th><th scope="col">Developer</th></tr></thead><tbody>${s.map(x =>
+      `<tr><td><span class="id">${esc(x.id)}</span></td><td>${esc(x.title)}</td><td>${badge(x.status)}</td><td>${badge(x.gate1 || 'pending')}</td><td>${esc(x.developer || '—')}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+};
+
+/* Open questions */
+PANELS.questions = {
+  title: 'Open Questions', err: 'Unable to load open questions.', more: ['questions', 'View all open questions'],
+  render(ctx) {
+    const st = ps('questions', { f: 'open', q: '' });
+    const o = D.oq, all = DATA.openQuestions;
+    const f = st.f;
+    let rows = all.filter(q => f === 'all' || q.status === f).filter(q => !st.q || `${q.id} ${q.title}`.toLowerCase().includes(st.q.toLowerCase()));
+    const filters = `<div style="padding:0 16px 10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      ${ctx.full ? `<label class="sr-only" for="oq-q">Filter questions</label><input class="field" id="oq-q" type="search" placeholder="Filter questions…" value="${esc(st.q)}" data-action="filter-input" data-panel="questions" data-key="q" data-fk="oq:q" data-filter-input>` : ''}
+      ${chips('questions', 'f', [{ v: 'open', l: 'Open', n: o.open }, { v: 'deferred', l: 'Deferred', n: o.deferred }, { v: 'resolved', l: 'Resolved', n: o.resolved }, { v: 'all', l: 'All', n: all.length }], f)}</div>`;
+    if (!rows.length) return filters + stateEmpty(f === 'open' ? 'No open questions found.' : 'No questions match this filter.', f === 'open' ? `All ${o.resolved + o.deferred} questions are resolved or deferred.` : 'Try another filter.', 'check',
+      f === 'open' ? `<button class="btn" data-action="filter" data-panel="questions" data-key="f" data-val="all" data-fk="oq:empty">Show all questions</button>` : '');
+    const shown = ctx.full ? rows : rows.slice(0, 6);
+    return filters + `<ul class="list">${shown.map(q => `<li><button class="row" data-action="open" data-type="oq" data-id="${q.id}"><span class="id" style="min-width:86px">${q.id}</span><span class="grow">${esc(q.title)}</span>${badge(q.status)}</button></li>`).join('')}</ul>
+      ${!ctx.full && rows.length > shown.length ? `<div class="panel-foot"><span>${shown.length} of ${rows.length}</span><a class="link-btn" href="#/questions">View all open questions${ic('right')}</a></div>` : ''}`;
+  }
+};
+
+/* Comments (Reviews view) */
+PANELS.comments = {
+  title: 'Gate 0 Review Comments', err: 'Unable to load review comments.',
+  sub: () => `${D.addressed} of ${D.total} addressed`,
+  render() {
+    const st = ps('comments', { f: 'all' });
+    const cm = DATA.gate0.comments;
+    const n = s => cm.filter(c => c.status === s).length;
+    const rows = st.f === 'all' ? cm : cm.filter(c => c.status === st.f);
+    return `<div style="padding:0 16px 10px">${chips('comments', 'f', [{ v: 'all', l: 'All', n: cm.length }, { v: 'open', l: 'Open', n: n('open') }, { v: 'partial', l: 'Partly addressed', n: n('partial') }, { v: 'addressed', l: 'Addressed', n: n('addressed') }], st.f)}</div>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Review comments"><table class="data"><thead><tr><th scope="col" class="r">#</th><th scope="col">Comment</th><th scope="col">Status</th><th scope="col">Responded</th><th scope="col">Incorporated in</th></tr></thead>
+      <tbody>${rows.map(c => `<tr class="clickable" data-action="open" data-type="comment" data-id="${c.n}"><td class="r num">${c.n}</td><td style="min-width:220px"><strong>${esc(c.title)}</strong></td><td>${badge(c.status === 'open' ? 'open' : c.status)}</td><td class="nowrap">${fmtDate(c.resp)}</td>
+        <td class="muted" style="min-width:200px">${c.inc.length ? esc(c.inc.slice(0, 5).join(', ')) + (c.inc.length > 5 ? ` +${c.inc.length - 5}` : '') : '—'}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+};
+
+/* Preserved gate records */
+PANELS.records = {
+  title: 'Gate Review Records', tip: 'gate', err: 'Unable to load gate records.', sub: () => 'Authoritative record — synchronised with status.md and pr_reviews/', raw: true,
+  render() {
+    const tpl = $('#tpl-records');
+    if (!tpl) throw new Error('records template missing');
+    return { node: tpl.content.cloneNode(true) };
+  }
+};
+
+/* ════════════════════════════════════════════════════════════════════
+   8. Views & panel shell
+   ════════════════════════════════════════════════════════════════════ */
+function P(id, o = {}) {
+  const p = PANELS[id];
+  const cls = ['panel', p.emph || o.emph ? 'emph' : '', o.cls || ''].join(' ');
+  const hid = `ph-${id}`;
+  const head = p.bare ? '' : `<div class="panel-head"><h2 id="${hid}">${esc(p.title)}</h2>${p.tip ? tip(p.tip) : ''}<span class="sub" data-sub>${p.sub ? esc(p.sub()) : ''}</span>
+    <div class="tools">${o.full || !p.more ? '' : `<a class="link-btn" href="#/${p.more[0]}">${esc(p.more[1])}${ic('right')}</a>`}</div></div>`;
+  return `<section class="${cls.trim()}" data-panel="${id}" data-full="${o.full ? 1 : 0}" ${p.bare ? `aria-label="${esc(p.title || id)}"` : `aria-labelledby="${hid}"`} style="${p.bare ? 'border:0;background:none;box-shadow:none' : ''}${p.bare && id === 'hero' ? ';background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-sm)' : ''}">${head}<div class="${p.bare ? '' : 'panel-body flush'}" data-slot></div></section>`;
+}
+const VIEWS = {
+  dashboard: { label: 'Dashboard', layout: () => `${P('hero')}${P('kpis')}${P('lifecycle')}
+    <div class="grid two">${P('gates')}${P('questions')}</div>
+    ${P('testing')}` },
+  specifications: { label: 'Specifications', desc: 'Feature specs and their review state.', layout: () => P('specs', { full: true }) },
+  questions: { label: 'Open Questions', desc: 'Business and technical questions recorded in the BRD.', layout: () => P('questions', { full: true }) },
+  implementation: { label: 'Implementation', desc: 'Build progress against requirements.', layout: () => P('implementation', { full: true }) },
+  testing: { label: 'Testing', desc: 'Test results and requirement test coverage.', layout: () => P('testing', { full: true }) },
+  reviews: { label: 'Reviews & Gates', desc: 'Gate status, review comments, and the authoritative review records.', layout: () => `<div class="grid two-one">${P('gates', { full: true })}${P('comments', { full: true })}</div>${P('records', { full: true })}` },
+};
+
+let firstPaint = true;
+function renderPanel(el, withSkeleton) {
+  const id = el.dataset.panel, p = PANELS[id], full = el.dataset.full === '1';
+  const slot = $('[data-slot]', el);
+  const fk = document.activeElement && el.contains(document.activeElement) ? (document.activeElement.closest('[data-fk]') || {}).dataset : null;
+  const caret = fk && document.activeElement.selectionStart != null ? document.activeElement.selectionStart : null;
+  const run = () => {
+    try {
+      const out = p.render({ full });
+      if (out && out.node) { slot.replaceChildren(out.node); } else slot.innerHTML = out;
+      const sub = $('[data-sub]', el); if (sub && p.sub) sub.textContent = p.sub();
+    } catch (err) {
+      console.error(`[dashboard] panel "${id}" failed:`, err);
+      slot.innerHTML = stateError(p.err || 'Unable to load this section.', id);
+    }
+    if (fk && fk.fk) {
+      const t = el.querySelector(`[data-fk="${CSS.escape(fk.fk)}"]`);
+      if (t) { t.focus({ preventScroll: true }); if (caret != null && t.setSelectionRange) { try { t.setSelectionRange(caret, caret); } catch { /* not a text input */ } } }
+    }
+  };
+  if (withSkeleton) { slot.innerHTML = skeleton(); setTimeout(run, 180); } else run();
+}
+function renderAllPanels(withSkeleton) { $$('section[data-panel]', $('#view')).forEach(el => renderPanel(el, withSkeleton)); }
+
+let current = 'dashboard';
+function renderRoute(id, { skeleton: sk = false, focus = true } = {}) {
+  const v = VIEWS[id] || VIEWS.dashboard; current = VIEWS[id] ? id : 'dashboard';
+  D = derive();
+  const head = current === 'dashboard' ? '' : `<div class="page-head"><div><div class="crumbs">${esc((NAV_FLAT.find(n => n.id === current) || {}).group || '')}</div><h1 id="page-h1" tabindex="-1">${esc(v.label)}</h1>${v.desc ? `<p class="muted">${esc(v.desc)}</p>` : ''}</div></div>`;
+  $('#view').innerHTML = head + v.layout();
+  renderAllPanels(sk);
+  renderNav(current);
+  document.title = `${v.label} · SDD Control Center — ${DATA.project.code}`;
+  if (focus) { const h = $('#page-h1'); if (h) h.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); }
+  $('#app').classList.remove('nav-open');
+}
+function route() {
+  const id = (location.hash.match(/^#\/([\w-]+)/) || [])[1] || 'dashboard';
+  renderRoute(id, { skeleton: firstPaint });
+  firstPaint = false;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   9. Drawer (detail views)
+   ════════════════════════════════════════════════════════════════════ */
+const kv = rows => `<dl class="kv">${rows.filter(Boolean).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join('')}</dl>`;
+const idChips = (arr, type) => arr.length ? `<div class="chips">${arr.map(id => type(id) === 'note'
+  ? `<span class="chip" style="cursor:default">${esc(id)}</span>`
+  : `<button class="chip" data-action="open" data-type="${type(id)}" data-id="${esc(id)}">${esc(id)}</button>`).join('')}</div>` : '<span class="faint">None</span>';
+const typeOfId = id => /^BRD-OQ/.test(id) ? 'oq' : /^(BRD|NFR)-/.test(id) ? 'req' : 'note';
+
+const DRAWERS = {
+  req(id) {
+    const r = DATA.requirements.find(x => x.id === id); if (!r) return null;
+    const flag = r.isNew ? badge('info', 'New') : r.comments.length ? badge('partial', 'Changed') : '';
+    return { title: `${r.id} — ${r.title}`, badge: flag, body: `
+      <div><h3>Details</h3>${kv([['Type', r.type === 'NFR' ? 'Non-functional requirement' : 'Functional requirement'], ['Area', esc(r.area)], ['Origin', r.isNew ? 'Added while addressing Gate 0 comments' : 'BRD baseline (SOW v1.4)'],
+        ['Specification', r.trace.spec.length ? esc(r.trace.spec.join(', ')) : (D.g0ok ? 'No specification linked' : 'None — blocked until Gate 0 is approved')],
+        ['Gate 0 comments', r.comments.length ? r.comments.map(n => `<button class="chip" data-action="open" data-type="comment" data-id="${n}">#${n}</button>`).join(' ') : 'None']])}</div>
+      ${r.comments.length ? `<div class="verdict" style="background:var(--info-soft)">${ic('info', 'lg')}<div>Changed during Gate 0. ${r.trace.spec.length ? 'Its specification must be revalidated.' : 'No spec exists yet; write it against the updated text.'}</div></div>` : ''}` };
+  },
+  comment(id) {
+    const c = DATA.gate0.comments.find(x => x.n === Number(id)); if (!c) return null;
+    const related = DATA.gate0.criteria.filter(cr => cr.comments.includes(c.n)).map(cr => cr.name);
+    return { title: `Comment ${c.n} — ${c.title}`, badge: badge(c.status), body: `
+      <div><h3>Summary</h3><p>${esc(c.summary)}</p></div>
+      ${c.flag ? `<div class="verdict">${ic('alert', 'lg')}<div>${esc(c.flag)}</div></div>` : ''}
+      <div><h3>Details</h3>${kv([['Reviewer', esc(person(DATA.gate0.reviewer).name)], ['Review date', esc(DATA.gate0.date)], ['Author response', c.resp ? esc(c.resp) : 'Not yet submitted'],
+        ['Reviewer confirmation', c.status === 'addressed' ? 'Awaiting ' + tip('confirmation') : '—'], ['Criteria', related.length ? esc(related.join(' · ')) : '—']])}</div>
+      <div><h3>Incorporated in</h3>${idChips(c.inc, typeOfId)}</div>
+      <div><h3>Record</h3><p class="muted">Full comment text and responses: <code>${esc(DATA.gate0.record)}</code></p></div>` };
+  },
+  gate(id) {
+    const g = gateModel().find(x => x.id === id); if (!g) return null;
+    if (id === 'gate0') {
+      const st = ps('drawer-gate0', { f: 'all' });
+      const cm = DATA.gate0.comments, rows = st.f === 'all' ? cm : cm.filter(c => c.status === st.f);
+      return { title: 'Gate 0 — BRD Review', badge: badge(g.status), body: `
+        <div>${bar(pct(D.addressed, D.total), 'warning', true)}<p class="muted num" style="margin-top:6px">${D.addressed} of ${D.total} comments addressed · ${D.outstanding} unresolved</p></div>
+        <div><h3>Review</h3>${kv([['Reviewer', `${esc(g.reviewer.name)}<br><span class="faint">${esc(g.reviewer.email)}</span>`], ['Role', 'Project Manager / Business Analyst'], ['Review date', esc(g.date)], ['Record', `<code>${esc(DATA.gate0.record)}</code>`]])}</div>
+        <div><h3>Review comments</h3><div style="margin-bottom:8px" id="drawer-gate-filter">${chips('drawer-gate0', 'f', [{ v: 'all', l: 'All' }, { v: 'open', l: 'Open' }, { v: 'partial', l: 'Partial' }, { v: 'addressed', l: 'Addressed' }], st.f)}</div>
+          <ul class="list" style="border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden">${rows.map(c => `<li><button class="row" data-action="open" data-type="comment" data-id="${c.n}"><span class="id" style="min-width:24px">${c.n}</span><span class="grow">${esc(c.title)}</span>${badge(c.status)}</button></li>`).join('')}</ul></div>` };
+    }
+    return { title: `${g.name} — ${g.sub}`, badge: badge(g.status), body: `
+      <div class="verdict" style="background:var(--surface-secondary)">${ic(g.status === 'blocked' ? 'lock' : 'info', 'lg')}<div>${id === 'gate1'
+        ? (D.g0ok ? 'Gate 1 reviews each feature spec.' : 'Blocked. Gate 1 cannot start until Gate 0 is approved. Specs may not be drafted before then.')
+        : 'Gate 2 starts after implementation and tests are complete.'}</div></div>
+      <div><h3>Review</h3>${kv([['Reviewer', `${esc(g.reviewer.name)}<br><span class="faint">${esc(g.reviewer.email)}</span>`], ['Role', id === 'gate1' ? 'Project Manager / Product Owner' : 'Technical Lead / Architect'], ['Reviews recorded', '0']])}</div>` };
+  },
+  stage(id) {
+    const s = STAGES.find(x => x.id === id); if (!s) return null;
+    const st = D.stageStatus[id], u = STAGE_UI[st];
+    const blockedBy = st === 'blocked' ? 'Gate 0 (BRD review) must be approved first.' : '';
+    return { title: s.title, badge: badge(st === 'completed' ? 'completed' : st, u.label), body: `
+      <div><p>${esc(s.summary)}</p></div>
+      ${blockedBy ? `<div class="verdict">${ic('lock', 'lg')}<div>${esc(blockedBy)}</div></div>` : ''}
+      <div><h3>Exit criteria</h3><ul class="checklist">${s.exit().map(([t, ok]) => `<li class="${ok ? 'yes' : 'no'}">${ic(ok ? 'check' : 'circle')}<span>${esc(t)}</span></li>`).join('')}</ul></div>
+      <div><h3>Details</h3>${kv([['Owner', esc(s.owner)], ['Stage', `${STAGES.indexOf(s) + 1} of ${STAGES.length}`]])}</div>` };
+  },
+  oq(id) {
+    const q = DATA.openQuestions.find(x => x.id === id); if (!q) return null;
+    return { title: `${q.id} — ${q.title}`, badge: badge(q.status), body: `<div>${kv([['Status', badge(q.status)], ['Source', '<code>BRD.md › Open Questions</code>']])}</div>
+      <p class="muted">${q.status === 'deferred' ? 'Deferred to infrastructure planning; must be confirmed before production deployment (NFR-009). Gate 0 comment 21 asks for minimum application-level targets.' : 'Answered and incorporated into the BRD. See the Open Questions table in BRD.md for the resolution and the requirements it touched.'}</p>` };
+  },
+  help() {
+    return { title: 'How to read this dashboard', body: `
+      <div><h3>In 10 seconds</h3><ul class="checklist">
+        <li class="yes">${ic('check')}<span><strong>Project header</strong> — current gate, phase, health and overall progress.</span></li>
+        <li class="yes">${ic('check')}<span><strong>Key metrics</strong> — specification coverage, open questions, pending reviews and test coverage.</span></li>
+        <li class="yes">${ic('check')}<span><strong>Lifecycle</strong> — where you are in the governed flow; select a stage for exit criteria.</span></li>
+        <li class="yes">${ic('check')}<span><strong>Gates</strong> — the status of Gate 0, Gate 1 and Gate 2; select one for its review comments.</span></li></ul></div>
+      <div><h3>Concepts</h3>${kv([['Gate', esc(TIPS.gate)], ['Coverage', esc(TIPS.reqCoverage)], ['Progress', esc(TIPS.progress)], ['Confirmation', esc(TIPS.confirmation)]])}</div>
+      <div><h3>Shortcuts</h3>${kv([['Search', '<kbd>Ctrl</kbd> <kbd>K</kbd> or <kbd>/</kbd>'], ['Close panel', '<kbd>Esc</kbd>'], ['Navigate results', '<kbd>↑</kbd> <kbd>↓</kbd> <kbd>Enter</kbd>']])}</div>` };
+  }
+};
+
+let lastFocus = null;
+function openDrawer(type, id, { push = true } = {}) {
+  const def = DRAWERS[type] && DRAWERS[type](id);
+  if (!def) { toast('Nothing to show for that item.'); return; }
+  const root = $('#overlay-root');
+  if (!$('.drawer', root)) { lastFocus = document.activeElement; root.insertAdjacentHTML('beforeend', '<div class="scrim" data-action="drawer-close"></div><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title"></aside>'); }
+  if (push) ui.drawer.push({ type, id }); else ui.drawer[ui.drawer.length - 1] = { type, id };
+  $('.drawer', root).innerHTML = `<div class="drawer-head">
+      ${ui.drawer.length > 1 ? `<button class="icon-btn" data-action="drawer-back" aria-label="Back"><svg class="icon lg" aria-hidden="true" style="transform:scaleX(-1)"><use href="#i-right"/></svg></button>` : ''}
+      <div style="flex:1;min-width:0"><h2 id="drawer-title">${esc(def.title)}</h2><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${def.badge || ''}</div></div>
+      <button class="icon-btn" data-action="drawer-close" aria-label="Close details" id="drawer-close">${ic('x', 'lg')}</button></div>
+    <div class="drawer-body">${def.body}</div>`;
+  $('#drawer-close').focus();
+}
+function closeDrawer() {
+  const root = $('#overlay-root'); $$('.drawer, .scrim', root).forEach(e => e.remove()); ui.drawer = [];
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus(); lastFocus = null;
+}
+function refreshDrawer() {
+  const top = ui.drawer[ui.drawer.length - 1]; if (!top || !$('.drawer')) return;
+  const f = document.activeElement && document.activeElement.closest('[data-fk]');
+  const key = f && f.dataset.fk;
+  openDrawer(top.type, top.id, { push: false });
+  if (key) { const t = $(`.drawer [data-fk="${CSS.escape(key)}"]`); if (t) t.focus(); }
+}
+
+function openTarget(type, id) {
+  if (type === 'page') { location.hash = `#/${id}`; closeDrawer(); closePalette(); return; }
+  if (type === 'note') return;
+  closePalette(); openDrawer(type, id);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   10. Global search / command palette
+   ════════════════════════════════════════════════════════════════════ */
+const SCOPES = [
+  { v: 'all', l: 'All' }, { v: 'req', l: 'Requirements' }, { v: 'spec', l: 'Specs' }, { v: 'test', l: 'Tests' },
+  { v: 'oq', l: 'Open Questions' }, { v: 'review', l: 'Reviews' }
+];
+const TYPE_LABEL = { req: 'Requirement', spec: 'Spec', test: 'Test', oq: 'Open Question', comment: 'Review Comment', gate: 'Gate', page: 'Page', action: 'Action' };
+const SCOPE_OF = { req: 'req', spec: 'spec', test: 'test', oq: 'oq', comment: 'review', gate: 'review', page: 'all', action: 'all' };
+
+function buildIndex() {
+  const ix = [];
+  DATA.requirements.forEach(r => ix.push({ type: 'req', id: r.id, title: r.title, status: r.trace.spec.length ? 'active' : (D.g0ok ? 'nospec' : 'blocked'), statusLabel: r.trace.spec.length ? 'Specified' : D.g0ok ? 'No spec' : 'Spec blocked', hay: `${r.id} ${r.title} ${r.area}` }));
+  DATA.specs.forEach(s => ix.push({ type: 'spec', id: s.id, title: s.title, status: s.status, hay: `${s.id} ${s.title}` }));
+  DATA.tests.forEach(t => ix.push({ type: 'test', id: t.id, title: t.title, status: t.status === 'notrun' ? 'pending' : t.status, hay: `${t.id} ${t.title} ${t.req || ''}` }));
+  DATA.openQuestions.forEach(q => ix.push({ type: 'oq', id: q.id, title: q.title, status: q.status, hay: `${q.id} ${q.title} question` }));
+  DATA.gate0.comments.forEach(c => ix.push({ type: 'comment', id: String(c.n), label: `Comment ${c.n}`, title: c.title, status: c.status, hay: `comment ${c.n} ${c.title} gate 0 review` }));
+  gateModel().forEach(g => ix.push({ type: 'gate', id: g.id, label: g.name, title: g.sub, status: g.status, hay: `${g.name} ${g.sub} gate review` }));
+  NAV_FLAT.forEach(n => ix.push({ type: 'page', id: n.id, label: n.label, title: `Go to ${n.label}`, status: null, hay: `${n.label} ${n.group} page go to` }));
+  return ix;
+}
+const hl = (text, terms) => {
+  let out = esc(text);
+  terms.forEach(t => { if (t) out = out.replace(new RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'ig'), '<mark>$1</mark>'); });
+  return out;
+};
+let paletteResults = [];
+let paletteFocus = null;
+function openPalette() {
+  const root = $('#overlay-root');
+  if ($('.palette', root)) { $('.palette-input input').focus(); return; }
+  closeMenus(); paletteFocus = document.activeElement;
+  root.insertAdjacentHTML('beforeend', `<div class="scrim palette-scrim" data-action="palette-close"></div>
+    <div class="palette" role="dialog" aria-modal="true" aria-label="Global search">
+      <div class="palette-input">${ic('search', 'lg')}<input type="text" role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" placeholder="Search BRD-021, SPEC-023, TC-012, BRD-OQ-19…" autocomplete="off" spellcheck="false" aria-label="Search"><kbd>Esc</kbd></div>
+      <div class="palette-scopes" id="palette-scopes"></div>
+      <div class="palette-list" id="palette-list" role="listbox" aria-label="Results"></div>
+      <div class="palette-foot"><span><kbd>↑</kbd> <kbd>↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span id="palette-count" aria-live="polite"></span></div></div>`);
+  ui.palette = { q: '', scope: 'all', idx: 0 };
+  renderPalette(); $('.palette-input input').focus();
+}
+function closePalette() {
+  const root = $('#overlay-root'); const was = $('.palette', root);
+  $$('.palette, .palette-scrim', root).forEach(e => e.remove());
+  if (was && paletteFocus && document.contains(paletteFocus)) paletteFocus.focus();
+  paletteFocus = null;
+}
+function searchResults() {
+  const { q, scope } = ui.palette, ix = buildIndex();
+  const terms = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  let items;
+  if (!terms.length) {
+    items = ix.filter(i => i.type === 'page').slice(0, 8).map(i => ({ ...i, group: 'Go to' }));
+    items.push({ type: 'action', id: 'theme', title: 'Toggle light / dark theme', group: 'Quick actions' }, { type: 'action', id: 'collapse', title: 'Collapse or expand the sidebar', group: 'Quick actions' });
+    return { items: scope === 'all' ? items : [], terms };
+  }
+  items = ix.filter(i => terms.every(t => i.hay.toLowerCase().includes(t)) && (scope === 'all' || SCOPE_OF[i.type] === scope))
+    .map(i => ({ ...i, score: (i.id.toLowerCase() === terms.join(' ') ? 0 : i.id.toLowerCase().startsWith(terms[0]) ? 1 : i.type === 'page' ? 3 : 2) }))
+    .sort((a, b) => a.score - b.score).slice(0, 40).map(i => ({ ...i, group: TYPE_LABEL[i.type] + 's' }));
+  return { items, terms };
+}
+function renderPalette() {
+  const { items, terms } = searchResults();
+  paletteResults = items;
+  ui.palette.idx = Math.min(ui.palette.idx, Math.max(0, items.length - 1));
+  $('#palette-scopes').innerHTML = SCOPES.map(s => `<button class="chip" data-action="palette-scope" data-val="${s.v}" aria-pressed="${ui.palette.scope === s.v}">${s.l}</button>`).join('');
+  const list = $('#palette-list');
+  if (!items.length) {
+    const q = ui.palette.q.trim();
+    const m = q.match(/^(spec|sp)-|^(tc|test)-/i);
+    const why = m ? (/^spec/i.test(q) ? 'No specs exist yet — spec drafting starts after Gate 0 approval.' : 'No test cases exist yet — they are drafted after Gate 1.') : 'Try a requirement ID, open question or keyword.';
+    list.innerHTML = `<div class="state"><span class="ic">${ic('search', 'lg')}</span><b>No results${q ? ` for “${esc(q)}”` : ''}</b><p>${esc(why)}</p></div>`;
+    $('#palette-count').textContent = 'No results'; return;
+  }
+  let lastG = '', html = '';
+  items.forEach((it, i) => {
+    if (it.group !== lastG) { html += `<div class="palette-group" role="presentation">${esc(it.group)}</div>`; lastG = it.group; }
+    const label = it.label || it.id;
+    html += `<button class="result" role="option" id="res-${i}" data-action="palette-open" data-i="${i}" aria-selected="${i === ui.palette.idx}">
+      <span class="id" style="min-width:92px">${hl(label, terms)}</span><span class="grow"><span class="t" style="display:block">${hl(it.title, terms)}</span><span class="faint" style="font-size:11.5px">${esc(TYPE_LABEL[it.type])}</span></span>
+      ${it.type === 'req' ? badge(it.status === 'blocked' ? 'blocked' : it.status === 'nospec' ? 'nospec' : 'active', it.statusLabel) : it.status ? badge(it.status) : ''}</button>`;
+  });
+  list.innerHTML = html;
+  $('#palette-count').textContent = plural(items.length, 'result');
+  const inp = $('.palette-input input'); if (inp) inp.setAttribute('aria-activedescendant', `res-${ui.palette.idx}`);
+}
+function activateResult(i) {
+  const it = paletteResults[i]; if (!it) return;
+  if (it.type === 'action') { closePalette(); runAction(it.id); return; }
+  openTarget(it.type, it.id);
+}
+function runAction(id) {
+  if (id === 'theme') setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  if (id === 'collapse') toggleSidebar();
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   11. Menus, profile, tooltips, toast
+   ════════════════════════════════════════════════════════════════════ */
+function closeMenus(except) {
+  $$('[data-menu]').forEach(b => {
+    const m = $('#menu-' + b.dataset.menu);
+    if (m && b.dataset.menu !== except) { m.hidden = true; b.setAttribute('aria-expanded', 'false'); }
+  });
+}
+function toggleMenu(name) {
+  const m = $('#menu-' + name), b = $(`[data-menu="${name}"]`); if (!m) return;
+  const open = m.hidden; closeMenus(open ? name : undefined);
+  if (name === 'profile' && open) renderProfile();
+  m.hidden = !open; b.setAttribute('aria-expanded', String(open));
+  if (open) { const f = $('button, [role="menuitem"]', m); if (f && f.tagName === 'BUTTON') f.focus({ preventScroll: true }); }
+}
+function renderProfile() {
+  const p = currentUser();
+  $('#menu-profile').innerHTML = `<div style="padding:10px"><div style="font-weight:650">${esc(p.name)}</div><div class="faint" style="font-size:12px">${esc(p.email)}</div><div class="muted" style="font-size:12px;margin-top:4px">${esc(p.roles.join(' · '))}</div></div><div class="menu-sep"></div>
+    <p class="faint" style="font-size:11.5px;padding:6px 10px 8px;max-width:260px">Approval rights are checked by <code>git config user.email</code>, not by this menu.</p>`;
+}
+
+const tt = $('#tooltip'); let ttFor = null;
+function showTip(btn) {
+  const text = TIPS[btn.dataset.tip]; if (!text) return;
+  ttFor = btn; tt.textContent = text; tt.id = 'tooltip'; tt.hidden = false; btn.setAttribute('aria-describedby', 'tooltip');
+  const r = btn.getBoundingClientRect(), w = tt.offsetWidth, h = tt.offsetHeight;
+  let left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), window.innerWidth - w - 8);
+  let top = r.bottom + 8; if (top + h > window.innerHeight - 8) top = r.top - h - 8;
+  tt.style.left = left + 'px'; tt.style.top = Math.max(8, top) + 'px';
+}
+function hideTip() { if (ttFor) ttFor.removeAttribute('aria-describedby'); ttFor = null; tt.hidden = true; }
+let toastTimer;
+function toast(msg) {
+  const r = $('#toast-root'); r.innerHTML = `<div class="toast">${esc(msg)}</div>`;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { r.innerHTML = ''; }, 2200);
+}
+
+/* Sidebar */
+function toggleSidebar() {
+  const app = $('#app'), c = !app.classList.contains('collapsed');
+  app.classList.toggle('collapsed', c); store.set('sdd.sidebar', c ? 'collapsed' : 'expanded');
+  const b = $('#collapse-btn'); b.setAttribute('aria-pressed', String(c)); b.setAttribute('aria-label', c ? 'Expand sidebar' : 'Collapse sidebar');
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   12. Events (single delegated listeners)
+   ════════════════════════════════════════════════════════════════════ */
+function rerender(panelId) { $$(`section[data-panel="${panelId}"]`).forEach(el => renderPanel(el, false)); }
+
+document.addEventListener('click', e => {
+  const t = e.target;
+  const app = $('#app');
+  if (app.classList.contains('nav-open') && !t.closest('#sidebar') && !t.closest('[data-action="nav-toggle"]')) app.classList.remove('nav-open');
+  if (t.closest('.nav-link')) app.classList.remove('nav-open');
+  const th = t.closest('[data-theme-set]');
+  if (th) { setTheme(th.dataset.themeSet); closeMenus(); return; }
+  const m = t.closest('[data-menu]');
+  if (m) { toggleMenu(m.dataset.menu); return; }
+  if (!t.closest('.menu-wrap')) closeMenus();
+  const tp = t.closest('.info-tip');
+  if (tp) { showTip(tp); return; }
+  hideTip();
+  const a = t.closest('[data-action]'); if (!a) return;
+  const act = a.dataset.action;
+  switch (act) {
+    case 'nav-toggle': app.classList.toggle('nav-open'); break;
+    case 'sidebar-collapse': toggleSidebar(); break;
+    case 'search-open': openPalette(); break;
+    case 'help': openDrawer('help', 'help'); break;
+    case 'open': openTarget(a.dataset.type, a.dataset.id); break;
+    case 'target': closeMenus(); openTarget(a.dataset.type, a.dataset.id); break;
+    case 'route': closeMenus(); location.hash = `#/${a.dataset.route}`; closeDrawer(); break;
+    case 'drawer-close': closeDrawer(); break;
+    case 'drawer-back': ui.drawer.pop(); { const top = ui.drawer.pop(); if (top) openDrawer(top.type, top.id); else closeDrawer(); } break;
+    case 'palette-close': closePalette(); break;
+    case 'palette-scope': ui.palette.scope = a.dataset.val; ui.palette.idx = 0; renderPalette(); $('.palette-input input').focus(); break;
+    case 'palette-open': activateResult(Number(a.dataset.i)); break;
+    case 'retry': rerender(a.dataset.panel); break;
+    case 'filter': {
+      const pid = a.dataset.panel; const key = a.dataset.key, val = a.dataset.val;
+      if (pid === 'drawer-gate0') { ps(pid, {})[key] = val; refreshDrawer(); break; }
+      ps(pid, {})[key] = val; rerender(pid); break; }
+    default: break;
+  }
+});
+let inputTimer;
+document.addEventListener('input', e => {
+  const a = e.target.closest('[data-action="filter-input"]');
+  if (a) { clearTimeout(inputTimer); inputTimer = setTimeout(() => { const pid = a.dataset.panel; ps(pid, {})[a.dataset.key] = a.value; rerender(pid); }, 120); return; }
+  if (e.target.matches('.palette-input input')) { ui.palette.q = e.target.value; ui.palette.idx = 0; renderPalette(); }
+});
+document.addEventListener('mouseover', e => { const tp = e.target.closest('.info-tip'); if (tp && ttFor !== tp) showTip(tp); });
+document.addEventListener('mouseout', e => { const tp = e.target.closest('.info-tip'); if (tp && !tp.contains(e.relatedTarget)) hideTip(); });
+document.addEventListener('focusin', e => { const tp = e.target.closest('.info-tip'); if (tp) showTip(tp); else if (ttFor) hideTip(); });
+window.addEventListener('scroll', hideTip, { passive: true });
+
+function trapFocus(e, container) {
+  const f = $$('button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', container).filter(x => x.offsetParent !== null);
+  if (!f.length) return; const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+document.addEventListener('keydown', e => {
+  const pal = $('.palette'), drw = $('.drawer');
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); pal ? closePalette() : openPalette(); return; }
+  if (e.key === '/' && !typing && !pal) { e.preventDefault(); openPalette(); return; }
+  if (e.key === 'Escape') {
+    if (pal) { closePalette(); return; }
+    if (drw) { closeDrawer(); return; }
+    if ($$('[data-menu][aria-expanded="true"]').length) { const b = $('[data-menu][aria-expanded="true"]'); closeMenus(); b.focus(); return; }
+    if (ttFor) { hideTip(); return; }
+    $('#app').classList.remove('nav-open'); return;
+  }
+  if (pal) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault(); const n = paletteResults.length; if (!n) return;
+      ui.palette.idx = (ui.palette.idx + (e.key === 'ArrowDown' ? 1 : -1) + n) % n;
+      $$('.result', pal).forEach((r, i) => r.setAttribute('aria-selected', String(i === ui.palette.idx)));
+      const sel = $(`#res-${ui.palette.idx}`); if (sel) { sel.scrollIntoView({ block: 'nearest' }); $('.palette-input input').setAttribute('aria-activedescendant', sel.id); }
+    } else if (e.key === 'Enter' && document.activeElement.matches('.palette-input input')) { e.preventDefault(); activateResult(ui.palette.idx); }
+    else if (e.key === 'Tab') trapFocus(e, pal);
+  } else if (drw && e.key === 'Tab') trapFocus(e, drw);
+  const open = $('[data-menu][aria-expanded="true"]');
+  if (open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+    const items = $$('button, [role="menuitem"]', $('#menu-' + open.dataset.menu)).filter(x => x.tagName === 'BUTTON');
+    if (items.length) { e.preventDefault(); const i = items.indexOf(document.activeElement); items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus(); }
+  }
+});
+
+/* ════════════════════════════════════════════════════════════════════
+   13. Boot
+   ════════════════════════════════════════════════════════════════════ */
+function boot() {
+  applyTheme(themePref());
+  if (store.get('sdd.sidebar', 'expanded') === 'collapsed') { $('#app').classList.add('collapsed'); const b = $('#collapse-btn'); b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-label', 'Expand sidebar'); }
+  $('#env-tag').textContent = DATA.project.env;
+  $('#avatar').textContent = initials(currentUser().name);
+  window.addEventListener('hashchange', route);
+  route();
+}
+boot();
+})();
+</script>
 </body>
 </html>
