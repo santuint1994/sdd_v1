@@ -3,7 +3,7 @@
 
 **Status:** Changes Requested (Gate 0 review 2026-09-30 — see `.ai-context/pr_reviews/BRD-20260930-144648.md`)
 **Source:** `docs/Internal_Transfer_Digital_Journey_Full_Updated_SOW_v1.0.pdf` (internally titled SOW v1.4, 27 September 2026, "Draft for stakeholder review")
-**Last Updated:** 2026-10-01 (Gate 0 comment 20 addressed — Audit Logging rules in BRD-037: every material business, workflow, administrative and security-related action is audited with actor, role, action, related entity/request, date/time, previous/new value, previous/new status and remarks/reason where applicable; Super Admin views all audit logs while other users see only audit information within their role and organisation scope; audit records are append-only, never edited or overwritten (a change creates a new entry); only Super Admin may export audit logs and each export is itself audited; retained for the lifetime of the system with no manual deletion through the application; plaintext, temporary and reset passwords, authentication tokens and other credentials are never stored in audit logs; security events (login failures, account lock/unlock, password reset, role/permission changes, administrative interventions) are audited; Gate 0 comment 19 addressed — Notification rules in BRD-036: mandatory notifications follow Event → Recipient → Channel → Message → Mandatory/Optional for twelve events (user account created, credential/password reset, transfer submitted, approval required, clarification requested, approval completed, transfer rejected, HR action required, Payroll task assigned, IT task assigned, task blocked, transfer completed), all Mandatory; account creation and reset by Email only, workflow events by both Email and In-app; a notification failure never fails, rolls back or corrupts the core transfer transaction (no exception), the workflow action stays recorded, failures are logged for audit/troubleshooting, a failed notification may be retried without repeating the workflow transaction, and notification processing never creates duplicate transfer actions or workflow transitions; Gate 0 comment 18 addressed — Administrative Reassignment rules in BRD-035: only the Super Admin may reassign active workflow tasks (Reporting Manager, Receiving Manager, HR, IT) to a user with the required role and organisation/location scope; reason mandatory; new assignee becomes responsible and is notified; previous assignee keeps visibility through workflow/audit history but can no longer act unless reassigned back; no re-approval and completed approvals stay valid; request continues from the same workflow stage; every reassignment audited; no bypass of mandatory approvals, IT Final Approval, role permissions, organisation scope or security controls; the earlier BRD-027 allowance for HR to reassign is withdrawn; Gate 0 comment 17 addressed — Clarification rules in BRD-034: mandatory clarification reason/question, request moves to Information Required (temporary state), Employee or responsible user notified and responds under the same transfer reference, every request/response audited (requested by, question/reason, response, responded by, date/time), request returns to the same stage and reviewer, previous approvals and history retained, multiple cycles allowed, no restart of the approval workflow unless a separate re-approval rule applies; Gate 0 comment 16 addressed — Rejection & Resubmission rules in BRD-033: mandatory rejection reason, workflow-history and audit record (rejected by, reason, date/time), Employee notified, Rejected is final with reserved capacity released, no reopen or resubmission under the same reference, a new application is a new transfer request with a new reference, eligibility and vacancy revalidated, full workflow restarted, no approvals carried forward, rejected request kept in history; Gate 0 comment 14 addressed — Transfer Request Editing rules in BRD-032: Employee edits all fields in Draft only, no Employee edit after submission, post-submission changes by authorised HR / Super Admin with BRD-024 re-approval, no silent overwrite, full audit of each change with original values retained; document upload validation error responses confirmed in BRD-021 — HTTP 413 `FILE_SIZE_EXCEEDED`, HTTP 415 `UNSUPPORTED_FILE_TYPE` / `INVALID_FILE_TYPE`, invalid file not stored; Gate 0 comment 13 addressed — document upload and access secured at API/server level in BRD-021: PDF/image only, 5 MB per file, MIME and extension validation, file-name sanitisation, local server storage, role/organisation-scoped authenticated access, no public URLs, audit logging; Gate 0 comment 12 addressed — no external Payroll/HR integration in the current phase, Payroll manual by HR; any future integration needs an approved contract covering the eleven required elements, NFR-006 retry/idempotency/visibility rules confirmed; 2026-09-30: HR cancellation of Blocked requests answered — HR may cancel HR-blocked requests, not IT-blocked ones, Super Admin any Blocked request, BRD-027 updated; Gate 0 comment 8 addressed — Effective Transfer Date rule BRD-031: current date to 30 days ahead, no past dates for any role, weekends/holidays allowed, expired date must be updated before completion, no re-approval unless Super Admin configures it; BRD-OQ-20 resolved — Employee edits in Draft only, HR during approval, Super Admin for intervention, business time zone, inclusive fixed 30-day limit, optional re-approval to configured approver, expired date corrected by HR or Super Admin; BRD-OQ-18 resolved — HR-controlled and IT-controlled stages defined for Block/Resume, HR Cancel limited to Pending HR Review / HR Processing / Payroll Processing with other stages requiring Super Admin, Draft excluded from all four actions, cross-role Resume rules, BRD-027 updated; BRD-OQ-17 resolved — Draft not active, mandatory backend + database enforcement, HTTP 409 `ACTIVE_TRANSFER_ALREADY_EXISTS`, no cool-down after Completed, BRD-030 updated; BRD-OQ-19 resolved — portal is the operational source of employee/organisation data with per-field ownership, no HR-system synchronisation this phase, comment 7 addressed; BRD-OQ-16 resolved — employee-data source of truth, missing-data handling and HR-ineligible outcome in BRD-029, comment 7 addressed with BRD-OQ-19; Gate 0 comments 1–6, 8 and 15 addressed — BRD-025 – BRD-031, plus the withdrawal rules in BRD-027 (BRD-OQ-12 resolved) and the Block/Resume/Cancel/Reassign rules in BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4); comments 21–22 outstanding)
+**Last Updated:** 2026-10-01 (Gate 0 comment 22 addressed — Mandatory Negative Acceptance Scenarios in BRD-039: the security, workflow, vacancy and integration negative scenarios are mandatory QA/UAT acceptance criteria, validated before production deployment, and any failed mandatory scenario must be resolved before production deployment; Gate 0 comment 21 addressed — Performance & Availability rules in BRD-038: application-level performance requirements defined and validated before production deployment; maximum document upload size fixed at 5 MB per file; concurrent users, transaction volume, API and page response-time targets confirmed during performance/capacity planning and testing; API timeout confirmed during technical/infrastructure planning; integration timeout defined per external integration before implementation (none in the current phase); failed integration requests support controlled retry without duplicate downstream transactions (NFR-006); critical operations (vacancy reservation, capacity updates, workflow state changes) keep data consistent and prevent partial or duplicate processing; performance validated in the pre-production environment; final infrastructure capacity, scaling, availability, backup and monitoring targets stay with infrastructure/deployment planning (NFR-009); Gate 0 comment 20 addressed — Audit Logging rules in BRD-037: every material business, workflow, administrative and security-related action is audited with actor, role, action, related entity/request, date/time, previous/new value, previous/new status and remarks/reason where applicable; Super Admin views all audit logs while other users see only audit information within their role and organisation scope; audit records are append-only, never edited or overwritten (a change creates a new entry); only Super Admin may export audit logs and each export is itself audited; retained for the lifetime of the system with no manual deletion through the application; plaintext, temporary and reset passwords, authentication tokens and other credentials are never stored in audit logs; security events (login failures, account lock/unlock, password reset, role/permission changes, administrative interventions) are audited; Gate 0 comment 19 addressed — Notification rules in BRD-036: mandatory notifications follow Event → Recipient → Channel → Message → Mandatory/Optional for twelve events (user account created, credential/password reset, transfer submitted, approval required, clarification requested, approval completed, transfer rejected, HR action required, Payroll task assigned, IT task assigned, task blocked, transfer completed), all Mandatory; account creation and reset by Email only, workflow events by both Email and In-app; a notification failure never fails, rolls back or corrupts the core transfer transaction (no exception), the workflow action stays recorded, failures are logged for audit/troubleshooting, a failed notification may be retried without repeating the workflow transaction, and notification processing never creates duplicate transfer actions or workflow transitions; Gate 0 comment 18 addressed — Administrative Reassignment rules in BRD-035: only the Super Admin may reassign active workflow tasks (Reporting Manager, Receiving Manager, HR, IT) to a user with the required role and organisation/location scope; reason mandatory; new assignee becomes responsible and is notified; previous assignee keeps visibility through workflow/audit history but can no longer act unless reassigned back; no re-approval and completed approvals stay valid; request continues from the same workflow stage; every reassignment audited; no bypass of mandatory approvals, IT Final Approval, role permissions, organisation scope or security controls; the earlier BRD-027 allowance for HR to reassign is withdrawn; Gate 0 comment 17 addressed — Clarification rules in BRD-034: mandatory clarification reason/question, request moves to Information Required (temporary state), Employee or responsible user notified and responds under the same transfer reference, every request/response audited (requested by, question/reason, response, responded by, date/time), request returns to the same stage and reviewer, previous approvals and history retained, multiple cycles allowed, no restart of the approval workflow unless a separate re-approval rule applies; Gate 0 comment 16 addressed — Rejection & Resubmission rules in BRD-033: mandatory rejection reason, workflow-history and audit record (rejected by, reason, date/time), Employee notified, Rejected is final with reserved capacity released, no reopen or resubmission under the same reference, a new application is a new transfer request with a new reference, eligibility and vacancy revalidated, full workflow restarted, no approvals carried forward, rejected request kept in history; Gate 0 comment 14 addressed — Transfer Request Editing rules in BRD-032: Employee edits all fields in Draft only, no Employee edit after submission, post-submission changes by authorised HR / Super Admin with BRD-024 re-approval, no silent overwrite, full audit of each change with original values retained; document upload validation error responses confirmed in BRD-021 — HTTP 413 `FILE_SIZE_EXCEEDED`, HTTP 415 `UNSUPPORTED_FILE_TYPE` / `INVALID_FILE_TYPE`, invalid file not stored; Gate 0 comment 13 addressed — document upload and access secured at API/server level in BRD-021: PDF/image only, 5 MB per file, MIME and extension validation, file-name sanitisation, local server storage, role/organisation-scoped authenticated access, no public URLs, audit logging; Gate 0 comment 12 addressed — no external Payroll/HR integration in the current phase, Payroll manual by HR; any future integration needs an approved contract covering the eleven required elements, NFR-006 retry/idempotency/visibility rules confirmed; 2026-09-30: HR cancellation of Blocked requests answered — HR may cancel HR-blocked requests, not IT-blocked ones, Super Admin any Blocked request, BRD-027 updated; Gate 0 comment 8 addressed — Effective Transfer Date rule BRD-031: current date to 30 days ahead, no past dates for any role, weekends/holidays allowed, expired date must be updated before completion, no re-approval unless Super Admin configures it; BRD-OQ-20 resolved — Employee edits in Draft only, HR during approval, Super Admin for intervention, business time zone, inclusive fixed 30-day limit, optional re-approval to configured approver, expired date corrected by HR or Super Admin; BRD-OQ-18 resolved — HR-controlled and IT-controlled stages defined for Block/Resume, HR Cancel limited to Pending HR Review / HR Processing / Payroll Processing with other stages requiring Super Admin, Draft excluded from all four actions, cross-role Resume rules, BRD-027 updated; BRD-OQ-17 resolved — Draft not active, mandatory backend + database enforcement, HTTP 409 `ACTIVE_TRANSFER_ALREADY_EXISTS`, no cool-down after Completed, BRD-030 updated; BRD-OQ-19 resolved — portal is the operational source of employee/organisation data with per-field ownership, no HR-system synchronisation this phase, comment 7 addressed; BRD-OQ-16 resolved — employee-data source of truth, missing-data handling and HR-ineligible outcome in BRD-029, comment 7 addressed with BRD-OQ-19; Gate 0 comments 1–6, 8 and 15 addressed — BRD-025 – BRD-031, plus the withdrawal rules in BRD-027 (BRD-OQ-12 resolved) and the Block/Resume/Cancel/Reassign rules in BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4); all 22 comments addressed, awaiting Gate 0 reviewer re-review)
 
 > This baseline was rebuilt from scratch from the source SOW. A prior working
 > copy of this file (and of `assumptions.md`, `architecture.md`, `dashboard.html`,
@@ -1072,6 +1072,64 @@ alongside it.
     and invalid workflow transition attempts remain audited as security events
     (BRD-026, BRD-027).
 
+- **BRD-038** — Performance & Availability (Gate 0 comment 21, author response
+  2026-10-01). Infrastructure-specific sizing and availability targets are
+  finalised during deployment planning (NFR-009), but the following
+  **application-level performance requirements are defined and validated before
+  production deployment**.
+
+  | Item | Requirement |
+  |---|---|
+  | Expected concurrent users | To be confirmed during performance/capacity planning |
+  | Expected transaction volume | To be confirmed during performance/capacity planning |
+  | API response-time target | To be confirmed during performance testing |
+  | Page response-time target | To be confirmed during performance testing |
+  | API timeout | To be confirmed during technical/infrastructure planning |
+  | Integration timeout | Defined for each external integration before implementation; no external HR/Payroll integration is defined for the current phase |
+  | Maximum document upload size | **5 MB per file** (BRD-021) |
+  | Retry behaviour | Failed external integration requests, where applicable, support controlled retry without creating duplicate downstream transactions (NFR-006) |
+  | Database transaction expectations | Critical operations (vacancy reservation, capacity updates, workflow state changes and other related transactional operations) maintain data consistency and prevent partial or duplicate processing |
+  | Performance validation | Tested and validated in the appropriate pre-production environment before production deployment |
+
+  Final infrastructure capacity, scaling, availability, backup, monitoring and
+  deployment-specific targets remain deferred to infrastructure/deployment
+  planning as defined in NFR-009. The items marked "to be confirmed" are
+  mandatory inputs to performance/capacity planning and must be given numeric
+  values before production deployment.
+
+- **BRD-039** — Mandatory Negative Acceptance Scenarios (Gate 0 comment 22,
+  author response 2026-10-01). The following negative acceptance scenarios are
+  **mandatory for QA/UAT** and must be validated before production
+  deployment. They form part of the mandatory QA/UAT acceptance criteria, and
+  any failed mandatory scenario must be resolved before production deployment.
+
+  | Area | Mandatory negative scenario |
+  |---|---|
+  | Security | A user cannot access another organisation's data outside their assigned scope (BRD-026) |
+  | Security | An Employee cannot access another Employee's transfer request |
+  | Security | IT cannot access Employee documents outside its authorised scope (BRD-021) |
+  | Security | A user cannot bypass the mandatory first-login password change (BRD-025) |
+  | Security | A locked user cannot log in |
+  | Security | A deactivated user cannot log in |
+  | Security | An old password cannot be used after a password reset |
+  | Security | Direct API access cannot bypass backend role, organisation-scope, resource or action-level authorization (BRD-026) |
+  | Workflow | A user cannot approve a transfer request outside their assigned role/scope |
+  | Workflow | Invalid workflow transitions are rejected (BRD-027) |
+  | Workflow | A Completed transfer cannot be modified through the normal workflow |
+  | Workflow | IT Final Approval cannot be provided while a mandatory Payroll activity remains incomplete |
+  | Workflow | A transfer cannot move to Completed without mandatory IT Final Approval |
+  | Workflow | Receiving Manager approval cannot be bypassed when it is enabled/configured as a mandatory workflow step |
+  | Workflow | Changes by HR to Department/Business Unit, Designation, Location or Reporting Manager trigger the configured re-approval process where required by **BRD-024** |
+  | Vacancy | A Full vacancy cannot receive a new allocation/reservation (BRD-028) |
+  | Vacancy | Concurrent HR approvals do not cause vacancy capacity to be exceeded |
+  | Vacancy | Vacancy capacity never becomes negative |
+  | Vacancy | Rejected and Withdrawn transfer requests release their reserved vacancy/capacity according to the defined vacancy rules |
+  | Integration | An integration timeout does not create duplicate downstream transactions |
+  | Integration | Failed integrations support controlled retry where applicable |
+  | Integration | A failed integration does not incorrectly mark the associated task as Completed |
+  | Integration | An external system/integration failure does not cause the employee transfer to be incorrectly marked as Completed |
+  | Integration | Retry processing follows the duplicate-prevention/idempotency requirements defined in **NFR-006** |
+
 ### Role-Based Functional Scope
 - **BRD-010** — Super Admin can create/edit/activate/deactivate Locations;
   create/manage Departments and Designations; create Vacancies with
@@ -1298,7 +1356,10 @@ alongside it.
   system alerts, audit logging) will be finalised during
   infrastructure/deployment planning and confirmed before production
   deployment (resolved as a deferred-to-deployment-planning item, see
-  BRD-OQ-09).
+  BRD-OQ-09). Application-level performance requirements (response-time
+  targets, concurrency, volume, timeouts, 5 MB upload limit, retry, transaction
+  consistency) are defined in BRD-038 and validated before production
+  deployment (Gate 0 comment 21).
 
 ---
 
@@ -1446,6 +1507,23 @@ alongside it.
   credentials are never stored in audit logs; login failures, account
   lock/unlock, password reset, role/permission changes and administrative
   interventions are audited (Gate 0 comment 20).
+- Performance & availability (BRD-038): application-level performance
+  requirements (expected concurrent users, transaction volume, API and page
+  response-time targets, API timeout) are confirmed during performance/capacity
+  planning, performance testing and technical/infrastructure planning; the
+  integration timeout is defined for each external integration before
+  implementation (none in the current phase); the maximum document upload size
+  is 5 MB per file; failed external integration requests support controlled
+  retry without duplicate downstream transactions (NFR-006); vacancy
+  reservation, capacity updates, workflow state changes and related
+  transactional operations stay consistent and are never partially or
+  duplicate processed; performance is validated in the pre-production
+  environment before production deployment (Gate 0 comment 21).
+- Mandatory negative acceptance scenarios (BRD-039): the security, workflow,
+  vacancy and integration negative scenarios listed in BRD-039 are mandatory
+  QA/UAT acceptance criteria, validated before production deployment; any
+  failed mandatory scenario must be resolved before production deployment
+  (Gate 0 comment 22).
 - The employee can withdraw the transfer request only until HR approves it
   (from Pending Reporting Manager Approval, Pending Receiving Manager Approval,
   Info Required or Pending HR Review), with a mandatory reason. Withdrawn is
@@ -1507,7 +1585,8 @@ alongside it.
   malware-scanning or retention/archive service required per current
   policy.
 - Infrastructure/deployment planning process to confirm performance,
-  availability, backup and monitoring targets before production (BRD-OQ-09).
+  availability, backup and monitoring targets before production (BRD-OQ-09)
+  and to confirm the BRD-038 performance targets before production.
 
 ---
 
@@ -1544,7 +1623,8 @@ alongside it.
   from this BRD and will be defined in a separately approved project plan
   following discovery.
 - Production infrastructure targets (NFR-009) will be finalised during
-  infrastructure/deployment planning, not as part of this BRD (BRD-OQ-09).
+  infrastructure/deployment planning, not as part of this BRD (BRD-OQ-09); the
+  application-level performance requirements are in BRD-038.
 - Workflow transitions follow the BRD-027 matrix; withdrawal is allowed until
   HR approval with a mandatory reason and Withdrawn is final (BRD-OQ-12
   resolved); Block/Resume/Cancel/Reassign follow the BRD-027 rules (BRD-OQ-13
@@ -1602,7 +1682,7 @@ moves to Approved.
 | BRD-OQ-06 | What are the agreed concurrency/reservation rules to prevent vacancy over-allocation, and what is vacancy closure/hold behaviour for in-progress requests? | Resolved | `Available = Capacity − Allocated/Reserved`; DB transaction/concurrency control; no new allocation once Full/On Hold/Closed; existing in-flight requests unaffected. Detailed in Gate 0 comment 4 response (2026-09-30): in-flight reservations are released only by an authorised, audited business action. | BRD-017, BRD-028, Business Rules |
 | BRD-OQ-07 | What are the organisation metadata fields HR must update/assign, and what is the authoritative source system for them? | Resolved | Department/Business Unit, Designation, Location, Reporting Manager, Effective Date, payroll reference; changing a previously approved value triggers the BRD-024 re-approval rule. | BRD-020, BRD-024 |
 | BRD-OQ-08 | What are the allowed document file types, maximum size, storage location, malware-scanning requirement, retention period, and deletion policy? | Resolved | PDF and image files only; local server storage; no malware scanning, retention, archive, or deletion policy required; maximum size 5 MB per file (Gate 0 comment 13); server-side MIME/extension validation, file-name sanitisation, authenticated access only. | BRD-021 |
-| BRD-OQ-09 | What are the specific performance, availability, backup, retention and monitoring targets? | Resolved (deferred) | Deferred to infrastructure/deployment planning; confirmed before production deployment. | NFR-009 |
+| BRD-OQ-09 | What are the specific performance, availability, backup, retention and monitoring targets? | Resolved (deferred) | Deferred to infrastructure/deployment planning; confirmed before production deployment. Application-level performance requirements are defined separately in BRD-038 (Gate 0 comment 21, 2026-10-01). | NFR-009, BRD-038 |
 | BRD-OQ-10 | What is the exact reviewer sequence, HR eligibility rules, organisation hierarchy source, withdrawal rules, and escalation rules to be confirmed before build approval? | Resolved | Reviewer sequence per BRD-018; rejection requires reason; clarification returns to responsible user without losing history; withdrawal permitted pre-completion per policy and audited; escalation configurable via dashboards/notifications. | BRD-018, BRD-023, Business Rules |
 | BRD-OQ-11 | Since IT final approval now gates transfer completion, what happens for a transfer with no applicable IT task? | Resolved | IT final approval is mandatory for every transfer; if no IT work applies, IT selects "No IT Action Required," may add remarks, and still gives Final Approval. | BRD-014 |
 | BRD-OQ-12 | What is the last workflow stage at which an employee may withdraw a transfer, is a withdrawal reason mandatory, and can a withdrawn request be reopened? | Resolved | Withdrawal allowed until HR approval (Pending Reporting Manager Approval, Pending Receiving Manager Approval if applicable, Info Required, Pending HR Review); after HR approval only the separate Cancellation process applies. Reason mandatory and audited. Withdrawn is final and cannot be reopened; reapplying creates a new Transfer Request. | BRD-027, BRD-030 (Gate 0 comments 3, 15) |
@@ -1817,6 +1897,17 @@ moves to Approved.
   or other sensitive credential, and login failures, account lock/unlock,
   password reset, role/permission changes and administrative interventions are
   recorded.
+- Performance & availability (BRD-038): the application-level performance
+  requirements are tested and validated in the pre-production environment
+  before production deployment; an upload above 5 MB per file is rejected
+  (BRD-021); a retried failed integration request creates no duplicate
+  downstream transaction; a failed or interrupted vacancy reservation,
+  capacity update or workflow state change leaves no partial or duplicate
+  result.
+- Mandatory negative acceptance scenarios (BRD-039): every security,
+  workflow, vacancy and integration negative scenario in BRD-039 is executed
+  and passes in QA/UAT before production deployment, and no failed mandatory
+  scenario remains unresolved at deployment.
 - UAT scenarios cover account creation/login, credential reset, approval,
   rejection, clarification, capacity constraints, organisation-metadata
   change re-approval, reassignment, document handling, IT "No Action
@@ -1838,4 +1929,4 @@ Development / Implementation.
 
 | Gate | Reviewer Role | Reviewer | Review Date | Status | Comments |
 |---|---|---|---|---|---|
-| Gate 0 — BRD Review | Project Manager / Business Analyst | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-09-30 14:46:48 | Changes Requested | 22 comments: authentication/session, API-level authorisation, workflow state model, vacancy reservation/release, eligibility, multiple active requests, source of truth, effective date, BRD-024 retained, payroll completion gating IT Final Approval, IT Final Approval retained, integration contracts, document security, editing, withdrawal, rejection/resubmission, clarification, reassignment, notifications, audit logging, minimum performance targets, mandatory negative UAT scenarios. Full detail: `.ai-context/pr_reviews/BRD-20260930-144648.md`. BRD and assumptions.md must be updated and re-submitted for Gate 0. Author progress 2026-09-30: comments 1–6 and 15 addressed (BRD-025 – BRD-030; withdrawal rules in BRD-027 / BRD-OQ-12); Block/Resume/Cancel/Reassign rules added to BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4) and the eligibility gaps (BRD-OQ-16 resolved — HR system as source of truth, missing-data block, HR reject vs clarification; comment 7 partly covered) and the employee-data source of truth (BRD-OQ-19 resolved — portal is the operational source, per-field ownership, no HR-system synchronisation, comment 7 addressed); and the Block/Resume/Cancel/Reassign residual points (BRD-OQ-18 resolved — HR/IT controlled stages, HR Cancel limited to three HR stages, Draft excluded, cross-role Resume rules; comment 18 partly covered); comments 14, 16, 17 and 18 addressed on 2026-10-01 (BRD-032, BRD-033, BRD-034 and BRD-035); comment 19 addressed on 2026-10-01 (BRD-036); comment 20 addressed on 2026-10-01 (BRD-037); comments 21–22 outstanding. |
+| Gate 0 — BRD Review | Project Manager / Business Analyst | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-09-30 14:46:48 | Changes Requested | 22 comments: authentication/session, API-level authorisation, workflow state model, vacancy reservation/release, eligibility, multiple active requests, source of truth, effective date, BRD-024 retained, payroll completion gating IT Final Approval, IT Final Approval retained, integration contracts, document security, editing, withdrawal, rejection/resubmission, clarification, reassignment, notifications, audit logging, minimum performance targets, mandatory negative UAT scenarios. Full detail: `.ai-context/pr_reviews/BRD-20260930-144648.md`. BRD and assumptions.md must be updated and re-submitted for Gate 0. Author progress 2026-09-30: comments 1–6 and 15 addressed (BRD-025 – BRD-030; withdrawal rules in BRD-027 / BRD-OQ-12); Block/Resume/Cancel/Reassign rules added to BRD-027 (BRD-OQ-13 resolved, comment 18 partly covered), the HR/Payroll routing answer (BRD-OQ-14 resolved, comments 3 and 10 partly covered) and the vacancy edge cases (BRD-OQ-15 resolved, comment 4) and the eligibility gaps (BRD-OQ-16 resolved — HR system as source of truth, missing-data block, HR reject vs clarification; comment 7 partly covered) and the employee-data source of truth (BRD-OQ-19 resolved — portal is the operational source, per-field ownership, no HR-system synchronisation, comment 7 addressed); and the Block/Resume/Cancel/Reassign residual points (BRD-OQ-18 resolved — HR/IT controlled stages, HR Cancel limited to three HR stages, Draft excluded, cross-role Resume rules; comment 18 partly covered); comments 14, 16, 17 and 18 addressed on 2026-10-01 (BRD-032, BRD-033, BRD-034 and BRD-035); comment 19 addressed on 2026-10-01 (BRD-036); comment 20 addressed on 2026-10-01 (BRD-037); comment 21 addressed on 2026-10-01 (BRD-038); comment 22 addressed on 2026-10-01 (BRD-039). All 22 comments are addressed by the author; the BRD remains Changes Requested until the Gate 0 reviewer re-reviews and approves. |

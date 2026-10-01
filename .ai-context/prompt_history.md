@@ -244,3 +244,11 @@
 ### [2026-10-01 16:10]
 **User Request:** Provided the answer to Gate 0 comment 20 (Audit Logging: record content, Super Admin system-wide view with scoped access for others, append-only records, Super Admin-only audited export, lifetime retention with no manual deletion, no credentials in audit logs, security events audited).
 **Agent Action:** Added BRD-037 plus Business Rules and Acceptance Criteria entries to `BRD.md` (BRD-022 and NFR-005 cross-referenced), added A-25 to `assumptions.md`, recorded a comment 20 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (19 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; comments 21–22 outstanding; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 18:30]
+**User Request:** Provided the answer to Gate 0 comment 21 (Performance & Availability: application-level requirements validated before production, targets to be confirmed in capacity planning/testing, 5 MB upload limit, controlled retry, transaction consistency).
+**Agent Action:** Added BRD-038 plus NFR-009, BRD-OQ-09, Dependencies, Constraints, Business Rules and Acceptance Criteria updates to `BRD.md`, added A-26 to `assumptions.md`, recorded a comment 21 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (20 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested; comment 22 outstanding; spec drafting and Gate 1 remain blocked.
+
+### [2026-10-01 19:00]
+**User Request:** Provided the answer to Gate 0 comment 22 (Mandatory Negative Acceptance Scenarios: security, workflow, vacancy and integration negative scenarios are mandatory QA/UAT acceptance criteria validated before production deployment, with failed mandatory scenarios resolved before deployment).
+**Agent Action:** Added BRD-039 (24-scenario table across Security, Workflow, Vacancy and Integration) plus Business Rules and Acceptance Criteria entries to `BRD.md`, added A-27 to `assumptions.md`, recorded a comment 22 row in `pr_reviews/BRD-20260930-144648.md`, and synced `brd-change-log.md`, `status.md` (22 of 22 addressed) and `dashboard.html`. Gate 0 stays Changes Requested pending the reviewer's re-review; spec drafting and Gate 1 remain blocked.
