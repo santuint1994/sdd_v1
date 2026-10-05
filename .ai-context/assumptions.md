@@ -5,12 +5,10 @@ Tracks assumptions made while building `.ai-context/BRD.md` from
 sync with the BRD; updated whenever the BRD changes.
 
 **Last Updated:** 2026-10-01 (Gate 0 comment 1, 2, 3, 4, 5, 6, 8 and 14 responses incorporated; BRD-OQ-12, 13, 14 and 15 answers incorporated)
-**Status:** Changes Requested (linked to BRD Status) — Gate 0 review on
-2026-09-30 by Shamik Bhattacharya returned 22 comments
-(`.ai-context/pr_reviews/BRD-20260930-144648.md`). Comments 5 (eligibility) and 6 (multiple
-active requests) are now answered (A-16, A-17); comment 7 still requires the per-field source of truth to be
-supplied by the business, not assumed. This register must be updated with the BRD and re-submitted for
-Gate 0.
+**Status:** Approved (linked to BRD Status) — Gate 0 re-review on 2026-10-05 by
+Shamik Bhattacharya (`.ai-context/pr_reviews/BRD-20261005-171137.md`) confirmed all 22
+comments from the 2026-09-30 review, including comment 7 (per-field source of truth,
+A-18). This register is part of the approved Gate 0 baseline.
 
 | ID | Assumption | Rationale / Source | Impact if Wrong |
 |---|---|---|---|

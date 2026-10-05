@@ -498,8 +498,8 @@ button.gate-card:hover { border-color: var(--border-strong); background: var(--s
         <tr>
           <td>BRD.md — Internal Transfer Digital Journey</td>
           <td>Shamik Bhattacharya (shamik.bhattacharya@intglobal.com)</td>
-          <td><span class="badge bad">Changes Requested</span> — 22 comments; 22 of 22 addressed by author (comment 22, mandatory negative acceptance scenarios in BRD-039 — security, workflow, vacancy and integration scenarios are mandatory QA/UAT acceptance criteria validated before production, failed scenarios resolved before deployment; comment 21, performance &amp; availability in BRD-038 — application-level requirements validated before production, targets to be confirmed in capacity planning/testing, 5 MB upload limit, controlled retry without duplicate downstream transactions, consistent critical transactions, infrastructure targets still in NFR-009; comment 20, audit logging in BRD-037 — audit record content, Super Admin system-wide view with other users limited to role/organisation scope, append-only records never overwritten, Super Admin-only export that is itself audited, lifetime retention with no manual deletion, no credentials in audit logs, security events audited; comment 19, notifications in BRD-036 — twelve mandatory events with recipient/channel/message, notification failure never fails or rolls back the core transaction, failures logged, retry without repeating the workflow transaction, no duplicate actions or transitions; comment 18, administrative reassignment in BRD-035 — Super Admin only (HR can no longer reassign), mandatory reason, new assignee notified, previous assignee keeps history visibility but cannot act, no re-approval, same workflow stage, audited, no bypass of mandatory approvals or IT Final Approval; comment 17, clarification in BRD-034 — mandatory reason, Information Required as a temporary state, same transfer reference, audited requests/responses, return to the same stage/reviewer, multiple cycles, no workflow restart; comment 16, rejection &amp; resubmission in BRD-033 — mandatory reason, audited, Employee notified, Rejected final with capacity released, no same-reference resubmission, new application is a new request with new ID and restarted workflow; comment 14, transfer request editing in BRD-032 — Employee edits in Draft only, post-submission changes by authorised HR/Super Admin with BRD-024 re-approval, no silent overwrite, full audit; comment 13, document upload/access secured at API/server level, PDF/image only, 5 MB, MIME/extension validation, authenticated scoped access, no public URLs, HTTP 413/415 upload validation errors; comment 12, no external Payroll/HR integration this phase, future integrations need an approved contract before implementation, NFR-006 retry/idempotency rules; comment 11, IT Final Approval mandatory final gate for every transfer; comment 10, Payroll completion manual by HR, no API/callback, blocks IT Final Approval; comment 9, BRD-024 confirmed — re-approval mandatory, no HR bypass; comment 1, BRD-025; comment 2, BRD-026; comment 3, BRD-027; comment 4, BRD-028; comment 5, BRD-029; comment 6, BRD-030; comment 8, BRD-031 Effective Transfer Date; comment 15, BRD-027 withdrawal rules), 0 outstanding, awaiting reviewer re-review; BRD-OQ-20 resolved (Employee edits date in Draft only, HR during approval, Super Admin for intervention; business time zone; inclusive fixed 30-day limit; optional re-approval to configured approver; expired date corrected by HR or Super Admin); BRD-OQ-12 and BRD-OQ-13 resolved (Block/Resume/Cancel/Reassign rules in BRD-027; comment 18 addressed in BRD-035), BRD-OQ-14 resolved (HR Processing → Payroll Processing sequential, manual Payroll completion, 403 INVALID_WORKFLOW_TRANSITION), BRD-OQ-15 resolved (resume revalidation, reservations never auto-released, HR/Super Admin manual release, Available = Open with capacity &gt; 0), BRD-OQ-16 resolved (missing mandatory data blocks submission, HR rejects ineligible employee with reason or requests clarification for correctable data), BRD-OQ-19 resolved (portal is the operational employee-data source with per-field ownership, no HR-system synchronisation this phase; comment 7 addressed), open questions BRD-OQ-17 resolved (Draft not active, mandatory backend + database enforcement, HTTP 409 ACTIVE_TRANSFER_ALREADY_EXISTS, no cool-down); BRD-OQ-18 resolved (HR-controlled stages Pending HR Review / HR Processing / Payroll Processing and IT-controlled stages Pending IT Action / Pending IT Final Approval, HR Cancel limited to the three HR stages, Draft excluded, no cross-role Resume; comment 18 addressed; HR may cancel a Blocked request blocked in an HR-controlled stage, not an IT-blocked one, Super Admin any Blocked request); see <code>pr_reviews/BRD-20260930-144648.md</code></td>
-          <td>2026-09-30</td>
+          <td><span class="badge ok">Approved</span> — Gate 0 re-review (bulk approve): all 22 comments from the 2026-09-30 review (Changes Requested) confirmed by the reviewer; all 13 criteria passed; BRD-OQ-12 … BRD-OQ-20 resolved; spec drafting and Gate 1 unblocked; see <code>pr_reviews/BRD-20261005-171137.md</code> (previous review: <code>pr_reviews/BRD-20260930-144648.md</code>)</td>
+          <td>2026-10-05</td>
         </tr>
       </tbody>
     </table>
@@ -550,9 +550,9 @@ const DATA = {
       roles: ['Gate 0 Reviewer (PM / BA)', 'Gate 1 Reviewer (PM / Product Owner)'] }
   ],
 
-  // Gate 0 — BRD review (.ai-context/pr_reviews/BRD-20260930-144648.md)
+  // Gate 0 — BRD review (.ai-context/pr_reviews/BRD-20261005-171137.md; previous: BRD-20260930-144648.md)
   gate0: {
-    status: 'changes', reviewer: 'shamik', date: '2026-09-30', record: 'pr_reviews/BRD-20260930-144648.md',
+    status: 'approved', reviewer: 'shamik', date: '2026-10-05', record: 'pr_reviews/BRD-20261005-171137.md',
     comments: [
       { n: 1,  title: 'Authentication & Session Management', status: 'addressed', resp: '2026-09-30', inc: ['BRD-006','BRD-007','BRD-025','NFR-001','NFR-003','BRD-OQ-02','A-01','A-02','A-12'],
         summary: '5 failed attempts → 30-minute lock; 30-minute idle timeout; temporary password valid until first login; hashes only; MFA/SSO out of scope this phase.' },
@@ -603,17 +603,17 @@ const DATA = {
     // Gate 0 review criteria and the comments attached to each
     criteria: [
       { n: 1,  name: 'Business Requirements Clarity',      passed: true,  comments: [] },
-      { n: 2,  name: 'Functional Requirements',            passed: false, comments: [3,4,5,6,7,8,14,15,16,17,18,19] },
-      { n: 3,  name: 'Non-Functional Requirements',        passed: false, comments: [1,2,20,21] },
-      { n: 4,  name: 'Business Rules',                     passed: false, comments: [4,5,6,8,10,15,16] },
-      { n: 5,  name: 'Workflows',                          passed: false, comments: [3,9,14,15,16,17] },
-      { n: 6,  name: 'User Roles & Permissions',           passed: false, comments: [2,18] },
-      { n: 7,  name: 'Assumptions',                        passed: false, comments: [5,7] },
-      { n: 8,  name: 'Dependencies',                       passed: false, comments: [12] },
+      { n: 2,  name: 'Functional Requirements',            passed: true,  comments: [3,4,5,6,7,8,14,15,16,17,18,19] },
+      { n: 3,  name: 'Non-Functional Requirements',        passed: true,  comments: [1,2,20,21] },
+      { n: 4,  name: 'Business Rules',                     passed: true,  comments: [4,5,6,8,10,15,16] },
+      { n: 5,  name: 'Workflows',                          passed: true,  comments: [3,9,14,15,16,17] },
+      { n: 6,  name: 'User Roles & Permissions',           passed: true,  comments: [2,18] },
+      { n: 7,  name: 'Assumptions',                        passed: true,  comments: [5,7] },
+      { n: 8,  name: 'Dependencies',                       passed: true,  comments: [12] },
       { n: 9,  name: 'Constraints & Out of Scope',         passed: true,  comments: [] },
-      { n: 10, name: 'Open Questions Resolved / Documented', passed: false, comments: [21] },
+      { n: 10, name: 'Open Questions Resolved / Documented', passed: true,  comments: [21] },
       { n: 11, name: 'Stakeholder Requirements Captured',  passed: true,  comments: [] },
-      { n: 12, name: 'Consistency',                        passed: false, comments: [10,11] }
+      { n: 12, name: 'Consistency',                         passed: true,  comments: [10,11] }
     ]
   },
 
@@ -753,7 +753,7 @@ function derive() {
   const byStatus = s => cm.filter(c => c.status === s).length;
   const addressed = byStatus('addressed'), partial = byStatus('partial'), openC = byStatus('open');
   const outstanding = cm.length - addressed;
-  const awaitingConfirm = addressed;        // every addressed response awaits reviewer confirmation (per review record)
+  const awaitingConfirm = g0.status === 'approved' ? 0 : addressed;  // addressed responses await reviewer confirmation until Gate 0 is approved
   const g0ok = g0.status === 'approved';
 
   const reqs = DATA.requirements;
@@ -1182,7 +1182,7 @@ const DRAWERS = {
       <div><h3>Summary</h3><p>${esc(c.summary)}</p></div>
       ${c.flag ? `<div class="verdict">${ic('alert', 'lg')}<div>${esc(c.flag)}</div></div>` : ''}
       <div><h3>Details</h3>${kv([['Reviewer', esc(person(DATA.gate0.reviewer).name)], ['Review date', esc(DATA.gate0.date)], ['Author response', c.resp ? esc(c.resp) : 'Not yet submitted'],
-        ['Reviewer confirmation', c.status === 'addressed' ? 'Awaiting ' + tip('confirmation') : '—'], ['Criteria', related.length ? esc(related.join(' · ')) : '—']])}</div>
+        ['Reviewer confirmation', c.status === 'addressed' ? (D.g0ok ? 'Confirmed (' + esc(DATA.gate0.date) + ')' : 'Awaiting ' + tip('confirmation')) : '—'], ['Criteria', related.length ? esc(related.join(' · ')) : '—']])}</div>
       <div><h3>Incorporated in</h3>${idChips(c.inc, typeOfId)}</div>
       <div><h3>Record</h3><p class="muted">Full comment text and responses: <code>${esc(DATA.gate0.record)}</code></p></div>` };
   },
