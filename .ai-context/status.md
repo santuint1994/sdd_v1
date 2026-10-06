@@ -19,7 +19,7 @@ Gate 1 can begin.
 | Gate | Artifact | Reviewer Role | Status | Reviewer | Review Date |
 |---|---|---|---|---|---|
 | Gate 0 | `BRD.md` | Project Manager / Business Analyst | Approved | Shamik Bhattacharya | 2026-10-05 |
-| Gate 1 | Specs | Project Manager / Product Owner | Ready — no specs drafted yet | — | — |
+| Gate 1 | Specs | Project Manager / Product Owner | 16 specs drafted — awaiting submission | — | — |
 | Gate 2 | Code | Technical Lead / Architect | Not started | — | — |
 - [x] BRD ingested (`docs/` → `/int-brd-ingestion`)
 
@@ -45,7 +45,8 @@ requirement (BRD-024) not in the source SOW. Formal Gate 0 BRD PR Review
 comments) was completed on 2026-10-05; spec generation and Gate 1 may begin.
 
 ## Specs
-No specs created yet — Gate 0 approved 2026-10-05; spec drafting can start.
+16 consolidated specs drafted 2026-10-07 from the Gate 0-approved BRD (Spec Author: Santu Pradhan). All are **Draft** — not yet submitted for Gate 1 (reviewer: Shamik Bhattacharya). Files in `.ai-context/specs/`: SPEC-001 `project-foundation-architecture`, 002 `identity-access-security`, 003 `admin-portal-master-data`, 004 `user-provisioning-administration`, 005 `vacancy-capacity-reservation`, 006 `transfer-initiation-eligibility`, 007 `transfer-workflow-approval-lifecycle`, 008 `hr-review-processing-reapproval`, 009 `payroll-it-completion`, 010 `transfer-exception-controls`, 011 `secure-document-management`, 012 `notification-framework`, 013 `audit-compliance-security-events`, 014 `dashboards-worklists-reporting`, 015 `data-ownership-integration-nfr-hardening`, 016 `qa-uat-traceability`.
+Supporting: `spec-set-overview.md`, `spec-traceability-matrix.md` (47/47 BRD/NFR IDs mapped; 15 gaps logged, must-fix ones resolved), `spec-reconciliation-notes.md`. 252 Technical Design Decisions await Gate 1 (top 10 in overview Part N). Plans, tasks and tests remain blocked until Gate 1 approval.
 
 ## Releases
 No releases yet.

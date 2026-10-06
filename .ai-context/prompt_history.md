@@ -256,3 +256,23 @@
 ### [2026-10-05 17:11]
 **User Request:** Ran `/int-pr-gate-workflow` as the authorized Gate 0 / Gate 1 reviewer (Shamik Bhattacharya, email verified against the roster) and chose the bulk action "Approve All Pending Items".
 **Agent Action:** Approved the Gate 0 BRD re-review (the only pending item; no Gate 1 or Gate 2 items). Created `pr_reviews/BRD-20261005-171137.md` (Approved, all 22 comments confirmed, all 13 criteria passed); added a superseded note to `pr_reviews/BRD-20260930-144648.md`; set `BRD.md` and `assumptions.md` Status to Approved; updated `status.md` (Gate 0 Approved, Gate 1 ready) and `dashboard.html` (Gate 0 record row, `gate0` status/date/record, criteria passed, reviewer confirmation shown as confirmed).
+
+### [2026-10-07 12:00]
+**User Request:** Generate an optimized, consolidated, dependency-ordered set of implementation specifications covering the entire Gate 0-approved BRD.
+**Agent Action:** Drafted 16 consolidated specs (`.ai-context/specs/*.spec.md`, ~508 tasks, 252 Technical Design Decisions) plus `spec-set-overview.md`, `spec-traceability-matrix.md` and `spec-reconciliation-notes.md`; reconciled cross-spec interfaces; updated `status.md` and `dashboard.html` (specs registry, status Draft). No spec submitted to Gate 1; no code, plan or test written.
+
+### [2026-10-07 13:00]
+**User Request:** Confirm TDD-012.04 — in-memory temporary password handoff with no plaintext storage (decision text supplied).
+**Agent Action:** Recorded the decision as Option B on the merged decision TDD-012.04 = TDD-001.04 = TDD-004.07 in SPEC-012, SPEC-001, SPEC-004 and `spec-reconciliation-notes.md`; marked the encrypted-store design (FR-012.31) as not selected. Formal Gate 1 record still pending.
+
+### [2026-10-07 14:00]
+**User Request:** Decide TDD-004.11 / TDD-015.03 — the system automatically updates the employee profile from final approved transfer values when the transfer reaches Completed (decision text supplied).
+**Agent Action:** Recorded the decision in SPEC-004, SPEC-015 and `spec-reconciliation-notes.md`; added FR-009.56a to SPEC-009 (profile update inside the completion transaction, audited, rollback on failure). Formal Gate 1 record still pending.
+
+### [2026-10-07 14:30]
+**User Request:** Confirm TDD-002.03 — JWT with session_id and token_version, no refresh token (decision text supplied).
+**Agent Action:** Recorded the decision on TDD-002.03 and FR-002.30 in SPEC-002 and in `spec-reconciliation-notes.md`. Formal Gate 1 record still pending.
+
+### [2026-10-07 15:00]
+**User Request:** Confirm the SPEC-016 integration negative-test approach (contract-level harness accepted for the current phase; decision text supplied).
+**Agent Action:** Recorded Option A as decided on TDD-016.01, TDD-015.01 and TDD-016.12; flagged a follow-up to add explicit business-failure and invalid-response cases to SPEC-016. Formal Gate 1 record pending.

@@ -686,7 +686,24 @@ const DATA = {
     ['BRD-OQ-19','Employee data source of truth','resolved'],['BRD-OQ-20','Effective transfer date residuals','resolved']
   ].map(([id, title, status]) => ({ id, title, status })),
 
-  specs: [],          // { id, title, status, gate1, developer, reqs:[] }
+  specs: [
+    { id: 'SPEC-001', title: 'Project Foundation, Architecture & Database Foundation', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-002', title: 'Identity, Authentication, Account Security & Authorization', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-003', title: 'Administration Portal, Master Data & Organisation Structure', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-004', title: 'User Provisioning, Role Assignment & User Administration', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-005', title: 'Vacancy Management, Capacity & Reservation Engine', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-006', title: 'Employee Transfer Initiation, Eligibility & Submission', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-007', title: 'Transfer Workflow Engine & Approval Lifecycle', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-008', title: 'HR Review, Organisation Processing & Receiving Manager Re-Approval', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-009', title: 'Payroll, IT Processing & Final Transfer Completion', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-010', title: 'Transfer Exception & Administrative Control Workflows', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-011', title: 'Secure Document Management', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-012', title: 'Notification & Communication Framework', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-013', title: 'Audit, Compliance & Security Event Management', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-014', title: 'Dashboards, Worklists, Reporting & Operational Visibility', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-015', title: 'Source of Truth, Integration Boundary, NFR & Security Hardening', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] },
+    { id: 'SPEC-016', title: 'End-to-End QA, UAT, Negative Testing & BRD Traceability', status: 'draft', gate1: 'pending', developer: 'Santu Pradhan', reqs: [] }
+  ],  // { id, title, status, gate1, developer, reqs:[] }
   tests: [],          // { id, title, req, status: passed|failed|blocked|notrun }
   tasks: []
 };
