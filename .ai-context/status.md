@@ -49,7 +49,7 @@ comments) was completed on 2026-10-05; spec generation and Gate 1 may begin.
 
 | Spec | Slug | Gate 1 Status | Review Date | Record |
 |---|---|---|---|---|
-| SPEC-001 | project-foundation-architecture | Changes Requested | 2026-10-28 | `SPEC-001-project-foundation-architecture-20261028-143345.md` |
+| SPEC-001 | project-foundation-architecture | Changes Requested (spec updated 2026-10-30, awaiting Gate 1 re-review) | 2026-10-28 | `SPEC-001-project-foundation-architecture-20261028-143345.md` |
 | SPEC-002 | identity-access-security | Changes Requested | 2026-10-27 | `SPEC-002-identity-access-security-20261027-162007.md` |
 | SPEC-003 | admin-portal-master-data | Changes Requested | 2026-10-07 | `SPEC-003-admin-portal-master-data-20261007-151037.md` |
 | SPEC-004 | user-provisioning-administration | Changes Requested | 2026-10-29 | `SPEC-004-user-provisioning-administration-20261029-175302.md` |

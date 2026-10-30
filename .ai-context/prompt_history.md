@@ -280,3 +280,7 @@
 ### [2026-10-29 19:30]
 **User Request:** Ran `/int-pr-gate-workflow` after the Gate 1 spec peer reviews had been given without the workflow, and asked to update the dashboard and status per the PR gate workflow rules.
 **Agent Action:** Git email (santu.pradhan@intglobal.com) matched only the Gate 2 roster entry, so no approval or rejection was made. Synchronised the existing Gate 1 records by Shamik Bhattacharya (15 Changes Requested, SPEC-016 Approved) into `dashboard.html` (Gate 1 and Active Specs tables, `DATA.specs`), `status.md` (Gate 1 row and per-spec table), and the Status and Gate Approvals sections of all 16 spec files. Removed the `GATE1-REVIEW-IN-PROGRESS.md` tracker. Planning, tasks, tests and code stay blocked for the 15 specs.
+
+### [2026-10-30 10:00]
+**User Request:** Fix the Gate 1 feedback on SPEC-001.
+**Agent Action:** Updated `specs/project-foundation-architecture.spec.md` for all three comments: aligned outbox idempotency to event-level `event_key` (FR-001.53, `NotificationPayload.eventKey`, E-001.14, TASK-001.18, AC07, TC-001.11; recipient/channel dedupe left to SPEC-012 deliveries), removed `secret_id`/`notification_secrets` and recorded Option B as decided (§10.3, SEC-001.09, TDD-001.04), and made deletion deny-by-default (FR-001.31, FR-001.35, TASK-001.14, SEC-001.08, TC-001.33). Filled the Author Response column in the Gate 1 record, and refreshed `status.md` and `dashboard.html` wording. Gate 1 stays Changes Requested pending reviewer re-review; SPEC-004/SPEC-012 still need matching `secret_id` cleanup.
