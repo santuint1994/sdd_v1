@@ -4,14 +4,14 @@
 qa-uat-traceability
 
 ## Status
-Draft — not yet submitted for Gate 1
+Approved at Gate 1 (2026-10-28) — reviewer Shamik Bhattacharya; see `.ai-context/pr_reviews/SPEC-016-qa-uat-traceability-20261028-144719.md`
 
 ## Gate Approvals & History
 
 | Gate | Reviewer | Date | Status | Record file |
 |---|---|---|---|---|
-| Gate 1 (Spec Peer Review) | _pending assignment per roster_ | — | Not submitted | — |
-| Gate 2 (Code Review) | _pending assignment per roster_ | — | Not started | — |
+| Gate 1 (Spec Peer Review) | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-10-28 | Approved | `.ai-context/pr_reviews/SPEC-016-qa-uat-traceability-20261028-144719.md` |
+| Gate 2 (Code Review) | — | — | Not started | — |
 
 ## Intent & Business Goals
 

@@ -276,3 +276,7 @@
 ### [2026-10-07 15:00]
 **User Request:** Confirm the SPEC-016 integration negative-test approach (contract-level harness accepted for the current phase; decision text supplied).
 **Agent Action:** Recorded Option A as decided on TDD-016.01, TDD-015.01 and TDD-016.12; flagged a follow-up to add explicit business-failure and invalid-response cases to SPEC-016. Formal Gate 1 record pending.
+
+### [2026-10-29 19:30]
+**User Request:** Ran `/int-pr-gate-workflow` after the Gate 1 spec peer reviews had been given without the workflow, and asked to update the dashboard and status per the PR gate workflow rules.
+**Agent Action:** Git email (santu.pradhan@intglobal.com) matched only the Gate 2 roster entry, so no approval or rejection was made. Synchronised the existing Gate 1 records by Shamik Bhattacharya (15 Changes Requested, SPEC-016 Approved) into `dashboard.html` (Gate 1 and Active Specs tables, `DATA.specs`), `status.md` (Gate 1 row and per-spec table), and the Status and Gate Approvals sections of all 16 spec files. Removed the `GATE1-REVIEW-IN-PROGRESS.md` tracker. Planning, tasks, tests and code stay blocked for the 15 specs.

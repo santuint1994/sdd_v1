@@ -19,7 +19,7 @@ Gate 1 can begin.
 | Gate | Artifact | Reviewer Role | Status | Reviewer | Review Date |
 |---|---|---|---|---|---|
 | Gate 0 | `BRD.md` | Project Manager / Business Analyst | Approved | Shamik Bhattacharya | 2026-10-05 |
-| Gate 1 | Specs | Project Manager / Product Owner | 16 specs drafted — awaiting submission | — | — |
+| Gate 1 | Specs | Project Manager / Product Owner | In review — 1 Approved, 15 Changes Requested | Shamik Bhattacharya | 2026-10-07 → 2026-10-29 |
 | Gate 2 | Code | Technical Lead / Architect | Not started | — | — |
 - [x] BRD ingested (`docs/` → `/int-brd-ingestion`)
 
@@ -45,8 +45,28 @@ requirement (BRD-024) not in the source SOW. Formal Gate 0 BRD PR Review
 comments) was completed on 2026-10-05; spec generation and Gate 1 may begin.
 
 ## Specs
-16 consolidated specs drafted 2026-10-07 from the Gate 0-approved BRD (Spec Author: Santu Pradhan). All are **Draft** — not yet submitted for Gate 1 (reviewer: Shamik Bhattacharya). Files in `.ai-context/specs/`: SPEC-001 `project-foundation-architecture`, 002 `identity-access-security`, 003 `admin-portal-master-data`, 004 `user-provisioning-administration`, 005 `vacancy-capacity-reservation`, 006 `transfer-initiation-eligibility`, 007 `transfer-workflow-approval-lifecycle`, 008 `hr-review-processing-reapproval`, 009 `payroll-it-completion`, 010 `transfer-exception-controls`, 011 `secure-document-management`, 012 `notification-framework`, 013 `audit-compliance-security-events`, 014 `dashboards-worklists-reporting`, 015 `data-ownership-integration-nfr-hardening`, 016 `qa-uat-traceability`.
-Supporting: `spec-set-overview.md`, `spec-traceability-matrix.md` (47/47 BRD/NFR IDs mapped; 15 gaps logged, must-fix ones resolved), `spec-reconciliation-notes.md`. 252 Technical Design Decisions await Gate 1 (top 10 in overview Part N). Plans, tasks and tests remain blocked until Gate 1 approval.
+16 consolidated specs drafted 2026-10-07 from the Gate 0-approved BRD (Spec Author: Santu Pradhan). Gate 1 reviewer: Shamik Bhattacharya (shamik.bhattacharya@intglobal.com, roster-verified in each record). **Gate 1 outcome so far: 1 Approved, 15 Changes Requested.** Records in `.ai-context/pr_reviews/`.
+
+| Spec | Slug | Gate 1 Status | Review Date | Record |
+|---|---|---|---|---|
+| SPEC-001 | project-foundation-architecture | Changes Requested | 2026-10-28 | `SPEC-001-project-foundation-architecture-20261028-143345.md` |
+| SPEC-002 | identity-access-security | Changes Requested | 2026-10-27 | `SPEC-002-identity-access-security-20261027-162007.md` |
+| SPEC-003 | admin-portal-master-data | Changes Requested | 2026-10-07 | `SPEC-003-admin-portal-master-data-20261007-151037.md` |
+| SPEC-004 | user-provisioning-administration | Changes Requested | 2026-10-29 | `SPEC-004-user-provisioning-administration-20261029-175302.md` |
+| SPEC-005 | vacancy-capacity-reservation | Changes Requested | 2026-10-29 | `SPEC-005-vacancy-capacity-reservation-20261029-175816.md` |
+| SPEC-006 | transfer-initiation-eligibility | Changes Requested | 2026-10-28 | `SPEC-006-transfer-initiation-eligibility-20261028-174721.md` |
+| SPEC-007 | transfer-workflow-approval-lifecycle | Changes Requested | 2026-10-29 | `SPEC-007-transfer-workflow-approval-lifecycle-20261029-164221.md` |
+| SPEC-008 | hr-review-processing-reapproval | Changes Requested (Not Ready for Approval) | 2026-10-13 | `SPEC-008-hr-review-processing-reapproval-20261013-173451.md` |
+| SPEC-009 | payroll-it-completion | Changes Requested (round 2 on 2026-10-29) | 2026-10-29 | `SPEC-009-payroll-it-completion-20261027-164407.md` |
+| SPEC-010 | transfer-exception-controls | Changes Requested | 2026-10-28 | `SPEC-010-transfer-exception-controls-20261028-153226.md` |
+| SPEC-011 | secure-document-management | Changes Requested | 2026-10-28 | `SPEC-011-secure-document-management-20261028-145216.md` |
+| SPEC-012 | notification-framework | Changes Requested | 2026-10-27 | `SPEC-012-notification-framework-20261027-163348.md` |
+| SPEC-013 | audit-compliance-security-events | Changes Requested | 2026-10-07 | `SPEC-013-audit-compliance-security-events-20261007-151808.md` |
+| SPEC-014 | dashboards-worklists-reporting | Changes Requested | 2026-10-07 | `SPEC-014-dashboards-worklists-reporting-20261007-164840.md` |
+| SPEC-015 | data-ownership-integration-nfr-hardening | Changes Requested | 2026-10-27 | `SPEC-015-data-ownership-integration-nfr-hardening-20261027-125458.md` |
+| SPEC-016 | qa-uat-traceability | **Approved** | 2026-10-28 | `SPEC-016-qa-uat-traceability-20261028-144719.md` |
+
+**Enforcement:** the 15 Changes Requested specs must be updated by the spec author and re-submitted for Gate 1. Planning (`.plan.md`), tasks, test cases, TDD and `src/` work are blocked for them. SPEC-016 is Gate 1 Approved and may proceed to plan, tasks and test cases (note its dependencies on the other specs' pending decisions). 252 Technical Design Decisions await freezing. Supporting: `spec-set-overview.md`, `spec-traceability-matrix.md`, `spec-reconciliation-notes.md`.
 
 ## Releases
 No releases yet.

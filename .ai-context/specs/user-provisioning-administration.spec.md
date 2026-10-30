@@ -4,13 +4,14 @@
 user-provisioning-administration
 
 ## Status
-Draft — not yet submitted for Gate 1
+Changes Requested at Gate 1 (2026-10-29) — reviewer Shamik Bhattacharya; see `.ai-context/pr_reviews/SPEC-004-user-provisioning-administration-20261029-175302.md`. Spec must be updated and re-submitted for Gate 1; plan, tasks, tests and code remain blocked
 
 ## Gate Approvals & History
 
 | Gate | Reviewer | Date | Status | Record file |
 |---|---|---|---|---|
-| | | | | |
+| Gate 1 (Spec Peer Review) | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-10-29 | Changes Requested | `.ai-context/pr_reviews/SPEC-004-user-provisioning-administration-20261029-175302.md` |
+| Gate 2 (Code Review) | — | — | Not started | — |
 
 ## Intent & Business Goals
 Give the Super Admin one controlled, auditable way to bring people into the Internal Transfer portal and keep them correctly mapped afterwards. In a single database transaction the portal creates the login account and the organisational (employee) profile, generates a role-prefixed unique User ID and a strong temporary password, validates duplicates and required organisation mappings against the SPEC-003 masters, shows the credentials once to the authorised administrator, and queues delivery to the user's official company email `[BRD-004, BRD-005, BRD-009, BRD-OQ-02, BRD-OQ-03]`.

@@ -4,14 +4,14 @@
 data-ownership-integration-nfr-hardening
 
 ## Status
-Draft — not yet submitted for Gate 1
+Changes Requested at Gate 1 (2026-10-27) — reviewer Shamik Bhattacharya; see `.ai-context/pr_reviews/SPEC-015-data-ownership-integration-nfr-hardening-20261027-125458.md`. Spec must be updated and re-submitted for Gate 1; plan, tasks, tests and code remain blocked
 
 ## Gate Approvals & History
 
 | Gate | Reviewer | Date | Status | Record file |
 |---|---|---|---|---|
-| Gate 1 (Spec Peer Review) | _pending assignment per roster_ | — | Not submitted | — |
-| Gate 2 (Code Review) | _pending assignment per roster_ | — | Not started | — |
+| Gate 1 (Spec Peer Review) | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-10-27 | Changes Requested | `.ai-context/pr_reviews/SPEC-015-data-ownership-integration-nfr-hardening-20261027-125458.md` |
+| Gate 2 (Code Review) | — | — | Not started | — |
 
 ## Intent & Business Goals
 

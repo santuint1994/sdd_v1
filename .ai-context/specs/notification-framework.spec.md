@@ -4,14 +4,14 @@
 notification-framework
 
 ## Status
-Draft — not yet submitted for Gate 1
+Changes Requested at Gate 1 (2026-10-27) — reviewer Shamik Bhattacharya; see `.ai-context/pr_reviews/SPEC-012-notification-framework-20261027-163348.md`. Spec must be updated and re-submitted for Gate 1; plan, tasks, tests and code remain blocked
 
 ## Gate Approvals & History
 
 | Gate | Reviewer | Date | Status | Record file |
 |---|---|---|---|---|
-| Gate 1 (Spec Peer Review) | _(not yet assigned / not yet reviewed)_ | — | Not Submitted | _(none)_ |
-| Gate 2 (Code Review) | _(not yet assigned / not yet reviewed)_ | — | Not Started | _(none)_ |
+| Gate 1 (Spec Peer Review) | Shamik Bhattacharya (shamik.bhattacharya@intglobal.com) | 2026-10-27 | Changes Requested | `.ai-context/pr_reviews/SPEC-012-notification-framework-20261027-163348.md` |
+| Gate 2 (Code Review) | — | — | Not started | — |
 
 ## Intent & Business Goals
 
